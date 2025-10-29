@@ -51,7 +51,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
     }
 
     final userJson = jsonDecode(userString);
-    final userId = userJson['id'];
+    final userId = userJson['idCliente'];
 
     return _petsService.listarPets(userId);
   }
@@ -199,29 +199,29 @@ class _CatalogoPageState extends State<CatalogoPage> {
                     return const Center(child: CircularProgressIndicator());
                   } else if (snapshot.hasError) {
                     // return Center(child: Text('Erro: ${snapshot.error}'));
-                    // return ListView.builder(
-                    //   padding: const EdgeInsets.only(bottom: 60),
-                    //   itemCount: 1,
-                    //   itemBuilder: (context, index) {
-                    //     return Ficha(
-                    //       tipo: FichaTipo.pet,
-                    //       nome: "rex",
-                    //       infoPrincipal: "2 anos",
-                    //       infoSecundaria: "Tal",
-                    //       imagemAsset: imagemPorEspecie("gato"),
-                    //       onMenuSelected: (value) {
-                    //         print('Clicou em $value para o pet ${pet.nome}');
-                    //         if (value == 'editar') {
-                    //           _abrirModalEditarPet("pet");
-                    //         } else if (value == 'excluir') {
-                    //           _excluirPet(pet);
-                    //         } else if (value == 'agendar') {
-                    //           // ação futura
-                    //         }
-                    //       },
-                    //     );
-                    //   },
-                    // );
+                    return ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 60),
+                      itemCount: 1,
+                      itemBuilder: (context, index) {
+                        return Ficha(
+                          tipo: FichaTipo.pet,
+                          nome: "rex",
+                          infoPrincipal: "2 anos",
+                          infoSecundaria: "Tal",
+                          imagemAsset: imagemPorEspecie("coelho"),
+                          // onMenuSelected: (value) {
+                          //   print('Clicou em $value para o pet ${pet.nome}');
+                          //   if (value == 'editar') {
+                          //     _abrirModalEditarPet("pet");
+                          //   } else if (value == 'excluir') {
+                          //     _excluirPet(pet);
+                          //   } else if (value == 'agendar') {
+                          //     // ação futura
+                          //   }
+                          // },
+                        );
+                      },
+                    );
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(child: Text('Nenhum pet encontrado.'));
                   }

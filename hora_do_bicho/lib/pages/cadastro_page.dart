@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hora_do_bicho/components/botoes.dart';
+import 'package:hora_do_bicho/pages/catalogo_page.dart';
 import 'package:hora_do_bicho/pages/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hora_do_bicho/services/user_service.dart';
@@ -14,12 +15,12 @@ class CadastroPage extends StatefulWidget {
 
 class _CadastroPageState extends State<CadastroPage> {
   final Map<String, TextEditingController> _controllers = {
-    'nome': TextEditingController(),
-    'cpf': TextEditingController(),
-    'email': TextEditingController(),
-    'telefone': TextEditingController(),
-    'senha': TextEditingController(),
-    'confirmarSenha': TextEditingController(),
+    'nomeCliente': TextEditingController(),
+    'cpfCliente': TextEditingController(),
+    'emailCliente': TextEditingController(),
+    'telefoneCliente': TextEditingController(),
+    'senhaCliente': TextEditingController(),
+    'confirmarSenhaCliente': TextEditingController(),
   };
 
   Permissao _permissaoUser = Permissao.COMUM;
@@ -37,15 +38,15 @@ class _CadastroPageState extends State<CadastroPage> {
       return;
     }
 
-    if (_variaveis['senha'] != _variaveis['confirmarSenha']) {
+    if (_variaveis['senhaCliente'] != _variaveis['confirmarSenhaCliente']) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('As senhas não coincidem.')),
       );
       return;
     }
 
-    _variaveis['permissao'] = _permissaoUser.name; 
-    _variaveis.remove('confirmarSenha');
+    _variaveis['permissaoCliente'] = _permissaoUser.name; 
+    _variaveis.remove('confirmarSenhaCliente');
 
     final userService = UserService();
 
@@ -56,10 +57,10 @@ class _CadastroPageState extends State<CadastroPage> {
       prefs.setBool('isLoggedIn', true);
       prefs.setString('user', result.toJson().toString());
 
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => HomePage()),
-      // );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => CatalogoPage()),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Falha ao cadastrar usuário')),
@@ -101,17 +102,17 @@ class _CadastroPageState extends State<CadastroPage> {
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 20),
-                  _buildTextField('Usuário', 'nome', Icons.person),
+                  _buildTextField('Usuário', 'nomeCliente', Icons.person),
                   SizedBox(height: 15),
-                  _buildTextField('CPF', 'cpf', Icons.insert_emoticon_rounded),
+                  _buildTextField('CPF', 'cpfCliente', Icons.insert_emoticon_rounded),
                   SizedBox(height: 15),
-                  _buildTextField('E-mail', 'email', Icons.email),
+                  _buildTextField('E-mail', 'emailCliente', Icons.email),
                   SizedBox(height: 15),
-                  _buildTextField('Telefone', 'telefone', Icons.phone),
+                  _buildTextField('Telefone', 'telefoneCliente', Icons.phone),
                   SizedBox(height: 15),
-                  _buildTextField('Senha', 'senha', Icons.lock, obscureText: true),
+                  _buildTextField('Senha', 'senhaCliente', Icons.lock, obscureText: true),
                   SizedBox(height: 15),
-                  _buildTextField('Confirmar Senha', 'confirmarSenha', Icons.lock_reset_rounded, obscureText: true),
+                  _buildTextField('Confirmar Senha', 'confirmarSenhaCliente', Icons.lock_reset_rounded, obscureText: true),
                   SizedBox(height: 20),
                   ElevatedButtonComponent(
                     onPressed: _cadastrar,

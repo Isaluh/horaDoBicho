@@ -1,47 +1,47 @@
 class User {
-  final int id;
-  final String nome;
-  final String email;
-  final String? senha;
-  final int telefone;
-  final String? endereco; 
-  final String cpf;
-  final Permissao permissao; 
+  final int idCliente;
+  final String nomeCliente;
+  final String emailCliente;
+  final String? senhaCliente;
+  final String cpfCliente;
+  final String telefoneCliente; 
+  final String? enderecoCliente;
+  final Permissao permissaoCliente; 
 
   User({
-    required this.id,
-    required this.nome,
-    required this.email,
-    this.senha,
-    required this.cpf,
-    required this.telefone,
-    this.endereco,
-    required this.permissao,
+    required this.idCliente,
+    required this.nomeCliente,
+    required this.emailCliente,
+    this.senhaCliente,
+    required this.cpfCliente,
+    required this.telefoneCliente,
+    this.enderecoCliente,
+    required this.permissaoCliente,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'],
-      nome: json['nome'],
-      email: json['email'],
-      senha: json['senha'],
-      cpf: json['cpf'],
-      telefone: json['telefone'],
-      endereco: json['endereco'],
-      permissao: PermissaoExtension.fromString(json['permissao']),
+      idCliente: json['idCliente'],
+      nomeCliente: json['nomeCliente'],
+      emailCliente: json['emailCliente'],
+      senhaCliente: json['senhaCliente'],
+      cpfCliente: json['cpfCliente'],
+      telefoneCliente: json['telefoneCliente'],
+      enderecoCliente: json['enderecoCliente'],
+      permissaoCliente: PermissaoExtension.fromString(json['permissaoCliente']),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'nome': nome,
-      'email': email,
-      'senha': senha,
-      'cpf': cpf,
-      'telefone': telefone,
-      'endereco': endereco,
-      'permissao': permissao.name,
+      'idCliente': idCliente,
+      'nomeCliente': nomeCliente,
+      'emailCliente': emailCliente,
+      'senhaCliente': senhaCliente,
+      'cpfCliente': cpfCliente,
+      'telefoneCliente': telefoneCliente,
+      'enderecoCliente': enderecoCliente,
+      'permissaoCliente': permissaoCliente.name,
     };
   }
 }

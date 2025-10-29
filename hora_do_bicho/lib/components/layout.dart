@@ -91,7 +91,7 @@ class _LayoutPageState extends State<LayoutPage> {
         child: Icon(
           iconList[index],
           size: 30,
-          color: _selectedIndex == index ? Color(0xFFFCA73B) : Colors.white,
+          color: _selectedIndex == index ? Color(0xFF6B3E26) : Color.fromARGB(255, 226, 124, 0),
         ),
       ),
     );
@@ -146,8 +146,8 @@ class _LayoutPageState extends State<LayoutPage> {
         height: 55,
         index: _selectedIndex,
         backgroundColor: Colors.transparent,
-        color: Color(0xFF6B3E26),
-        buttonBackgroundColor: Color(0xFF6B3E26),
+        color: Color(0xFFFCA73B),
+        buttonBackgroundColor: Color(0xFFFCA73B),
         animationDuration: const Duration(milliseconds: 300),
         items: items,
         onTap: _onItemTapped,

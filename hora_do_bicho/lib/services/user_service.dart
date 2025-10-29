@@ -21,6 +21,8 @@ class UserService {
   }
 
   Future<User?> cadastrar(Map<String, dynamic> dados) async {
+    print("Dados enviados: $dados");
+    print(jsonEncode(dados));
     final response = await http.post(
       Uri.parse('$baseUrl/clientes'),
       headers: {'Content-Type': 'application/json'},
@@ -38,7 +40,7 @@ class UserService {
 
   Future<User?> atualizarUsuario(User user) async {
     final response = await http.put(
-      Uri.parse('$baseUrl/usuario/${user.id}'),
+      Uri.parse('$baseUrl/usuario/${user.idCliente}'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(user.toJson()),
     );
