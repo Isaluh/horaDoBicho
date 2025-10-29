@@ -20,7 +20,6 @@ class _CadastroPageState extends State<CadastroPage> {
     'telefone': TextEditingController(),
     'senha': TextEditingController(),
     'confirmarSenha': TextEditingController(),
-    'endereco': TextEditingController(),
   };
 
   Permissao _permissaoUser = Permissao.COMUM;

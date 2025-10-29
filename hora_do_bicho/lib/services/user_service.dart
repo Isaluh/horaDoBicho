@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/user.dart';
 
 class UserService {
-  final String baseUrl = 'https://seu-backend.com/api';
+  final String baseUrl = 'http://localhost:8080';
 
   Future<User?> login(String email, String senha) async {
     final response = await http.post(
@@ -22,7 +22,7 @@ class UserService {
 
   Future<User?> cadastrar(Map<String, dynamic> dados) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/cadastro'),
+      Uri.parse('$baseUrl/clientes'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(dados),
     );

@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/pet.dart';
 
 class PetsService {
-  final String baseUrl = 'https://seu-backend.com/api';
+  final String baseUrl = 'http://localhost:8080/';
 
   Future<List<Pet>> listarPets(int userId) async {
     final response = await http.get(Uri.parse('$baseUrl/pets?userId=$userId'));
