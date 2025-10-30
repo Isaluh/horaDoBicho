@@ -1,7 +1,9 @@
 package com.bambooByte.horaDoBicho.services;
 
-import com.bambooByte.horaDoBicho.entities.cliente;
+import com.bambooByte.horaDoBicho.entities.Cliente;
 import com.bambooByte.horaDoBicho.repositories.ClienteRepository;
+import com.bambooByte.horaDoBicho.validacoes.GatewayValidacao;
+import com.bambooByte.horaDoBicho.validacoes.StatusValidacao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,23 +16,35 @@ public class ClienteService {
     @Autowired
     private ClienteRepository clienteRepository;
 
-    public cliente create(cliente cliente) {
+    @Autowired
+    private GatewayValidacao gatewayValidacao;
+
+    public Cliente create(Cliente cliente) {
+        // Comentando as validações para permitir o funcionamento sem validações
+        // List<StatusValidacao> erros = gatewayValidacao.validarCliente(cliente);
+        // if (!erros.isEmpty()) {
+        //     throw new IllegalArgumentException("Erro de validação: " + erros);
+        // }
         return clienteRepository.save(cliente);
     }
 
-    public Optional<cliente> find(Long id) {
+    public Optional<Cliente> find(Long id) {
         return clienteRepository.findById(id);
     }
 
-    public List<cliente> findAll() {
+    public List<Cliente> findAll() {
         return clienteRepository.findAll();
     }
 
-    public cliente update(cliente cliente) {
+    public Cliente update(Cliente cliente) {
         return clienteRepository.save(cliente);
     }
 
     public void delete(Long id) {
         clienteRepository.deleteById(id);
+    }
+
+    public Optional<Cliente> findByEmail(String emailCliente) {
+        return clienteRepository.findByEmailCliente(emailCliente);
     }
 }

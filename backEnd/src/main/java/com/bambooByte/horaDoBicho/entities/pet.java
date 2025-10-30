@@ -3,7 +3,7 @@ package com.bambooByte.horaDoBicho.entities;
 import jakarta.persistence.*;
 
 @Entity
-public class pet {
+public class Pet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPet;
@@ -16,10 +16,10 @@ public class pet {
     @Column(nullable = false)
     private String especiePet;
 
-    public pet() {
+    public Pet() {
     }
 
-    public pet(Long idPet, String nomePet, String idadePet, String racaPet, String especiePet) {
+    public Pet(Long idPet, String nomePet, String idadePet, String racaPet, String especiePet) {
         this.idPet = idPet;
         this.nomePet = nomePet;
         this.idadePet = idadePet;

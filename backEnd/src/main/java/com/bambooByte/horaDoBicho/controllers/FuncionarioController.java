@@ -1,6 +1,6 @@
 package com.bambooByte.horaDoBicho.controllers;
 
-import com.bambooByte.horaDoBicho.entities.funcionario;
+import com.bambooByte.horaDoBicho.entities.Funcionario;
 import com.bambooByte.horaDoBicho.services.FuncionarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,22 +17,22 @@ public class FuncionarioController {
     private FuncionarioService funcionarioService;
 
     @PostMapping
-    public ResponseEntity<funcionario> create(@RequestBody funcionario funcionario) {
+    public ResponseEntity<Funcionario> create(@RequestBody Funcionario funcionario) {
         return ResponseEntity.ok(funcionarioService.create(funcionario));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<funcionario>> find(@PathVariable Long id) {
+    public ResponseEntity<Optional<Funcionario>> find(@PathVariable Long id) {
         return ResponseEntity.ok(funcionarioService.find(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<funcionario>> findAll() {
+    public ResponseEntity<List<Funcionario>> findAll() {
         return ResponseEntity.ok(funcionarioService.findAll());
     }
 
     @PutMapping
-    public ResponseEntity<funcionario> update(@RequestBody funcionario funcionario) {
+    public ResponseEntity<Funcionario> update(@RequestBody Funcionario funcionario) {
         return ResponseEntity.ok(funcionarioService.update(funcionario));
     }
 

@@ -3,7 +3,7 @@ package com.bambooByte.horaDoBicho.entities;
 import jakarta.persistence.*;
 
 @Entity
-public class servico {
+public class Servico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idServico;
@@ -14,10 +14,10 @@ public class servico {
     @Column(nullable = false)
     private Double precoServico;
 
-    public servico() {
+    public Servico() {
     }
 
-    public servico(Long idServico, String nomeServico, String descricaoServico, Double precoServico) {
+    public Servico(Long idServico, String nomeServico, String descricaoServico, Double precoServico) {
         this.idServico = idServico;
         this.nomeServico = nomeServico;
         this.descricaoServico = descricaoServico;

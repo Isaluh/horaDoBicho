@@ -1,6 +1,6 @@
 package com.bambooByte.horaDoBicho.services;
 
-import com.bambooByte.horaDoBicho.entities.servico;
+import com.bambooByte.horaDoBicho.entities.Servico;
 import com.bambooByte.horaDoBicho.repositories.ServicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,19 +14,19 @@ public class ServicoService {
     @Autowired
     private ServicoRepository servicoRepository;
 
-    public servico create(servico servico) {
+    public Servico create(Servico servico) {
         return servicoRepository.save(servico);
     }
 
-    public Optional<servico> find(Long id) {
+    public Optional<Servico> find(Long id) {
         return servicoRepository.findById(id);
     }
 
-    public List<servico> findAll() {
+    public List<Servico> findAll() {
         return servicoRepository.findAll();
     }
 
-    public servico update(servico servico) {
+    public Servico update(Servico servico) {
         return servicoRepository.save(servico);
     }
 

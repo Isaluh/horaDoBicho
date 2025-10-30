@@ -1,6 +1,6 @@
 package com.bambooByte.horaDoBicho.controllers;
 
-import com.bambooByte.horaDoBicho.entities.agendamento;
+import com.bambooByte.horaDoBicho.entities.Agendamento;
 import com.bambooByte.horaDoBicho.services.AgendamentoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,22 +17,22 @@ public class AgendamentoController {
     private AgendamentoService agendamentoService;
 
     @PostMapping
-    public ResponseEntity<agendamento> create(@RequestBody agendamento agendamento) {
+    public ResponseEntity<Agendamento> create(@RequestBody Agendamento agendamento) {
         return ResponseEntity.ok(agendamentoService.create(agendamento));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<agendamento>> find(@PathVariable Long id) {
+    public ResponseEntity<Optional<Agendamento>> find(@PathVariable Long id) {
         return ResponseEntity.ok(agendamentoService.find(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<agendamento>> findAll() {
+    public ResponseEntity<List<Agendamento>> findAll() {
         return ResponseEntity.ok(agendamentoService.findAll());
     }
 
     @PutMapping
-    public ResponseEntity<agendamento> update(@RequestBody agendamento agendamento) {
+    public ResponseEntity<Agendamento> update(@RequestBody Agendamento agendamento) {
         return ResponseEntity.ok(agendamentoService.update(agendamento));
     }
 

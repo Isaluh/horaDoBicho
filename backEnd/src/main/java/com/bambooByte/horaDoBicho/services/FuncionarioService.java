@@ -1,6 +1,6 @@
 package com.bambooByte.horaDoBicho.services;
 
-import com.bambooByte.horaDoBicho.entities.funcionario;
+import com.bambooByte.horaDoBicho.entities.Funcionario;
 import com.bambooByte.horaDoBicho.repositories.FuncionarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,19 +14,19 @@ public class FuncionarioService {
     @Autowired
     private FuncionarioRepository funcionarioRepository;
 
-    public funcionario create(funcionario funcionario) {
+    public Funcionario create(Funcionario funcionario) {
         return funcionarioRepository.save(funcionario);
     }
 
-    public Optional<funcionario> find(Long id) {
+    public Optional<Funcionario> find(Long id) {
         return funcionarioRepository.findById(id);
     }
 
-    public List<funcionario> findAll() {
+    public List<Funcionario> findAll() {
         return funcionarioRepository.findAll();
     }
 
-    public funcionario update(funcionario funcionario) {
+    public Funcionario update(Funcionario funcionario) {
         return funcionarioRepository.save(funcionario);
     }
 

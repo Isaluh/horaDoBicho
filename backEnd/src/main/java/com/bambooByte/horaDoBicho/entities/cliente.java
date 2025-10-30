@@ -2,8 +2,10 @@ package com.bambooByte.horaDoBicho.entities;
 
 import jakarta.persistence.*;
 
+import com.bambooByte.horaDoBicho.enums.Permissao;
+
 @Entity
-public class cliente {
+public class Cliente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idCliente;
@@ -15,20 +17,28 @@ public class cliente {
     private String telefoneCliente;
     @Column(nullable = false, unique = true)
     private String emailCliente;
+    @Column(nullable = false, unique = true)
+    private String enderecoCliente;
     @Column(nullable = false)
     private String senhaCliente;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Permissao permissaoCliente;
 
-    public cliente() {
+    public Cliente() {
     }
 
-    public cliente(Long idCliente, String nomeCliente, String cpfCliente, String telefoneCliente, String emailCliente,
-            String senhaCliente) {
+    public Cliente(Long idCliente, String nomeCliente, String cpfCliente, String telefoneCliente, String emailCliente,
+            String enderecoCliente, String senhaCliente, Permissao permissaoCliente) {
+
         this.idCliente = idCliente;
         this.nomeCliente = nomeCliente;
         this.cpfCliente = cpfCliente;
         this.telefoneCliente = telefoneCliente;
         this.emailCliente = emailCliente;
+        this.enderecoCliente = enderecoCliente;
         this.senhaCliente = senhaCliente;
+        this.permissaoCliente = permissaoCliente;
     }
 
     public Long getIdCliente() {
@@ -71,6 +81,14 @@ public class cliente {
         this.emailCliente = emailCliente;
     }
 
+    public String getEnderecoCliente() {
+        return enderecoCliente;
+    }
+
+    public void setEnderecoCliente(String enderecoCliente) {
+        this.enderecoCliente = enderecoCliente;
+    }
+
     public String getSenhaCliente() {
         return senhaCliente;
     }
@@ -79,4 +97,11 @@ public class cliente {
         this.senhaCliente = senhaCliente;
     }
 
+    public Permissao getPermissaoCliente() {
+        return permissaoCliente;
+    }
+
+    public void setPermissaoCliente(Permissao permissaoCliente) {
+        this.permissaoCliente = permissaoCliente;
+    }
 }

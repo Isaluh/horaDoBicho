@@ -6,36 +6,36 @@ import java.util.List;
 import jakarta.persistence.*;
 
 @Entity
-public class agendamento {
+public class Agendamento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAgendamento;
     @ManyToOne
     @JoinColumn(name = "idCliente", nullable = false)
-    private cliente idCliente;
+    private Cliente idCliente;
     @ManyToOne
     @JoinColumn(name = "idPet", nullable = false)
-    private pet idPet;
+    private Pet idPet;
     @ManyToOne
     @JoinColumn(name = "idFuncionario", nullable = false)
-    private funcionario idFuncionario;
+    private Funcionario idFuncionario;
     @ManyToMany
     @JoinTable(
         name = "agendamento_servico",
         joinColumns = @JoinColumn(name = "idAgendamento"),
         inverseJoinColumns = @JoinColumn(name = "idServico")
     )
-    private List<servico> idServico;
+    private List<Servico> idServico;
     @Column(nullable = false)
     private LocalDateTime dataHoraAgendamento;
     @Column(nullable = false)
     private String observacaoAgendamento;
 
-    public agendamento() {
+    public Agendamento() {
     }
 
-    public agendamento(Long idAgendamento, cliente idCliente, pet idPet, funcionario idFuncionario,
-            List<servico> idServico, LocalDateTime dataHoraAgendamento, String observacaoAgendamento) {
+    public Agendamento(Long idAgendamento, Cliente idCliente, Pet idPet, Funcionario idFuncionario,
+            List<Servico> idServico, LocalDateTime dataHoraAgendamento, String observacaoAgendamento) {
         this.idAgendamento = idAgendamento;
         this.idCliente = idCliente;
         this.idPet = idPet;
@@ -53,35 +53,35 @@ public class agendamento {
         this.idAgendamento = idAgendamento;
     }
 
-    public cliente getIdCliente() {
+    public Cliente getIdCliente() {
         return idCliente;
     }
 
-    public void setIdCliente(cliente idCliente) {
+    public void setIdCliente(Cliente idCliente) {
         this.idCliente = idCliente;
     }
 
-    public pet getIdPet() {
+    public Pet getIdPet() {
         return idPet;
     }
 
-    public void setIdPet(pet idPet) {
+    public void setIdPet(Pet idPet) {
         this.idPet = idPet;
     }
 
-    public funcionario getIdFuncionario() {
+    public Funcionario getIdFuncionario() {
         return idFuncionario;
     }
 
-    public void setIdFuncionario(funcionario idFuncionario) {
+    public void setIdFuncionario(Funcionario idFuncionario) {
         this.idFuncionario = idFuncionario;
     }
 
-    public List<servico> getIdServico() {
+    public List<Servico> getIdServico() {
         return idServico;
     }
 
-    public void setIdServico(List<servico> idServico) {
+    public void setIdServico(List<Servico> idServico) {
         this.idServico = idServico;
     }
 

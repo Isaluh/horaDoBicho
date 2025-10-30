@@ -1,6 +1,6 @@
 package com.bambooByte.horaDoBicho.services;
 
-import com.bambooByte.horaDoBicho.entities.pet;
+import com.bambooByte.horaDoBicho.entities.Pet;
 import com.bambooByte.horaDoBicho.repositories.PetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,19 +14,19 @@ public class PetService {
     @Autowired
     private PetRepository petRepository;
 
-    public pet create(pet pet) {
+    public Pet create(Pet pet) {
         return petRepository.save(pet);
     }
 
-    public Optional<pet> find(Long id) {
+    public Optional<Pet> find(Long id) {
         return petRepository.findById(id);
     }
 
-    public List<pet> findAll() {
+    public List<Pet> findAll() {
         return petRepository.findAll();
     }
 
-    public pet update(pet pet) {
+    public Pet update(Pet pet) {
         return petRepository.save(pet);
     }
 
