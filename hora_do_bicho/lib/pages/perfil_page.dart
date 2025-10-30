@@ -302,7 +302,7 @@ class _PerfilPageState extends State<PerfilPage> {
                       ),
                       const SizedBox(height: 20),
 
-                      ...fields.map(buildField).toList(),
+                      ...fields.map(buildField),
 
                       const SizedBox(height: 10),
 

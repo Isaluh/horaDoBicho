@@ -31,6 +31,11 @@ public class PetController {
         return ResponseEntity.ok(petService.findAll());
     }
 
+    @GetMapping("/idCliente")
+    public List<Pet> getPetsByIdCliente(@RequestParam Long idCliente) {
+        return petService.findByIdCliente(idCliente);
+    }
+
     @PutMapping
     public ResponseEntity<Pet> update(@RequestBody Pet pet) {
         return ResponseEntity.ok(petService.update(pet));

@@ -26,34 +26,34 @@ class _CadastroPageState extends State<CadastroPage> {
     'confirmarSenhaCliente': TextEditingController(),
   };
 
-  Permissao _permissaoUser = Permissao.COMUM;
+  final Permissao _permissaoUser = Permissao.COMUM;
 
   void _cadastrar() async {
-    final Map<String, String> _variaveis = {
+    final Map<String, String> variaveis = {
       for (var entry in _controllers.entries) entry.key: entry.value.text,
     };
 
 
-    if (_variaveis.values.any((valor) => valor.trim().isEmpty)) {
+    if (variaveis.values.any((valor) => valor.trim().isEmpty)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Há campos em branco.')),
       );
       return;
     }
 
-    if (_variaveis['senhaCliente'] != _variaveis['confirmarSenhaCliente']) {
+    if (variaveis['senhaCliente'] != variaveis['confirmarSenhaCliente']) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('As senhas não coincidem.')),
       );
       return;
     }
 
-    _variaveis['permissaoCliente'] = _permissaoUser.name; 
-    _variaveis.remove('confirmarSenhaCliente');
+    variaveis['permissaoCliente'] = _permissaoUser.name; 
+    variaveis.remove('confirmarSenhaCliente');
 
     final userService = UserService();
 
-    final result = await userService.cadastrar(_variaveis);
+    final result = await userService.cadastrar(variaveis);
 
     if (result != null) {
       final prefs = await SharedPreferences.getInstance();
@@ -147,7 +147,7 @@ class _CadastroPageState extends State<CadastroPage> {
   }
 
  Widget _buildTextField(String label, String key, IconData icon, {bool obscureText = false}) {
-    return Container(
+    return SizedBox(
       width: MediaQuery.of(context).size.width * 0.8,
       child: TextField(
         controller: _controllers[key],

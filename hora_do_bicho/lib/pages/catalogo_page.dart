@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:hora_do_bicho/components/layout.dart';
 import 'package:hora_do_bicho/components/modal.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hora_do_bicho/components/ficha.dart';

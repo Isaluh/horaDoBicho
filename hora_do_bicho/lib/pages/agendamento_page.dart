@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hora_do_bicho/components/layout.dart';
 
 class AgendamentoPage extends StatelessWidget {
   const AgendamentoPage({super.key});

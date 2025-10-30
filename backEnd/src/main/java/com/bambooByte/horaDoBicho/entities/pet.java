@@ -15,16 +15,19 @@ public class Pet {
     private String racaPet;
     @Column(nullable = false)
     private String especiePet;
+    @Column(nullable = false)
+    private Long idCliente; 
 
     public Pet() {
     }
 
-    public Pet(Long idPet, String nomePet, String idadePet, String racaPet, String especiePet) {
+    public Pet(Long idPet, String nomePet, String idadePet, String racaPet, String especiePet, Long idCliente) {
         this.idPet = idPet;
         this.nomePet = nomePet;
         this.idadePet = idadePet;
         this.racaPet = racaPet;
         this.especiePet = especiePet;
+        this.idCliente = idCliente;
     }
 
     public Long getIdPet() {
@@ -65,5 +68,13 @@ public class Pet {
 
     public void setEspeciePet(String especiePet) {
         this.especiePet = especiePet;
+    }
+
+    public Long getIdCliente() {
+        return idCliente;
+    }
+
+    public void setIdCliente(Long idCliente) {
+        this.idCliente = idCliente;
     }
 }
