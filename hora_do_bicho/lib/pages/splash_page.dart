@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hora_do_bicho/components/layout.dart';
+import 'package:hora_do_bicho/pages/catalogo_page.dart';
 import 'package:hora_do_bicho/pages/on_boarding_page.dart'; 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -44,10 +46,10 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
     print(isLoggedIn);
 
     if (isLoggedIn) {
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => HomePage()), 
-      // );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LayoutPage(body: CatalogoPage(),)), 
+      );
     } else {
       Navigator.pushReplacement(
         context,

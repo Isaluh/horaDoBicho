@@ -17,7 +17,7 @@ public class Cliente {
     private String telefoneCliente;
     @Column(nullable = false, unique = true)
     private String emailCliente;
-    @Column(nullable = false, unique = true)
+    @Column(nullable = true)
     private String enderecoCliente;
     @Column(nullable = false)
     private String senhaCliente;

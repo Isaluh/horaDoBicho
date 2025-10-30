@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:hora_do_bicho/components/botoes.dart';
+import 'package:hora_do_bicho/components/layout.dart';
 import 'package:hora_do_bicho/pages/cadastro_page.dart';
 import 'package:hora_do_bicho/pages/catalogo_page.dart';
 import 'package:hora_do_bicho/services/user_service.dart';
@@ -16,14 +17,14 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final Map<String, TextEditingController> _controllers = {
-    'usuario': TextEditingController(),
-    'senha': TextEditingController(),
+    'emailCliente': TextEditingController(),
+    'senhaCliente': TextEditingController(),
   };
   final UserService _userService = UserService();
 
   void _login() async {
-    final username = _controllers['usuario']!.text;
-    final password = _controllers['senha']!.text;
+    final username = _controllers['emailCliente']!.text;
+    final password = _controllers['senhaCliente']!.text;
 
     if (username.trim().isEmpty || password.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -34,33 +35,28 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-  //   try {
-  //     final user = await _userService.login(username, password);
+    try {
+      final user = await _userService.login(username, password);
 
-  //     if (user != null) {
-  //       final prefs = await SharedPreferences.getInstance();
-  //       prefs.setBool('isLoggedIn', true);
-        // prefs.setString('user', jsonEncode(user.toJson()));
+      if (user != null) {
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setBool('isLoggedIn', true);
+        prefs.setString('user', jsonEncode(user.toJson()));
 
-  //       // Navigator.pushReplacement(
-  //       //   context,
-  //       //   MaterialPageRoute(builder: (context) => HomePage()),
-  //       // );
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('Falha ao realizar login')),
-  //       );
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(
-  //       context,
-  //     ).showSnackBar(SnackBar(content: Text('Erro: ${e.toString()}')));
-  //   }
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => CatalogoPage()),
-    );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LayoutPage(body: CatalogoPage(),)),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Falha ao realizar login')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro: ${e.toString()}')));
+    }
   }
 
   void _goToCadastroPage() {
@@ -107,9 +103,9 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
               const SizedBox(height: 20),
-              _buildTextField('Usuário', 'usuario', Icons.person),
+              _buildTextField('Usuário', 'emailCliente', Icons.person),
               const SizedBox(height: 15),
-              _buildTextField('Senha', 'senha', Icons.lock, obscureText: true),
+              _buildTextField('Senha', 'senhaCliente', Icons.lock, obscureText: true),
               SizedBox(height: 20),
 
               ElevatedButtonComponent(

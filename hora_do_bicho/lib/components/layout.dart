@@ -20,61 +20,59 @@ class _LayoutPageState extends State<LayoutPage> {
   int _selectedIndex = 0;
   late bool isAdmin;
   late List<Widget> _pages;
+  late Widget _currentBody;
 
   @override
   void initState() {
     super.initState();
+    _currentBody = widget.body;
     _loadUserPermissions();
   }
 
-  _loadUserPermissions() async {
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    // String? userJson = prefs.getString('user');
+  Future<void> _loadUserPermissions() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? userJson = prefs.getString('user');
 
-    // if (userJson != null) {
-    //   Map<String, dynamic> userMap = jsonDecode(userJson);
-    //   User user = User.fromJson(userMap);
+    if (userJson != null) {
+      Map<String, dynamic> userMap = jsonDecode(userJson);
+      User user = User.fromJson(userMap);
 
-    //   print(user.nome);
-    //   print(user.permissao);
+      setState(() {
+        isAdmin = user.permissaoCliente == Permissao.ADMIN;
 
-    //   setState(() {
-    //     isAdmin = user.permissao == Permissao.ADMIN;
-
-    //     _pages = isAdmin
-    //         ? [
-    //             CatalogoPage(),
-    //             CatalogoPage(),
-    //             AgendamentoPage(),
-    //             PerfilPage()
-    //           ]
-    //         : [
-    //             CatalogoPage(),
-    //             AgendamentoPage(),
-    //             PerfilPage()
-    //           ];
-    //   });
-    // }
-
-    setState(() {
-      isAdmin = false;
-
-      _pages = isAdmin
-          ? [CatalogoPage(), CatalogoPage(), AgendamentoPage(), PerfilPage()]
-          : [CatalogoPage(), AgendamentoPage(), PerfilPage()];
-    });
+        _pages = isAdmin
+            ? [
+                CatalogoPage(),
+                CatalogoPage(),
+                AgendamentoPage(),
+                PerfilPage()
+              ]
+            : [
+                CatalogoPage(),
+                AgendamentoPage(),
+                PerfilPage()
+              ];
+      });
+    }
   }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      if (_pages.isNotEmpty) {
+        _currentBody = _pages[_selectedIndex];
+      }
     });
   }
 
-  void _logout() {
-    Navigator.pushReplacement(
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),
+      (route) => false, 
     );
   }
 
@@ -138,7 +136,7 @@ class _LayoutPageState extends State<LayoutPage> {
             ),
           ),
 
-          widget.body,
+          _currentBody,
         ],
       ),
       extendBody: true,

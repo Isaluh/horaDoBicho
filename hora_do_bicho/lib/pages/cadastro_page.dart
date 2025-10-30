@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:hora_do_bicho/components/botoes.dart';
+import 'package:hora_do_bicho/components/layout.dart';
 import 'package:hora_do_bicho/pages/catalogo_page.dart';
 import 'package:hora_do_bicho/pages/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,11 +58,11 @@ class _CadastroPageState extends State<CadastroPage> {
     if (result != null) {
       final prefs = await SharedPreferences.getInstance();
       prefs.setBool('isLoggedIn', true);
-      prefs.setString('user', result.toJson().toString());
+      prefs.setString('user', jsonEncode(result.toJson()));
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => CatalogoPage()),
+        MaterialPageRoute(builder: (context) => LayoutPage(body: CatalogoPage(),)),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

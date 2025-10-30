@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/pet.dart';
 
 class PetsService {
-  final String baseUrl = 'http://localhost:8080/';
+  final String baseUrl = 'http://localhost:8080/pets';
 
   Future<List<Pet>> listarPets(int userId) async {
     final response = await http.get(Uri.parse('$baseUrl/pets?userId=$userId'));
@@ -18,7 +18,7 @@ class PetsService {
 
   Future<Pet?> criarPet(Map<String, dynamic> dados) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/pets'),
+      Uri.parse(baseUrl),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(dados),
     );
@@ -33,7 +33,7 @@ class PetsService {
 
   Future<Pet?> atualizarPet(Pet pet) async {
     final response = await http.put(
-      Uri.parse('$baseUrl/pets/${pet.id}'),
+      Uri.parse(baseUrl),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(pet.toJson()),
     );
@@ -46,7 +46,7 @@ class PetsService {
   }
 
   Future<Pet?> getPet(int id) async {
-    final response = await http.get(Uri.parse('$baseUrl/pets/$id'));
+    final response = await http.get(Uri.parse('$baseUrl/$id'));
 
     if (response.statusCode == 200) {
       return Pet.fromJson(jsonDecode(response.body));
@@ -56,7 +56,7 @@ class PetsService {
   }
 
   Future<void> deletarPet(int id) async {
-    final response = await http.delete(Uri.parse('$baseUrl/pets/$id'));
+    final response = await http.delete(Uri.parse('$baseUrl/$id'));
 
     if (response.statusCode != 204) {
       throw Exception('Falha ao deletar pet');

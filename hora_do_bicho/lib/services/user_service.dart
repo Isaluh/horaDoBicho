@@ -4,13 +4,13 @@ import 'package:http/http.dart' as http;
 import '../models/user.dart';
 
 class UserService {
-  final String baseUrl = 'http://localhost:8080';
+  final String baseUrl = 'http://localhost:8080/clientes';
 
   Future<User?> login(String email, String senha) async {
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'senha': senha}),
+      body: jsonEncode({'emailCliente': email, 'senhaCliente': senha}),
     );
 
     if (response.statusCode == 200) {
@@ -21,17 +21,14 @@ class UserService {
   }
 
   Future<User?> cadastrar(Map<String, dynamic> dados) async {
-    print("Dados enviados: $dados");
-    print(jsonEncode(dados));
     final response = await http.post(
-      Uri.parse('$baseUrl/clientes'),
+      Uri.parse(baseUrl),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(dados),
     );
 
     if (response.statusCode == 201 || response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      return User.fromJson(data);
+      return User.fromJson(jsonDecode(response.body));
     } else {
       print('Erro no cadastro: ${response.body}');
       throw Exception('Falha ao cadastrar usuário (${response.statusCode})');

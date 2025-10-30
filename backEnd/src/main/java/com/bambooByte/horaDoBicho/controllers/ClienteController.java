@@ -19,7 +19,6 @@ public class ClienteController {
 
     @PostMapping
     public ResponseEntity<Cliente> create(@RequestBody Cliente cliente) {
-        System.out.println(cliente);
         return ResponseEntity.ok(clienteService.create(cliente));
     }
 
