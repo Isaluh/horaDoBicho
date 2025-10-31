@@ -1,12 +1,13 @@
 package com.bambooByte.horaDoBicho.services;
 
-import com.bambooByte.horaDoBicho.entities.Pet;
-import com.bambooByte.horaDoBicho.repositories.PetRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.bambooByte.horaDoBicho.entities.Pet;
+import com.bambooByte.horaDoBicho.repositories.PetRepository;
 
 @Service
 public class PetService {
@@ -35,6 +36,6 @@ public class PetService {
     }
 
     public List<Pet> findByIdCliente(Long idCliente) {
-        return petRepository.findByIdCliente(idCliente);
-    }
+    return petRepository.findByClienteId(idCliente); 
+}
 }
