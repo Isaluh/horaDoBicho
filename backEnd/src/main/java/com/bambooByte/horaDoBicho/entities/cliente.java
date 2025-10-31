@@ -3,6 +3,7 @@ package com.bambooByte.horaDoBicho.entities;
 import jakarta.persistence.*;
 
 import com.bambooByte.horaDoBicho.enums.Permissao;
+import java.util.List;
 
 @Entity
 public class Cliente {
@@ -24,6 +25,8 @@ public class Cliente {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Permissao permissaoCliente;
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    private List<Pet> pets;
 
     public Cliente() {
     }
@@ -103,5 +106,13 @@ public class Cliente {
 
     public void setPermissaoCliente(Permissao permissaoCliente) {
         this.permissaoCliente = permissaoCliente;
+    }
+
+    public List<Pet> getPets() {
+        return pets;
+    }
+
+    public void setPets(List<Pet> pets) {
+        this.pets = pets;
     }
 }

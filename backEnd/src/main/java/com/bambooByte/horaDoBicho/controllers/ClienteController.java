@@ -32,9 +32,24 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.findAll());
     }
 
-    @PutMapping
-    public ResponseEntity<Cliente> update(@RequestBody Cliente cliente) {
-        return ResponseEntity.ok(clienteService.update(cliente));
+    @PutMapping("/{id}")
+    public ResponseEntity<?> uptade(@PathVariable Long id, @RequestBody Cliente novoCliente) {
+        return clienteService.find(id)
+                .map(clienteExistente -> {
+                    clienteExistente.setNomeCliente(novoCliente.getNomeCliente());
+                    clienteExistente.setEmailCliente(novoCliente.getEmailCliente());
+                    clienteExistente.setTelefoneCliente(novoCliente.getTelefoneCliente());
+                    clienteExistente.setEnderecoCliente(novoCliente.getEnderecoCliente());
+                    clienteExistente.setPermissaoCliente(novoCliente.getPermissaoCliente());
+
+                    if (novoCliente.getSenhaCliente() != null && !novoCliente.getSenhaCliente().isEmpty()) {
+                        clienteExistente.setSenhaCliente(novoCliente.getSenhaCliente());
+                    }
+
+                    clienteService.update(clienteExistente);
+                    return ResponseEntity.ok(clienteExistente);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
@@ -61,4 +76,5 @@ public class ClienteController {
             return ResponseEntity.status(404).body("Usuário não encontrado.");
         }
     }
+
 }
