@@ -25,7 +25,7 @@ public class Cliente {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Permissao permissaoCliente;
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "idCliente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pet> pets;
 
     public Cliente() {

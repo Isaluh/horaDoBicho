@@ -71,9 +71,10 @@ class _CatalogoPageState extends State<CatalogoPage> {
             'racaPet': pet.racaPet,
           },
           onSave: (data) async {
-            data['idPet'] = pet.idPet;
+            data['idPet'] = pet.idPet.toString();
             print(data);
             Pet updatePet = Pet.fromJson(data);
+            print(updatePet);
             await _petsService.atualizarPet(updatePet);
             setState(() {
               futurePets = _carregarPets();
@@ -215,7 +216,9 @@ class _CatalogoPageState extends State<CatalogoPage> {
                   _carregarPets();
                   return Center(child: Text('Erro: ${snapshot.error}'));
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('Nenhum pet encontrado.'));
+                  return const Center(
+                    child: Text('Nenhum pet catalogado ainda.'),
+                  );
                 }
 
                 final pets = snapshot.data!;

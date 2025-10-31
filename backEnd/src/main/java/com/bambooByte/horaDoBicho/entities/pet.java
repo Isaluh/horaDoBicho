@@ -15,13 +15,14 @@ public class Pet {
     private String racaPet;
     @Column(nullable = false)
     private String especiePet;
-    @Column(nullable = false)
-    private Long idCliente; 
+    @ManyToOne
+    @JoinColumn(name = "id_cliente", nullable = false)
+    private Cliente idCliente;
 
     public Pet() {
     }
 
-    public Pet(Long idPet, String nomePet, String idadePet, String racaPet, String especiePet, Long idCliente) {
+    public Pet(Long idPet, String nomePet, String idadePet, String racaPet, String especiePet, Cliente idCliente) {
         this.idPet = idPet;
         this.nomePet = nomePet;
         this.idadePet = idadePet;
@@ -70,11 +71,11 @@ public class Pet {
         this.especiePet = especiePet;
     }
 
-    public Long getIdCliente() {
+    public Cliente getIdCliente() {
         return idCliente;
     }
 
-    public void setIdCliente(Long idCliente) {
+    public void setIdCliente(Cliente idCliente) {
         this.idCliente = idCliente;
     }
 }

@@ -17,7 +17,7 @@ class Pet {
 
   factory Pet.fromJson(Map<String, dynamic> json) {
     return Pet(
-      idPet: json['idPet'],
+      idPet: json['idPet'] is String ? int.tryParse(json['idPet']) ?? 0 : json['idPet'],
       nomePet: json['nomePet'], 
       idadePet: json['idadePet'], 
       especiePet: json['especiePet'],
