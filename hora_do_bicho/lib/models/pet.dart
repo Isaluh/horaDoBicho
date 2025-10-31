@@ -1,35 +1,39 @@
 class Pet {
-  final int id;
-  final String nome;
-  final String idade;
-  final String raca;
-  final String especie;
+  final int idPet;
+  final String nomePet;
+  final String idadePet;
+  final String especiePet;
+  final String racaPet;
+  final int idCliente;
 
   Pet({
-    required this.id,
-    required this.nome,
-    required this.idade,
-    required this.raca,
-    required this.especie
+    required this.idPet,
+    required this.nomePet,
+    required this.idadePet,
+    required this.especiePet,
+    required this.racaPet,
+    required this.idCliente
   });
 
   factory Pet.fromJson(Map<String, dynamic> json) {
     return Pet(
-      id: json['id'],
-      nome: json['nome'], 
-      idade: json['idade'], 
-      raca: json['raca'],
-      especie: json['especie']
+      idPet: json['idPet'],
+      nomePet: json['nomePet'], 
+      idadePet: json['idadePet'], 
+      especiePet: json['especiePet'],
+      racaPet: json['racaPet'],
+      idCliente : json['idCliente']
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'nome': nome,
-      'idade': idade,
-      'raca': raca,
-      'especie': especie,
+      'idPet': idPet,
+      'nomePet': nomePet,
+      'idadePet': idadePet,
+      'especiePet': especiePet,
+      'racaPet': racaPet,
+      'idCliente' : idCliente
     };
   }
 }

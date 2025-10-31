@@ -45,6 +45,7 @@ class _PerfilPageState extends State<PerfilPage> {
         isAdmin = user.permissaoCliente == Permissao.ADMIN;
 
         userData = {
+          'idCliente': user.idCliente,
           'nomeCliente': user.nomeCliente,
           'emailCliente': user.emailCliente,
           'cpfCliente': user.cpfCliente,
@@ -52,6 +53,7 @@ class _PerfilPageState extends State<PerfilPage> {
           'enderecoCliente': user.enderecoCliente ?? '',
           'senhaCliente': '',
           'confirmarSenhaCliente': '',
+          'permissaoCliente' : user.permissaoCliente.name
         };
 
         _preencherControllers();
@@ -205,7 +207,8 @@ class _PerfilPageState extends State<PerfilPage> {
     userData['senhaCliente'] = senha.isNotEmpty ? senha : null;
 
     final userService = UserService();
-    User? atualizado = await userService.atualizarUsuario(userData as User);
+    User user = User.fromJson(userData);
+    User? atualizado = await userService.atualizarUsuario(user);
 
     if (atualizado != null) {
       setState(() {
@@ -218,6 +221,7 @@ class _PerfilPageState extends State<PerfilPage> {
           'enderecoCliente': atualizado.enderecoCliente ?? '',
           'senhaCliente': '',
           'confirmarSenhaCliente': '',
+          'permissaoCliente' : atualizado.permissaoCliente
         };
 
         _preencherControllers();
@@ -312,7 +316,7 @@ class _PerfilPageState extends State<PerfilPage> {
 
                       if (isEditing)
                         ElevatedButton.icon(
-                          onPressed: () {},
+                          onPressed: cancelarEdicao,
                           label: Text(
                             'Cancelar',
                             style: const TextStyle(color: Colors.black),

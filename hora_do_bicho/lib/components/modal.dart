@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hora_do_bicho/components/botoes.dart';
 
 enum FormType { pet, funcionario, servico }
+
 enum FormMode { criar, editar }
 
 class CustomFormModal extends StatefulWidget {
@@ -36,7 +38,7 @@ class _CustomFormModalState extends State<CustomFormModal> {
 
     switch (widget.formType) {
       case FormType.pet:
-        fields = ['nome', 'idade', 'raca', 'especie'];
+        fields = ['nomePet', 'idadePet', 'especiePet', 'racaPet'];
         break;
       case FormType.funcionario:
         fields = ['nome', 'telefone'];
@@ -46,10 +48,11 @@ class _CustomFormModalState extends State<CustomFormModal> {
         break;
     }
 
-    // Cria os controllers
     for (var field in fields) {
       _controllers[field] = TextEditingController(
-        text: widget.initialData != null ? widget.initialData![field]?.toString() ?? '' : '',
+        text: widget.initialData != null
+            ? widget.initialData![field]?.toString() ?? ''
+            : '',
       );
     }
   }
@@ -64,7 +67,9 @@ class _CustomFormModalState extends State<CustomFormModal> {
 
   void _handleSave() {
     if (_formKey.currentState!.validate()) {
-      final data = { for (var entry in _controllers.entries) entry.key: entry.value.text };
+      final data = {
+        for (var entry in _controllers.entries) entry.key: entry.value.text,
+      };
       widget.onSave(data);
       Navigator.of(context).pop();
     }
@@ -89,7 +94,8 @@ class _CustomFormModalState extends State<CustomFormModal> {
     }
 
     return AlertDialog(
-      title: Text('$title $tipoTexto'),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      title: Text('$title $tipoTexto', style: TextStyle(fontSize: 20)),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -101,10 +107,24 @@ class _CustomFormModalState extends State<CustomFormModal> {
                 child: TextFormField(
                   controller: entry.value,
                   decoration: InputDecoration(
-                    labelText: entry.key[0].toUpperCase() + entry.key.substring(1),
-                    border: const OutlineInputBorder(),
+                    labelText: entry.key
+                        .replaceAll('Pet', '') 
+                        .replaceFirstMapped(
+                          RegExp(r'^[a-z]'),
+                          (m) => m.group(0)!.toUpperCase(),
+                        ),
+                    floatingLabelStyle: const TextStyle(
+                      color: Color(0xFF2596be),
+                    ),
+                    labelStyle: const TextStyle(fontSize: 14),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Color(0xFF2596be)),
+                    ),
                   ),
-                  keyboardType: entry.key == 'preco' ? TextInputType.number : TextInputType.text,
+                  style: const TextStyle(fontSize: 14),
+                  keyboardType: entry.key == 'preco'
+                      ? TextInputType.number
+                      : TextInputType.text,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Preencha o campo ${entry.key}';
@@ -118,14 +138,19 @@ class _CustomFormModalState extends State<CustomFormModal> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
+        GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          child: const Text(
+            'Cancelar',
+            style: TextStyle(fontSize: 16, color: Colors.black),
+          ),
         ),
-        ElevatedButton(
+        SizedBox(width: 10),
+        ElevatedButtonComponent(
           onPressed: _handleSave,
-          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF98E6F6)),
-          child: Text(isEdit ? 'Salvar' : 'Criar'),
+          text: isEdit ? 'Salvar' : 'Criar',
+          color: const Color(0xFF98E6F6),
+          textColor: Colors.black,
         ),
       ],
     );

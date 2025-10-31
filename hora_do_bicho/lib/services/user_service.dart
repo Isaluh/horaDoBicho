@@ -37,7 +37,7 @@ class UserService {
 
   Future<User?> atualizarUsuario(User user) async {
     final response = await http.put(
-      Uri.parse('$baseUrl/usuario/${user.idCliente}'),
+      Uri.parse(baseUrl),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(user.toJson()),
     );

@@ -65,35 +65,28 @@ class _CatalogoPageState extends State<CatalogoPage> {
           formType: FormType.pet,
           formMode: FormMode.editar,
           initialData: {
-            'nome': pet.nome,
-            'idade': pet.idade,
-            'raca': pet.raca,
-            'especie': pet.especie,
+            'nomePet': pet.nomePet,
+            'idadePet': pet.idadePet,
+            'especiePet': pet.especiePet,
+            'racaPet': pet.racaPet,
           },
           onSave: (data) async {
-            // Aqui você pode chamar seu service para atualizar o pet no backend
-            final updatedPet = Pet(
-              id: pet.id,
-              nome: data['nome'],
-              idade: data['idade'],
-              raca: data['raca'],
-              especie: data['especie'],
+            data['idPet'] = pet.idPet;
+            print(data);
+            Pet updatePet = Pet.fromJson(data);
+            await _petsService.atualizarPet(updatePet);
+            setState(() {
+              futurePets = _carregarPets();
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Pet atualizado com sucesso!')),
             );
-
-            // Exemplo: usando seu service
-            try {
-              await _petsService.atualizarPet(updatedPet);
-              setState(() {
-                futurePets = _carregarPets();
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Pet atualizado com sucesso!')),
-              );
-            } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Erro ao atualizar pet: $e')),
-              );
-            }
+            // try {
+            // } catch (e) {
+            //   ScaffoldMessenger.of(context).showSnackBar(
+            //     SnackBar(content: Text('Erro ao atualizar pet: $e')),
+            //   );
+            // }
           },
         );
       },
@@ -106,7 +99,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Excluir Pet'),
-          content: Text('Tem certeza que deseja excluir ${pet.nome}?'),
+          content: Text('Tem certeza que deseja excluir ${pet.nomePet}?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -123,7 +116,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
 
     if (confirm == true) {
       try {
-        await _petsService.deletarPet(pet.id);
+        await _petsService.deletarPet(pet.idPet);
         setState(() {
           futurePets = _carregarPets();
         });
@@ -163,13 +156,34 @@ class _CatalogoPageState extends State<CatalogoPage> {
                       return CustomFormModal(
                         formType: FormType.pet,
                         formMode: FormMode.criar,
-                        onSave: (data) {
-                          print('Novo pet criado: $data');
-                          // atualizar pelo backend
+                        onSave: (data) async {
+                          try {
+                            final prefs = await SharedPreferences.getInstance();
+                            final userString = prefs.getString('user');
+                            if (userString == null)
+                              throw Exception('Usuário não logado');
 
-                          // setState(() {
-                          //   futurePets = _carregarPets();
-                          // });
+                            final userJson = jsonDecode(userString);
+                            final userId = userJson['idCliente'];
+
+                            final petData = {...data, 'idCliente': userId};
+
+                            final petsService = PetsService();
+                            final novoPet = await petsService.criarPet(petData);
+
+                            if (novoPet != null) {
+                              setState(() {
+                                futurePets = _carregarPets();
+                              });
+                            }
+                          } catch (e) {
+                            print('Erro ao criar pet: $e');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Erro ao criar pet'),
+                              ),
+                            );
+                          }
                         },
                       );
                     },
@@ -200,29 +214,6 @@ class _CatalogoPageState extends State<CatalogoPage> {
                 } else if (snapshot.hasError) {
                   _carregarPets();
                   return Center(child: Text('Erro: ${snapshot.error}'));
-                  // return ListView.builder(
-                  //   padding: const EdgeInsets.only(bottom: 60),
-                  //   itemCount: 1,
-                  //   itemBuilder: (context, index) {
-                  //     return Ficha(
-                  //       tipo: FichaTipo.pet,
-                  //       nome: "rex",
-                  //       infoPrincipal: "2 anos",
-                  //       infoSecundaria: "Tal",
-                  //       imagemAsset: imagemPorEspecie("coelho"),
-                  //       // onMenuSelected: (value) {
-                  //       //   print('Clicou em $value para o pet ${pet.nome}');
-                  //       //   if (value == 'editar') {
-                  //       //     _abrirModalEditarPet("pet");
-                  //       //   } else if (value == 'excluir') {
-                  //       //     _excluirPet(pet);
-                  //       //   } else if (value == 'agendar') {
-                  //       //     // ação futura
-                  //       //   }
-                  //       // },
-                  //     );
-                  //   },
-                  // );
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(child: Text('Nenhum pet encontrado.'));
                 }
@@ -235,12 +226,11 @@ class _CatalogoPageState extends State<CatalogoPage> {
                     final pet = pets[index];
                     return Ficha(
                       tipo: FichaTipo.pet,
-                      nome: pet.nome,
-                      infoPrincipal: pet.idade,
-                      infoSecundaria: pet.raca,
-                      imagemAsset: imagemPorEspecie(pet.especie),
+                      nome: pet.nomePet,
+                      infoPrincipal: pet.idadePet,
+                      infoSecundaria: pet.racaPet,
+                      imagemAsset: imagemPorEspecie(pet.especiePet),
                       onMenuSelected: (value) {
-                        print('Clicou em $value para o pet ${pet.nome}');
                         if (value == 'editar') {
                           _abrirModalEditarPet(pet);
                         } else if (value == 'excluir') {

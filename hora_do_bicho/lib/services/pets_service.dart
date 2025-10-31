@@ -6,7 +6,7 @@ class PetsService {
   final String baseUrl = 'http://localhost:8080/pets';
 
   Future<List<Pet>> listarPets(int userId) async {
-    final response = await http.get(Uri.parse('$baseUrl/$userId'));
+    final response = await http.get(Uri.parse('$baseUrl/idCliente?idCliente=$userId'));
 
     if (response.statusCode == 200) {
       final List<dynamic> listaJson = jsonDecode(response.body);
