@@ -1,14 +1,14 @@
 package com.bambooByte.horaDoBicho.services;
 
-import com.bambooByte.horaDoBicho.entities.Cliente;
-import com.bambooByte.horaDoBicho.repositories.ClienteRepository;
-import com.bambooByte.horaDoBicho.validacoes.GatewayValidacao;
-import com.bambooByte.horaDoBicho.validacoes.StatusValidacao;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.bambooByte.horaDoBicho.entities.Cliente;
+import com.bambooByte.horaDoBicho.repositories.ClienteRepository;
+import com.bambooByte.horaDoBicho.validacoes.GatewayValidacao;
 
 @Service
 public class ClienteService {

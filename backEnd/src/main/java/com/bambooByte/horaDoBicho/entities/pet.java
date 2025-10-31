@@ -1,6 +1,12 @@
 package com.bambooByte.horaDoBicho.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Pet {
@@ -17,18 +23,18 @@ public class Pet {
     private String especiePet;
     @ManyToOne
     @JoinColumn(name = "id_cliente", nullable = false)
-    private Cliente idCliente;
+    private Cliente cliente;
 
     public Pet() {
     }
 
-    public Pet(Long idPet, String nomePet, String idadePet, String racaPet, String especiePet, Cliente idCliente) {
+    public Pet(Long idPet, String nomePet, String idadePet, String racaPet, String especiePet, Cliente cliente) {
         this.idPet = idPet;
         this.nomePet = nomePet;
         this.idadePet = idadePet;
         this.racaPet = racaPet;
         this.especiePet = especiePet;
-        this.idCliente = idCliente;
+        this.cliente = cliente;
     }
 
     public Long getIdPet() {
@@ -71,11 +77,11 @@ public class Pet {
         this.especiePet = especiePet;
     }
 
-    public Cliente getIdCliente() {
-        return idCliente;
+    public Cliente getCliente() {
+        return cliente;
     }
 
-    public void setIdCliente(Cliente idCliente) {
-        this.idCliente = idCliente;
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
     }
 }

@@ -1,9 +1,18 @@
 package com.bambooByte.horaDoBicho.entities;
 
-import jakarta.persistence.*;
+import java.util.List;
 
 import com.bambooByte.horaDoBicho.enums.Permissao;
-import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Cliente {
@@ -25,7 +34,7 @@ public class Cliente {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Permissao permissaoCliente;
-    @OneToMany(mappedBy = "idCliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pet> pets;
 
     public Cliente() {
@@ -42,7 +51,7 @@ public class Cliente {
         this.enderecoCliente = enderecoCliente;
         this.senhaCliente = senhaCliente;
         this.permissaoCliente = permissaoCliente;
-    }
+    }  
 
     public Long getIdCliente() {
         return idCliente;

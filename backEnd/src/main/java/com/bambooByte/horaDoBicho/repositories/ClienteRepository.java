@@ -1,10 +1,11 @@
 package com.bambooByte.horaDoBicho.repositories;
 
-import com.bambooByte.horaDoBicho.entities.Cliente;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import com.bambooByte.horaDoBicho.entities.Cliente;
 
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
