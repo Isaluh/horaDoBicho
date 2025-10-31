@@ -33,24 +33,35 @@ public class ClienteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> uptade(@PathVariable Long id, @RequestBody Cliente novoCliente) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Cliente novoCliente) {
         return clienteService.find(id)
-                .map(clienteExistente -> {
+            .map(clienteExistente -> {
+                if (novoCliente.getNomeCliente() != null) {
                     clienteExistente.setNomeCliente(novoCliente.getNomeCliente());
+                }
+
+                if (novoCliente.getEmailCliente() != null) {
                     clienteExistente.setEmailCliente(novoCliente.getEmailCliente());
+                }
+
+                if (novoCliente.getTelefoneCliente() != null) {
                     clienteExistente.setTelefoneCliente(novoCliente.getTelefoneCliente());
+                }
+
+                if (novoCliente.getEnderecoCliente() != null) {
                     clienteExistente.setEnderecoCliente(novoCliente.getEnderecoCliente());
-                    clienteExistente.setPermissaoCliente(novoCliente.getPermissaoCliente());
+                }
 
-                    if (novoCliente.getSenhaCliente() != null && !novoCliente.getSenhaCliente().isEmpty()) {
-                        clienteExistente.setSenhaCliente(novoCliente.getSenhaCliente());
-                    }
+                if (novoCliente.getSenhaCliente() != null && !novoCliente.getSenhaCliente().isEmpty()) {
+                    clienteExistente.setSenhaCliente(novoCliente.getSenhaCliente());
+                }
 
-                    clienteService.update(clienteExistente);
-                    return ResponseEntity.ok(clienteExistente);
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
+                clienteService.update(clienteExistente);
+                return ResponseEntity.ok(clienteExistente);
+            })
+            .orElseGet(() -> ResponseEntity.notFound().build());
+}
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
