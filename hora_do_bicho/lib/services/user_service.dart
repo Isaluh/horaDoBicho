@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
@@ -37,7 +36,7 @@ class UserService {
 
   Future<User?> atualizarUsuario(User user) async {
     final response = await http.put(
-      Uri.parse(baseUrl),
+      Uri.parse('$baseUrl/${user.idCliente}'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(user.toJson()),
     );
