@@ -53,9 +53,15 @@ enum Permissao {
 
 extension PermissaoExtension on Permissao {
   String get name => this.toString().split('.').last;
-  
-  static Permissao fromString(String value) {
-    return Permissao.values.firstWhere((e) => e.name == value, orElse: () => Permissao.COMUM);
+
+  static Permissao fromString(dynamic value) {
+    if (value is String) {
+      return Permissao.values.firstWhere(
+        (e) => e.name == value,
+        orElse: () => Permissao.COMUM,
+      );
+    }
+    return Permissao.COMUM; 
   }
 }
 
