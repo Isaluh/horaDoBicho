@@ -14,7 +14,7 @@ class PetsService {
     } else {
       throw Exception('Falha ao listar pets');
     }
-  }
+  } 
 
   Future<Pet?> criarPet(Map<String, dynamic> dados) async {
     final response = await http.post(
@@ -33,7 +33,7 @@ class PetsService {
 
   Future<Pet?> atualizarPet(Pet pet) async {
     final response = await http.put(
-      Uri.parse(baseUrl),
+      Uri.parse('$baseUrl/${pet.idPet}'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(pet.toJson()),
     );

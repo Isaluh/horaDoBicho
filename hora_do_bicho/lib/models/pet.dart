@@ -22,7 +22,7 @@ class Pet {
       idadePet: json['idadePet'], 
       especiePet: json['especiePet'],
       racaPet: json['racaPet'],
-      idCliente : json['idCliente']
+      idCliente : json['idCliente'] is String ? int.tryParse(json['idCliente']) ?? 0 : json['idCliente']
     );
   }
 

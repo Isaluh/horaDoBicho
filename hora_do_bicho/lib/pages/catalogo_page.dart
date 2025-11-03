@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:hora_do_bicho/components/botoes.dart';
 import 'package:hora_do_bicho/components/modal.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hora_do_bicho/components/ficha.dart';
@@ -14,47 +15,53 @@ class CatalogoPage extends StatefulWidget {
 }
 
 class _CatalogoPageState extends State<CatalogoPage> {
-  late Future<List<Pet>> futurePets;
+  late Future<List<Pet>> futurePets = Future.value([]);
   final PetsService _petsService = PetsService();
+  int? userId;
 
   @override
   void initState() {
     super.initState();
-    futurePets = _carregarPets();
+    _initUserData();
+  }
+
+  Future<void> _initUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userString = prefs.getString('user');
+    if (userString == null) {
+      throw Exception('Usuário não encontrado no SharedPreferences');
+    }
+
+    final userJson = jsonDecode(userString);
+    setState(() {
+      userId = userJson['idCliente'];
+      futurePets = _carregarPets();
+    });
   }
 
   String imagemPorEspecie(String especieOuRaca) {
     final texto = especieOuRaca.toLowerCase();
 
-    if (texto.contains('gato')) return 'assets/images/gato.jpg';
-    if (texto.contains('cachorro') || texto.contains('dog')) {
+    if (texto.toLowerCase().contains('gato')) return 'assets/images/gato.jpg';
+    if (texto.toLowerCase().contains('cachorro') ||
+        texto.toLowerCase().contains('dog')) {
       return 'assets/images/cachorro.jpg';
     }
-    if (texto.contains('ave') ||
-        texto.contains('pássaro') ||
-        texto.contains('pintin')) {
+    if (texto.toLowerCase().contains('ave') ||
+        texto.toLowerCase().contains('pássaro') ||
+        texto.toLowerCase().contains('pintin')) {
       return 'assets/images/pintin.jpg';
     }
-    if (texto.contains('coelho') ||
-        texto.contains('hamster') ||
-        texto.contains('roedor')) {
+    if (texto.toLowerCase().contains('coelho') ||
+        texto.toLowerCase().contains('hamster') ||
+        texto.toLowerCase().contains('roedor')) {
       return 'assets/images/coelho.jpg';
     }
     return 'assets/images/exotico.jpg';
   }
 
   Future<List<Pet>> _carregarPets() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userString = prefs.getString('user');
-
-    if (userString == null) {
-      throw Exception('Usuário não encontrado no SharedPreferences');
-    }
-
-    final userJson = jsonDecode(userString);
-    final userId = userJson['idCliente'];
-
-    return _petsService.listarPets(userId);
+    return _petsService.listarPets(userId!);
   }
 
   void _abrirModalEditarPet(Pet pet) {
@@ -72,22 +79,23 @@ class _CatalogoPageState extends State<CatalogoPage> {
           },
           onSave: (data) async {
             data['idPet'] = pet.idPet.toString();
-            print(data);
+
+            data['idCliente'] = userId.toString();
             Pet updatePet = Pet.fromJson(data);
-            print(updatePet);
+
             await _petsService.atualizarPet(updatePet);
+            if (!mounted) return;
             setState(() {
               futurePets = _carregarPets();
             });
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Pet atualizado com sucesso!')),
             );
-            // try {
-            // } catch (e) {
-            //   ScaffoldMessenger.of(context).showSnackBar(
-            //     SnackBar(content: Text('Erro ao atualizar pet: $e')),
-            //   );
-            // }
+            try {} catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Erro ao atualizar pet: $e')),
+              );
+            }
           },
         );
       },
@@ -99,16 +107,23 @@ class _CatalogoPageState extends State<CatalogoPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Excluir Pet'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          title: const Text('Excluir Pet', style: TextStyle(fontSize: 20)),
           content: Text('Tem certeza que deseja excluir ${pet.nomePet}?'),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancelar'),
+            GestureDetector(
+              onTap: () => Navigator.pop(context, false),
+              child: const Text(
+                'Cancelar',
+                style: TextStyle(fontSize: 16, color: Colors.black),
+              ),
             ),
-            ElevatedButton(
+            SizedBox(width: 10),
+            ElevatedButtonComponent(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Excluir'),
+              text: 'Excluir',
+              color: const Color(0xFF98E6F6),
+              textColor: Colors.black,
             ),
           ],
         );
@@ -134,6 +149,9 @@ class _CatalogoPageState extends State<CatalogoPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (userId == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Column(
@@ -159,16 +177,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
                         formMode: FormMode.criar,
                         onSave: (data) async {
                           try {
-                            final prefs = await SharedPreferences.getInstance();
-                            final userString = prefs.getString('user');
-                            if (userString == null)
-                              throw Exception('Usuário não logado');
-
-                            final userJson = jsonDecode(userString);
-                            final userId = userJson['idCliente'];
-
                             final petData = {...data, 'idCliente': userId};
-
                             final petsService = PetsService();
                             final novoPet = await petsService.criarPet(petData);
 
