@@ -9,6 +9,6 @@ import com.bambooByte.horaDoBicho.entities.Pet;
 
 @Repository
 public interface PetRepository extends JpaRepository<Pet, Long> {
-    List<Pet> findByClienteIdCliente(Long idCliente);
+    List<Pet> findByIdCliente(Long idCliente);
 }
 

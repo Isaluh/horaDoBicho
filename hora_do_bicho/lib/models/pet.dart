@@ -17,12 +17,12 @@ class Pet {
 
   factory Pet.fromJson(Map<String, dynamic> json) {
     return Pet(
-      idPet: json['idPet'] is String ? int.tryParse(json['idPet']) ?? 0 : (json['idPet'] ?? 0),
-      nomePet: json['nomePet'],
-      idadePet: json['idadePet'],
+      idPet: json['idPet'] is String ? int.tryParse(json['idPet']) ?? 0 : json['idPet'],
+      nomePet: json['nomePet'], 
+      idadePet: json['idadePet'], 
       especiePet: json['especiePet'],
       racaPet: json['racaPet'],
-      idCliente: json['idCliente'] is String ? int.tryParse(json['idCliente']) ?? 0 : (json['idCliente'] ?? 0),
+      idCliente : json['idCliente']
     );
   }
 

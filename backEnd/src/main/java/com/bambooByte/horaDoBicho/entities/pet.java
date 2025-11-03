@@ -5,8 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+// ...existing imports...
 
 @Entity
 public class Pet {
@@ -21,20 +20,19 @@ public class Pet {
     private String racaPet;
     @Column(nullable = false)
     private String especiePet;
-    @ManyToOne
-    @JoinColumn(name = "id_cliente", nullable = false)
-    private Cliente cliente;
+    @Column(name = "id_cliente", nullable = false)
+    private Long idCliente;
 
     public Pet() {
     }
 
-    public Pet(Long idPet, String nomePet, String idadePet, String racaPet, String especiePet, Cliente cliente) {
+    public Pet(Long idPet, String nomePet, String idadePet, String racaPet, String especiePet, Long idCliente) {
         this.idPet = idPet;
         this.nomePet = nomePet;
         this.idadePet = idadePet;
         this.racaPet = racaPet;
         this.especiePet = especiePet;
-        this.cliente = cliente;
+        this.idCliente = idCliente;
     }
 
     public Long getIdPet() {
@@ -77,11 +75,11 @@ public class Pet {
         this.especiePet = especiePet;
     }
 
-    public Cliente getCliente() {
-        return cliente;
+    public Long getIdCliente() {
+        return idCliente;
     }
 
-    public void setCliente(Cliente cliente) {
-        this.cliente = cliente;
+    public void setIdCliente(Long idCliente) {
+        this.idCliente = idCliente;
     }
 }

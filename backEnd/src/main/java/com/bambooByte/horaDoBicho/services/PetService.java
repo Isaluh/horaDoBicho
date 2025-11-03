@@ -36,6 +36,6 @@ public class PetService {
     }
 
     public List<Pet> findByIdCliente(Long idCliente) {
-    return petRepository.findByClienteIdCliente(idCliente);
-}
+        return petRepository.findByIdCliente(idCliente);
+    }
 }
