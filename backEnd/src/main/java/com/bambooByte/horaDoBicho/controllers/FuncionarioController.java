@@ -31,9 +31,26 @@ public class FuncionarioController {
         return ResponseEntity.ok(funcionarioService.findAll());
     }
 
-    @PutMapping
-    public ResponseEntity<Funcionario> update(@RequestBody Funcionario funcionario) {
-        return ResponseEntity.ok(funcionarioService.update(funcionario));
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Funcionario novoFuncionario) {
+        return funcionarioService.find(id)
+                .map(funcionarioExistente -> {
+                    if (novoFuncionario.getNomeFuncionario() != null) {
+                        funcionarioExistente.setNomeFuncionario(novoFuncionario.getNomeFuncionario());
+                    }
+
+                    if (novoFuncionario.getCpfFuncionario() != null) {
+                        funcionarioExistente.setCpfFuncionario(novoFuncionario.getCpfFuncionario());
+                    }
+
+                    if (novoFuncionario.getTelefoneFuncionario() != null) {
+                        funcionarioExistente.setTelefoneFuncionario(novoFuncionario.getTelefoneFuncionario());
+                    }
+
+                    funcionarioService.update(funcionarioExistente);
+                    return ResponseEntity.ok(funcionarioExistente);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")

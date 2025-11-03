@@ -42,12 +42,33 @@ public class PetController {
 
     @GetMapping("/idCliente")
     public List<Pet> getPetsByIdCliente(@RequestParam Long idCliente) {
-        return petService.findByIdCliente(idCliente);  
+        return petService.findByIdCliente(idCliente);
     }
 
-    @PutMapping
-    public ResponseEntity<Pet> update(@RequestBody Pet pet) {
-        return ResponseEntity.ok(petService.update(pet));
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Pet novoPet) {
+        return petService.find(id)
+                .map(petExistente -> {
+                    if (novoPet.getNomePet() != null) {
+                        petExistente.setNomePet(novoPet.getNomePet());
+                    }
+
+                    if (novoPet.getIdadePet() != null) {
+                        petExistente.setIdadePet(novoPet.getIdadePet());
+                    }
+
+                    if (novoPet.getRacaPet() != null) {
+                        petExistente.setRacaPet(novoPet.getRacaPet());
+                    }
+
+                    if (novoPet.getEspeciePet() != null) {
+                        petExistente.setEspeciePet(novoPet.getEspeciePet());
+                    }
+
+                    petService.update(petExistente);
+                    return ResponseEntity.ok(petExistente);
+                })
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
