@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hora_do_bicho/components/botoes.dart';
 import 'package:hora_do_bicho/components/layout.dart';
+import 'package:hora_do_bicho/models/user.dart';
 import 'package:hora_do_bicho/pages/cadastro_page.dart';
 import 'package:hora_do_bicho/pages/catalogo_page.dart';
 import 'package:hora_do_bicho/services/user_service.dart';
@@ -42,10 +43,12 @@ class _LoginPageState extends State<LoginPage> {
         final prefs = await SharedPreferences.getInstance();
         prefs.setBool('isLoggedIn', true);
         prefs.setString('user', jsonEncode(user.toJson()));
+        bool isAdmin = user.permissaoCliente == Permissao.ADMIN;
+        print('$isAdmin em login');
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => LayoutPage(body: CatalogoPage(),)),
+          MaterialPageRoute(builder: (context) => LayoutPage(body: CatalogoPage(isAdmin ? 'Funcionários' : 'Pets'),)),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

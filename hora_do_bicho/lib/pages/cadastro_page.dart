@@ -59,10 +59,11 @@ class _CadastroPageState extends State<CadastroPage> {
       final prefs = await SharedPreferences.getInstance();
       prefs.setBool('isLoggedIn', true);
       prefs.setString('user', jsonEncode(result.toJson()));
+      bool isAdmin = result.permissaoCliente == Permissao.ADMIN;
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LayoutPage(body: CatalogoPage(),)),
+        MaterialPageRoute(builder: (context) => LayoutPage(body: CatalogoPage(isAdmin ? 'Funcionários' : 'Pets'),)),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

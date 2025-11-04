@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:hora_do_bicho/components/layout.dart';
+import 'package:hora_do_bicho/models/user.dart';
 import 'package:hora_do_bicho/pages/catalogo_page.dart';
 import 'package:hora_do_bicho/pages/on_boarding_page.dart'; 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -43,12 +46,18 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
 
     final prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false; 
-    print(isLoggedIn);
 
     if (isLoggedIn) {
+      final userString = prefs.getString('user');
+      if (userString == null) {
+        throw Exception('Usuário não encontrado no SharedPreferences');
+      }
+      final userJson = jsonDecode(userString);
+      bool isAdmin = userJson['permissaoCliente'] == Permissao.ADMIN.name;
+
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LayoutPage(body: CatalogoPage(),)), 
+        MaterialPageRoute(builder: (context) => LayoutPage(body: CatalogoPage(isAdmin ? 'Funcionários' : 'Pets'),)), 
       );
     } else {
       Navigator.pushReplacement(

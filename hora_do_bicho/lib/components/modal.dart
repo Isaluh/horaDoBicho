@@ -41,10 +41,10 @@ class _CustomFormModalState extends State<CustomFormModal> {
         fields = ['nomePet', 'idadePet', 'especiePet', 'racaPet'];
         break;
       case FormType.funcionario:
-        fields = ['nome', 'telefone'];
+        fields = ['nomeFuncionario', 'cpfFuncionario', 'telefoneFuncionario'];
         break;
       case FormType.servico:
-        fields = ['titulo', 'descricao', 'preco'];
+        fields = ['nomeServico', 'descricaoServico', 'precoServico'];
         break;
     }
 
@@ -73,6 +73,23 @@ class _CustomFormModalState extends State<CustomFormModal> {
       widget.onSave(data);
       Navigator.of(context).pop();
     }
+  }
+
+  String _formatarLabel(String key) {
+    String tipo = widget.formType.name; 
+    tipo = tipo[0].toUpperCase() + tipo.substring(1);
+
+    String label = key.replaceAll(tipo, '');
+
+    if (label.isNotEmpty) {
+      label = label[0].toUpperCase() + label.substring(1);
+    }
+
+    if (label.toLowerCase().contains('preco')) {
+      label = 'Preço';
+    }
+
+    return label;
   }
 
   @override
@@ -107,12 +124,7 @@ class _CustomFormModalState extends State<CustomFormModal> {
                 child: TextFormField(
                   controller: entry.value,
                   decoration: InputDecoration(
-                    labelText: entry.key
-                        .replaceAll('Pet', '') 
-                        .replaceFirstMapped(
-                          RegExp(r'^[a-z]'),
-                          (m) => m.group(0)!.toUpperCase(),
-                        ),
+                    labelText: _formatarLabel(entry.key),
                     floatingLabelStyle: const TextStyle(
                       color: Color(0xFF2596be),
                     ),
@@ -122,9 +134,9 @@ class _CustomFormModalState extends State<CustomFormModal> {
                     ),
                   ),
                   style: const TextStyle(fontSize: 14),
-                  keyboardType: entry.key == 'preco'
-                      ? TextInputType.number
-                      : TextInputType.text,
+                  keyboardType: entry.key.toLowerCase().contains('preco')
+                    ? TextInputType.number
+                    : TextInputType.text,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Preencha o campo ${entry.key}';

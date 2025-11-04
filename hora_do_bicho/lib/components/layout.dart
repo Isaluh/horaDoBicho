@@ -42,13 +42,13 @@ class _LayoutPageState extends State<LayoutPage> {
 
         _pages = isAdmin
             ? [
-                CatalogoPage(),
-                CatalogoPage(),
+                CatalogoPage('Funcionários'),
+                CatalogoPage('Serviços'),
                 AgendamentoPage(),
                 PerfilPage()
               ]
             : [
-                CatalogoPage(),
+                CatalogoPage('Pets'),
                 AgendamentoPage(),
                 PerfilPage()
               ];
@@ -79,7 +79,7 @@ class _LayoutPageState extends State<LayoutPage> {
   @override
   Widget build(BuildContext context) {
     final iconList = isAdmin
-        ? [Icons.business, Icons.settings, Icons.schedule, Icons.account_circle]
+        ? [Icons.people_alt_rounded, Icons.task, Icons.schedule, Icons.account_circle]
         : [Icons.pets, Icons.schedule, Icons.account_circle];
 
     final items = List.generate(
