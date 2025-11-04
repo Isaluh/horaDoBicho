@@ -1,19 +1,19 @@
 class User {
   final int idCliente;
-  final String nomeCliente;
+  final String? nomeCliente;
   final String emailCliente;
   final String? senhaCliente;
-  final String cpfCliente;
-  final String telefoneCliente; 
+  final String? cpfCliente;
+  final String telefoneCliente;
   final String? enderecoCliente;
-  final Permissao permissaoCliente; 
+  final Permissao permissaoCliente;
 
   User({
     required this.idCliente,
-    required this.nomeCliente,
+    this.nomeCliente,
     required this.emailCliente,
     this.senhaCliente,
-    required this.cpfCliente,
+    this.cpfCliente,
     required this.telefoneCliente,
     this.enderecoCliente,
     required this.permissaoCliente,
@@ -46,10 +46,7 @@ class User {
   }
 }
 
-enum Permissao {
-  ADMIN,
-  COMUM,
-}
+enum Permissao { ADMIN, COMUM }
 
 extension PermissaoExtension on Permissao {
   String get name => this.toString().split('.').last;
@@ -61,7 +58,6 @@ extension PermissaoExtension on Permissao {
         orElse: () => Permissao.COMUM,
       );
     }
-    return Permissao.COMUM; 
+    return Permissao.COMUM;
   }
 }
-

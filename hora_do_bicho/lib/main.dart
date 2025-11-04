@@ -17,7 +17,7 @@ Future<void> _criarAdminPadrao() async {
     'telefoneCliente': '00000000000',
     'enderecoCliente': 'Rua dos Pets, 123',
     'senhaCliente': '123',
-    'permissao': Permissao.ADMIN.name,
+    'permissaoCliente': Permissao.ADMIN.name,
   };
 
   try {

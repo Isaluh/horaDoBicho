@@ -19,20 +19,20 @@ public class Cliente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idCliente;
-    @Column(nullable = false)
-    private String nomeCliente;
-    @Column(nullable = false, unique = true)
-    private String cpfCliente;
-    @Column(nullable = false)
-    private String telefoneCliente;
-    @Column(nullable = false, unique = true)
-    private String emailCliente;
     @Column(nullable = true)
+    private String nomeCliente;
+    @Column(nullable = true)
+    private String cpfCliente;
+    @Column(nullable = true)
+    private String telefoneCliente;
+    @Column(nullable = true, unique = true)
+    private String emailCliente;
+    @Column(nullable = true, unique = true)
     private String enderecoCliente;
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String senhaCliente;
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Permissao permissaoCliente;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pet> pets;
@@ -43,14 +43,14 @@ public class Cliente {
     public Cliente(Long idCliente, String nomeCliente, String cpfCliente, String telefoneCliente, String emailCliente,
             String enderecoCliente, String senhaCliente, Permissao permissaoCliente) {
 
-        this.idCliente = idCliente;
-        this.nomeCliente = nomeCliente;
-        this.cpfCliente = cpfCliente;
-        this.telefoneCliente = telefoneCliente;
-        this.emailCliente = emailCliente;
-        this.enderecoCliente = enderecoCliente;
-        this.senhaCliente = senhaCliente;
-        this.permissaoCliente = permissaoCliente;
+    this.idCliente = idCliente;
+    this.nomeCliente = nomeCliente;
+    this.cpfCliente = cpfCliente;
+    this.telefoneCliente = telefoneCliente;
+    this.emailCliente = emailCliente;
+    this.enderecoCliente = enderecoCliente;
+    this.senhaCliente = senhaCliente;
+    this.permissaoCliente = permissaoCliente;
     }  
 
     public Long getIdCliente() {
