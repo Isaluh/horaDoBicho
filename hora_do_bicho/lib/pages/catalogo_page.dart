@@ -20,7 +20,10 @@ class CatalogoPage extends StatefulWidget {
 }
 
 class _CatalogoPageState extends State<CatalogoPage> {
-  late Future<List<dynamic>> futureItens = Future.value([]);
+  late Future<List<Pet>> listPets = Future.value([]);
+  late Future<List<Servico>> listServ = Future.value([]);
+  late Future<List<Funcionario>> listFunc = Future.value([]);
+
   final PetsService _petsService = PetsService();
   final ServicosService _servicosService = ServicosService();
   final FuncionariosService _funcionariosService = FuncionariosService();
@@ -44,13 +47,13 @@ class _CatalogoPageState extends State<CatalogoPage> {
       userId = userJson['idCliente'];
       switch (widget.conteudo) {
         case 'Pets':
-          futureItens = _carregarPets();
+          listPets = _carregarPets();
           break;
         case 'Serviços':
-          futureItens = _carregarServicos();
+          listServ = _carregarServicos();
           break;
         case 'Funcionários':
-          futureItens = _carregarFuncionarios();
+          listFunc = _carregarFuncionarios();
           break;
       }
     });
@@ -59,9 +62,19 @@ class _CatalogoPageState extends State<CatalogoPage> {
   String imagemPorEspecie(String especieOuRaca) {
     final texto = especieOuRaca.toLowerCase();
     if (texto.contains('gato')) return 'assets/images/gato.jpg';
-    if (texto.contains('cachorro') || texto.contains('dog')) return 'assets/images/cachorro.jpg';
-    if (texto.contains('ave') || texto.contains('pássaro') || texto.contains('pintin')) return 'assets/images/pintin.jpg';
-    if (texto.contains('coelho') || texto.contains('hamster') || texto.contains('roedor')) return 'assets/images/coelho.jpg';
+    if (texto.contains('cachorro') || texto.contains('dog')) {
+      return 'assets/images/cachorro.jpg';
+    }
+    if (texto.contains('ave') ||
+        texto.contains('pássaro') ||
+        texto.contains('pintin')) {
+      return 'assets/images/pintin.jpg';
+    }
+    if (texto.contains('coelho') ||
+        texto.contains('hamster') ||
+        texto.contains('roedor')) {
+      return 'assets/images/coelho.jpg';
+    }
     return 'assets/images/exotico.jpg';
   }
 
@@ -77,15 +90,15 @@ class _CatalogoPageState extends State<CatalogoPage> {
   }
 
   Future<List<Pet>> _carregarPets() async {
-    return _petsService.listarPets(userId!);
+    return await _petsService.listarPets(userId!);
   }
 
   Future<List<Servico>> _carregarServicos() async {
-    return _servicosService.listarServicos();
+    return await _servicosService.listarServicos();
   }
 
   Future<List<Funcionario>> _carregarFuncionarios() async {
-    return _funcionariosService.listarFuncionarios();
+    return await _funcionariosService.listarFuncionarios();
   }
 
   void _abrirModalNovoItem() {
@@ -105,31 +118,35 @@ class _CatalogoPageState extends State<CatalogoPage> {
 
                 if (novoPet != null) {
                   setState(() {
-                    futureItens = _carregarPets();
+                    listPets = _carregarPets();
                   });
                 }
               } else if (tipo == FormType.servico) {
-                print('Criar serviço: $data');
                 final novoServ = await _servicosService.criarServico(data);
 
                 if (novoServ != null) {
                   setState(() {
-                    futureItens = _carregarServicos();
+                    listServ = _carregarServicos();
                   });
                 }
               } else if (tipo == FormType.funcionario) {
-                print('Criar funcionário: $data');
-                final novoFunc = await _funcionariosService.criarFuncionario(data);
+                final novoFunc = await _funcionariosService.criarFuncionario(
+                  data,
+                );
 
                 if (novoFunc != null) {
                   setState(() {
-                    futureItens = _carregarFuncionarios();
+                    listFunc = _carregarFuncionarios();
                   });
                 }
               }
             } catch (e) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Erro ao criar ${widget.conteudo.toLowerCase()}: $e')),
+                SnackBar(
+                  content: Text(
+                    'Erro ao criar ${widget.conteudo.toLowerCase()}: $e',
+                  ),
+                ),
               );
             }
           },
@@ -138,62 +155,67 @@ class _CatalogoPageState extends State<CatalogoPage> {
     );
   }
 
-  void _abrirModalEditarPet(dynamic item) {
+  void _abrirModalEditarItem(dynamic item) {
     final tipo = _getFormType();
-
     showDialog(
       context: context,
       builder: (context) {
         switch (tipo) {
           case FormType.pet:
-          final pet = item as Pet;
-          return CustomFormModal(
-            formType: FormType.pet,
-            formMode: FormMode.editar,
-            initialData: {
-              'nomePet': pet.nomePet,
-              'idadePet': pet.idadePet,
-              'especiePet': pet.especiePet,
-              'racaPet': pet.racaPet,
-            },
-            onSave: (data) async {
-              data['idPet'] = pet.idPet.toString();
-
-              data['idCliente'] = userId.toString();
-              Pet updatePet = Pet.fromJson(data);
-
-              await _petsService.atualizarPet(updatePet);
-              if (!mounted) return;
-              setState(() {
-                futureItens = _carregarPets();
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Pet atualizado com sucesso!')),
-              );
-              try {} catch (e) {
+            final pet = item as Pet;
+            return CustomFormModal(
+              formType: FormType.pet,
+              formMode: FormMode.editar,
+              initialData: {
+                'nomePet': pet.nomePet,
+                'idadePet': pet.idadePet,
+                'especiePet': pet.especiePet,
+                'racaPet': pet.racaPet,
+              },
+              onSave: (data) async {
+                data['idPet'] = pet.idPet.toString();
+                data['idCliente'] = userId.toString();
+                Pet updatePet = Pet.fromJson(data);
+                await _petsService.atualizarPet(updatePet);
+                if (!mounted) return;
+                setState(() {
+                  listPets = _carregarPets();
+                });
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Erro ao atualizar pet: $e')),
+                  const SnackBar(content: Text('Pet atualizado com sucesso!')),
                 );
-              }
-            },
-          );
+                try {} catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erro ao atualizar pet: $e')),
+                  );
+                }
+              },
+            );
           case FormType.servico:
-            // TODO: editar serviço
+            final serv = item as Servico;
             return CustomFormModal(
               formType: FormType.servico,
               formMode: FormMode.editar,
-              initialData: {'titulo': 'Banho', 'descricao': '...', 'preco': '50'},
+              initialData: {
+                'nomeServico': serv.nomeServico,
+                'descricaoServico': serv.descricaoServico,
+                'precoServico': serv.precoServico,
+              },
               onSave: (data) async {
                 print('Editar serviço: $data');
               },
             );
-
           case FormType.funcionario:
-            // TODO: editar funcionário
+            final func = item as Funcionario;
             return CustomFormModal(
               formType: FormType.funcionario,
               formMode: FormMode.editar,
-              initialData: {'nome': 'Carlos', 'telefone': '99999-9999'},
+              // mudar informações
+              initialData: {
+                'nomeFuncionario': func.nomeFuncionario,
+                'cpfFuncionario': func.cpfFuncionario,
+                'telefoneFuncionario': func.telefoneFuncionario,
+              },
               onSave: (data) async {
                 print('Editar funcionário: $data');
               },
@@ -203,11 +225,10 @@ class _CatalogoPageState extends State<CatalogoPage> {
     );
   }
 
-  void _excluirPet(dynamic item) async {
+  void _excluirItem(dynamic item) async {
     final tipo = _getFormType();
     String nomeItem;
     int? idItem;
-
     switch (tipo) {
       case FormType.pet:
         nomeItem = (item as Pet).nomePet;
@@ -220,13 +241,15 @@ class _CatalogoPageState extends State<CatalogoPage> {
         nomeItem = item['nome'] ?? 'Funcionário';
         break;
     }
-
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          title: Text('Excluir $nomeItem', style: const TextStyle(fontSize: 20)),
+          title: Text(
+            'Excluir $nomeItem',
+            style: const TextStyle(fontSize: 20),
+          ),
           content: Text('Tem certeza que deseja excluir $nomeItem?'),
           actions: [
             GestureDetector(
@@ -247,15 +270,14 @@ class _CatalogoPageState extends State<CatalogoPage> {
         );
       },
     );
-
     if (confirm == true) {
       try {
         if (tipo == FormType.pet && idItem != null) {
           await _petsService.deletarPet(idItem);
           setState(() {
-            futureItens = _carregarPets();
-          }
-        );}else {
+            listPets = _carregarPets();
+          });
+        } else {
           print('Excluir $nomeItem');
         }
         ScaffoldMessenger.of(context).showSnackBar(
@@ -283,16 +305,16 @@ class _CatalogoPageState extends State<CatalogoPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                  "Catálogo de ${widget.conteudo}",
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF4A2C00),
-                  ),
+                "Catálogo de ${widget.conteudo}",
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF4A2C00),
                 ),
+              ),
               IconButton(
                 onPressed: _abrirModalNovoItem,
-                icon: const Icon(Icons.add, color: Colors.black, size: 20,),
+                icon: const Icon(Icons.add, color: Colors.black, size: 20),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF98E6F6),
                   shape: RoundedRectangleBorder(
@@ -303,51 +325,108 @@ class _CatalogoPageState extends State<CatalogoPage> {
             ],
           ),
           const SizedBox(height: 10),
-
           Expanded(
-            child: FutureBuilder<List<dynamic>>(
-              future: futureItens,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Erro: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(
-                    child: Text('Nenhum ${widget.conteudo.toLowerCase()} encontrado.'),
-                  );
-                }
-              
-
-                if (widget.conteudo == 'Pets') {
-                  final pets = snapshot.data as List<Pet>;
-                  return ListView.builder(
-                    padding: const EdgeInsets.only(bottom: 60),
-                    itemCount: pets.length,
-                    itemBuilder: (context, index) {
-                      final pet = pets[index];
-                      return Ficha(
-                        tipo: FichaTipo.pet,
-                        nome: pet.nomePet,
-                        infoPrincipal: pet.idadePet,
-                        infoSecundaria: pet.racaPet,
-                        imagemAsset: imagemPorEspecie(pet.especiePet),
-                        onMenuSelected: (value) {
-                          if (value == 'editar') {
-                            _abrirModalEditarPet(pet);
-                          } else if (value == 'excluir') {
-                            _excluirPet(pet);
-                          } else if (value == 'agendar') {
-                            // ação futura
-                          }
+            child: widget.conteudo == 'Pets'
+                ? FutureBuilder<List<Pet>>(
+                    future: listPets,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Erro: ${snapshot.error}'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Center(child: Text('Nenhum pet encontrado.'));
+                      }
+                      final pets = snapshot.data!;
+                      return ListView.builder(
+                        padding: const EdgeInsets.only(bottom: 60),
+                        itemCount: pets.length,
+                        itemBuilder: (context, index) {
+                          final pet = pets[index];
+                          return Ficha(
+                            tipo: FichaTipo.pet,
+                            nome: pet.nomePet,
+                            infoPrincipal: pet.idadePet,
+                            infoSecundaria: pet.racaPet,
+                            imagemAsset: imagemPorEspecie(pet.especiePet),
+                            onMenuSelected: (value) {
+                              if (value == 'editar') _abrirModalEditarItem(pet);
+                              if (value == 'excluir') _excluirItem(pet);
+                            },
+                          );
                         },
                       );
                     },
-                  );
-                }
-                return const Center(child: Text('Conteúdo em desenvolvimento.'));
-              },
-            ),
+                  )
+                : widget.conteudo == 'Serviços'
+                ? FutureBuilder<List<Servico>>(
+                    future: listServ,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Erro: ${snapshot.error}'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Center(
+                          child: Text('Nenhum serviço encontrado.'),
+                        );
+                      }
+                      final servicos = snapshot.data!;
+                      return ListView.builder(
+                        padding: const EdgeInsets.only(bottom: 60),
+                        itemCount: servicos.length,
+                        itemBuilder: (context, index) {
+                          final serv = servicos[index];
+                          return Ficha(
+                            tipo: FichaTipo.servico,
+                            nome: serv.nomeServico,
+                            infoPrincipal: serv.descricaoServico,
+                            infoSecundaria: 'R\$ ${serv.precoServico}',
+                            imagemAsset: '',
+                            onMenuSelected: (value) {
+                              if (value == 'editar')
+                                _abrirModalEditarItem(serv);
+                              if (value == 'excluir') _excluirItem(serv);
+                            },
+                          );
+                        },
+                      );
+                    },
+                  )
+                : FutureBuilder<List<Funcionario>>(
+                    future: listFunc,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Erro: ${snapshot.error}'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return Center(
+                          child: Text('Nenhum funcionário encontrado.'),
+                        );
+                      }
+                      final funcionarios = snapshot.data!;
+                      return ListView.builder(
+                        padding: const EdgeInsets.only(bottom: 60),
+                        itemCount: funcionarios.length,
+                        itemBuilder: (context, index) {
+                          final func = funcionarios[index];
+                          return Ficha(
+                            tipo: FichaTipo.funcionario,
+                            nome: func.nomeFuncionario,
+                            infoPrincipal: func.telefoneFuncionario,
+                            infoSecundaria: func.cpfFuncionario,
+                            imagemAsset: 'assets/images/vet.png',
+                            onMenuSelected: (value) {
+                              if (value == 'editar')
+                                _abrirModalEditarItem(func);
+                              if (value == 'excluir') _excluirItem(func);
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
           ),
         ],
       ),

@@ -1,7 +1,7 @@
 // components/ficha.dart
 import 'package:flutter/material.dart';
 
-enum FichaTipo { pet, funcionario }
+enum FichaTipo { pet, funcionario, servico }
 
 class Ficha extends StatelessWidget {
   final FichaTipo tipo;
@@ -22,26 +22,46 @@ class Ficha extends StatelessWidget {
   });
 
   String get _rotuloPrincipal {
-    return tipo == FichaTipo.pet ? 'Idade:' : 'Cargo:';
+    switch (tipo) {
+      case FichaTipo.pet:
+        return 'Idade:';
+      case FichaTipo.funcionario:
+        return 'Cargo:';
+      case FichaTipo.servico:
+        return 'Descrição:';
+    }
   }
 
   String get _rotuloSecundario {
-    return tipo == FichaTipo.pet ? 'Raça:' : 'Setor:';
+    switch (tipo) {
+      case FichaTipo.pet:
+        return 'Raça:';
+      case FichaTipo.funcionario:
+        return 'Telefone ';
+      case FichaTipo.servico:
+        return 'Preço';
+    }
   }
 
-  List<PopupMenuEntry<String>> _buildPetMenuItems() {
-    return const [
-      PopupMenuItem(value: 'editar', child: Text('Editar')),
-      PopupMenuItem(value: 'agendar', child: Text('Agendar')),
-      PopupMenuItem(value: 'excluir', child: Text('Excluir')),
-    ];
-  }
-
-  List<PopupMenuEntry<String>> _buildFuncionarioMenuItems() {
-    return const [
-      PopupMenuItem(value: 'editar', child: Text('Editar')),
-      PopupMenuItem(value: 'excluir', child: Text('Excluir')),
-    ];
+  List<PopupMenuEntry<String>> _buildMenuItems() {
+    switch (tipo) {
+      case FichaTipo.pet:
+        return const [
+          PopupMenuItem(value: 'editar', child: Text('Editar')),
+          PopupMenuItem(value: 'agendar', child: Text('Agendar')),
+          PopupMenuItem(value: 'excluir', child: Text('Excluir')),
+        ];
+      case FichaTipo.funcionario:
+        return const [
+          PopupMenuItem(value: 'editar', child: Text('Editar')),
+          PopupMenuItem(value: 'excluir', child: Text('Excluir')),
+        ];
+      case FichaTipo.servico:
+        return const [
+          PopupMenuItem(value: 'editar', child: Text('Editar')),
+          PopupMenuItem(value: 'excluir', child: Text('Excluir')),
+        ];
+    }
   }
 
   @override
@@ -64,16 +84,18 @@ class Ficha extends StatelessWidget {
       ),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.asset(
-              imagemAsset,
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
+          if (tipo != FichaTipo.servico)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                imagemAsset,
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          const SizedBox(width: 15),
+          if (tipo != FichaTipo.servico)
+          SizedBox(width: 15),
 
           Expanded(
             child: Column(
@@ -105,36 +127,10 @@ class Ficha extends StatelessWidget {
           PopupMenuButton<String>(
             icon: Icon(Icons.more_vert, color: corPrimaria),
             onSelected: (value) => onMenuSelected?.call(value),
-            itemBuilder: (BuildContext context) {
-              if (tipo == FichaTipo.pet) {
-                return _buildPetMenuItems();
-              } else {
-                return _buildFuncionarioMenuItems();
-              }
-            },
+            itemBuilder: (_) => _buildMenuItems(),
           ),
         ],
       ),
     );
   }
 }
-
-// caso n funcione o popupmenu
-
-// PopupMenuButton<String>(
-//             icon: Icon(Icons.more_vert, color: corPrimaria),
-//             onSelected: (value) {
-//               print(value);
-//               print(onMenuSelected);
-//               if (onMenuSelected != null) {
-//                 onMenuSelected!(value);
-//               }
-//             },
-//             itemBuilder: (BuildContext context) {
-//               if (tipo == FichaTipo.pet) {
-//                 return _buildPetMenuItems();
-//               } else {
-//                 return _buildFuncionarioMenuItems();
-//               }
-//             },
-//           ),

@@ -137,6 +137,7 @@ class _CustomFormModalState extends State<CustomFormModal> {
                   keyboardType: entry.key.toLowerCase().contains('preco')
                     ? TextInputType.number
                     : TextInputType.text,
+                  maxLines: entry.key.toLowerCase().contains('descricao') ? 3 : 1,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Preencha o campo ${entry.key}';
