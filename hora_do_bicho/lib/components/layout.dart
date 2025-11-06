@@ -42,15 +42,15 @@ class _LayoutPageState extends State<LayoutPage> {
 
         _pages = isAdmin
             ? [
-                CatalogoPage('Funcionários'),
-                CatalogoPage('Serviços'),
-                AgendamentoPage(),
-                PerfilPage()
+                CatalogoPage('Funcionários', key: ValueKey('Funcionários')),
+                CatalogoPage('Serviços', key: ValueKey('Serviços')),
+                AgendamentoPage(key: ValueKey('Agendamento')),
+                PerfilPage(key: ValueKey('Perfil')),
               ]
             : [
-                CatalogoPage('Pets'),
-                AgendamentoPage(),
-                PerfilPage()
+                CatalogoPage('Pets', key: ValueKey('Pets')),
+                AgendamentoPage(key: ValueKey('Agendamento')),
+                PerfilPage(key: ValueKey('Perfil')),
               ];
       });
     }
@@ -68,18 +68,23 @@ class _LayoutPageState extends State<LayoutPage> {
   Future<void> _logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-    
+
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const LoginPage()),
-      (route) => false, 
+      (route) => false,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final iconList = isAdmin
-        ? [Icons.people_alt_rounded, Icons.task, Icons.schedule, Icons.account_circle]
+        ? [
+            Icons.people_alt_rounded,
+            Icons.task,
+            Icons.schedule,
+            Icons.account_circle,
+          ]
         : [Icons.pets, Icons.schedule, Icons.account_circle];
 
     final items = List.generate(
@@ -89,7 +94,9 @@ class _LayoutPageState extends State<LayoutPage> {
         child: Icon(
           iconList[index],
           size: 30,
-          color: _selectedIndex == index ? Color(0xFF6B3E26) : Color.fromARGB(255, 226, 124, 0),
+          color: _selectedIndex == index
+              ? Color(0xFF6B3E26)
+              : Color.fromARGB(255, 226, 124, 0),
         ),
       ),
     );
@@ -129,7 +136,7 @@ class _LayoutPageState extends State<LayoutPage> {
                   image: DecorationImage(
                     image: AssetImage("assets/images/fundo.png"),
                     fit: BoxFit.cover,
-                    opacity: 0.7
+                    opacity: 0.7,
                   ),
                 ),
               ),
