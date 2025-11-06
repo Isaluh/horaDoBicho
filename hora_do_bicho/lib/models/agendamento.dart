@@ -1,6 +1,5 @@
-
 class Agendamento {
-  final int? idAgendamento;
+  final int idAgendamento;
   final int idCliente;
   final int idPet;
   final int idFuncionario;
@@ -10,7 +9,7 @@ class Agendamento {
   final Status statusAgendamento;
 
   Agendamento({
-    this.idAgendamento,
+    required this.idAgendamento,
     required this.idCliente,
     required this.idPet,
     required this.idFuncionario,
@@ -23,13 +22,13 @@ class Agendamento {
   factory Agendamento.fromJson(Map<String, dynamic> json) {
     return Agendamento(
       idAgendamento: json['idAgendamento'],
-      idCliente: json['idCliente'] is int ? json['idCliente'] : (json['idCliente']?['idCliente'] ?? 0),
-      idPet: json['idPet'] is int ? json['idPet'] : (json['idPet']?['idPet'] ?? 0),
-      idFuncionario: json['idFuncionario'] is int ? json['idFuncionario'] : (json['idFuncionario']?['idFuncionario'] ?? 0),
-      idServico: ((json['idServico'] as List?)?.map((e) => e is int ? e : (e['idServico'] ?? 0)).toList() ?? []).cast<int>(),
+      idCliente: json['idCliente'],
+      idPet: json['idPet'],
+      idFuncionario: json['idFuncionario'],
+      idServico: List<int>.from(json['idServico'] ?? []),
       dataHoraAgendamento: DateTime.parse(json['dataHoraAgendamento']),
-      observacaoAgendamento: json['observacaoAgendamento'],
-      statusAgendamento: StatusExtension.fromString(json['statusAgendamento'])
+      observacaoAgendamento: json['observacaoAgendamento'] ?? '',
+      statusAgendamento: StatusExtension.fromString(json['statusAgendamento']),
     );
   }
 
@@ -40,9 +39,9 @@ class Agendamento {
       'idPet': idPet,
       'idFuncionario': idFuncionario,
       'idServico': idServico,
-      'dataHoraAgendamento': dataHoraAgendamento.toIso8601String(),
+      'dataHoraAgendamento': dataHoraAgendamento,
       'observacaoAgendamento': observacaoAgendamento,
-      'statusAgendamento': statusAgendamento.name,
+      'statusAgendamento': statusAgendamento
     };
   }
 }
@@ -50,12 +49,12 @@ class Agendamento {
 enum Status { EM_ANALISE, CANCELADO, APROVADO }
 
 extension StatusExtension on Status {
-  String get name => toString().split('.').last;
+  String get name => this.toString().split('.').last;
 
   static Status fromString(dynamic value) {
     if (value is String) {
       return Status.values.firstWhere(
-        (e) => e.name.toUpperCase() == value.toString().toUpperCase(),
+        (e) => e.name == value,
         orElse: () => Status.EM_ANALISE,
       );
     }
