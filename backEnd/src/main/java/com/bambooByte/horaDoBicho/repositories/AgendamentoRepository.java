@@ -1,9 +1,16 @@
 package com.bambooByte.horaDoBicho.repositories;
 
-import com.bambooByte.horaDoBicho.entities.Agendamento;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.List;
 
-@Repository
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.bambooByte.horaDoBicho.entities.Agendamento;
+
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> {
+	List<Agendamento> findByIdCliente_IdCliente(Long idCliente);
+
+	List<Agendamento> findByDataHoraAgendamento(
+		java.time.LocalDateTime dataHoraAgendamento, Long idPet,
+		java.time.LocalDateTime dataHoraAgendamento2, Long idFuncionario,
+		java.time.LocalDateTime dataHoraAgendamento3, Long idCliente);
 }
