@@ -36,11 +36,12 @@ public class AgendamentoService {
 
         // Verificação de conflito
         boolean conflito = !agendamentoRepository
-                .findByDataHoraAgendamento(
-                        agendamento.getDataHoraAgendamento(), agendamento.getIdPet().getIdPet(),
-                        agendamento.getDataHoraAgendamento(), agendamento.getIdFuncionario().getIdFuncionario(),
-                        agendamento.getDataHoraAgendamento(), agendamento.getIdCliente().getIdCliente())
-                .isEmpty();
+            .findByFilters(
+                agendamento.getDataHoraAgendamento(),
+                agendamento.getIdPet().getIdPet(),
+                agendamento.getIdFuncionario().getIdFuncionario(),
+                agendamento.getIdCliente().getIdCliente())
+            .isEmpty();
         if (conflito) {
             agendamento.setStatusAgendamento(Status.EM_ANALISE);
         } else {
