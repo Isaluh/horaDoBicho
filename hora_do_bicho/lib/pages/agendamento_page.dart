@@ -1,5 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:hora_do_bicho/models/agendamento.dart';
+import 'package:hora_do_bicho/models/pet.dart';
+import 'package:hora_do_bicho/services/agendamento_service.dart';
+import 'package:hora_do_bicho/services/funcionarios_service.dart';
+import 'package:hora_do_bicho/services/pets_service.dart';
+import 'package:hora_do_bicho/services/servicos_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -11,6 +17,11 @@ class AgendamentoPage extends StatefulWidget {
 }
 
 class _AgendamentoPageState extends State<AgendamentoPage> {
+  final PetsService _petsService = PetsService();
+  final ServicosService _servicosService = ServicosService();
+  final FuncionariosService _funcionariosService = FuncionariosService();
+  final AgendamentosService _agendamentosService = AgendamentosService();
+
   bool isAdmin = false;
   int? userId;
 
@@ -19,8 +30,9 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
 
   String _secao = 'Calendário';
 
-  // Aqui futuramente virão seus agendamentos do service
-  Map<DateTime, List<Map<String, dynamic>>> _agendamentos = {};
+  Map<DateTime, List<Agendamento>> _agendamentosPorDia = {};
+  List<Agendamento> _agendamentosDoUsuario = [];
+
 
   @override
   void initState() {
@@ -40,66 +52,269 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
     });
   }
 
-  /// Exemplo: verificar se há agendamento nesse dia
-  List<Map<String, dynamic>> _getAgendamentosPorDia(DateTime day) {
-    return _agendamentos[DateTime(day.year, day.month, day.day)] ?? [];
+  List<Agendamento> _getAgendamentosPorDia(DateTime day) {
+    final key = DateTime(day.year, day.month, day.day);
+    return _agendamentosPorDia[key] ?? [];
   }
 
-  /// Clicou em um dia
-  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
-    // setState(() {
-    //   _selectedDay = selectedDay;
-    //   _focusedDay = focusedDay;
-    // });
-
+  void _onDaySelected(DateTime selectedDay) {
     final agendamentosDoDia = _getAgendamentosPorDia(selectedDay);
     if (agendamentosDoDia.isEmpty) {
       _abrirFormAgendamento(selectedDay);
     } else {
-      _mostrarDetalhesAgendamento(agendamentosDoDia.first);
+      // mostrar listagem adicionar um editar ou um adicionar (se for admin um visualizar e um mudar status [aprovar ou cancelar])
+      // _mostrarDetalhesAgendamento(agendamentosDoDia.first);
     }
   }
 
+  // void _abrirFormAgendamento(DateTime dia) async {
+  //   final descricaoController = TextEditingController();
+  //   await showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(10),
+  //         ),
+  //         title: Text('Novo agendamento'),
+  //         content: TextField(
+  //           controller: descricaoController,
+  //           decoration: const InputDecoration(
+  //             labelText: 'Descrição',
+  //             border: OutlineInputBorder(),
+  //           ),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () => Navigator.pop(context),
+  //             child: const Text('Cancelar'),
+  //           ),
+  //           ElevatedButton(
+  //             onPressed: () {
+  //               final novo = {
+  //                 'id': DateTime.now().millisecondsSinceEpoch,
+  //                 'idCliente': userId,
+  //                 'descricao': descricaoController.text,
+  //                 'status': 'Em análise',
+  //                 'data': dia.toIso8601String(),
+  //               };
+  //               setState(() {
+  //                 final key = DateTime(dia.year, dia.month, dia.day);
+  //                 _agendamentos.putIfAbsent(key, () => []).add(novo);
+  //               });
+  //               Navigator.pop(context);
+  //             },
+  //             child: const Text('Salvar'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
   void _abrirFormAgendamento(DateTime dia) async {
-    final descricaoController = TextEditingController();
+    final Map<String, dynamic> _formAgendamento = {
+      'descricao': TextEditingController(),
+      'selectedPetId': null,
+      'selectedFuncionarioId': null,
+      'selectedServicos': <int>[],
+      'selectedHora': null,
+    };
+
+    final pets = await _petsService.listarPets(userId!);
+    final funcionarios = await _funcionariosService.listarFuncionarios();
+    final servicos = await _servicosService.listarServicos();
+
     await showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          title: Text('Novo agendamento'),
-          content: TextField(
-            controller: descricaoController,
-            decoration: const InputDecoration(
-              labelText: 'Descrição',
-              border: OutlineInputBorder(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final novo = {
-                  'id': DateTime.now().millisecondsSinceEpoch,
-                  'idCliente': userId,
-                  'descricao': descricaoController.text,
-                  'status': 'Em análise',
-                  'data': dia.toIso8601String(),
-                };
-                setState(() {
-                  final key = DateTime(dia.year, dia.month, dia.day);
-                  _agendamentos.putIfAbsent(key, () => []).add(novo);
-                });
-                Navigator.pop(context);
-              },
-              child: const Text('Salvar'),
-            ),
-          ],
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              title: const Text(
+                'Novo agendamento',
+                style: TextStyle(fontSize: 20),
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    DropdownButtonFormField<int>(
+                      decoration: const InputDecoration(
+                        labelText: 'Selecione o pet',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: _formAgendamento['selectedPetId'],
+                      items: pets
+                          .map<DropdownMenuItem<int>>(
+                            (pet) => DropdownMenuItem<int>(
+                              value: pet.idPet,
+                              child: Text(pet.nomePet),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) => setState(() {
+                        _formAgendamento['selectedPetId'] = value;
+                      }),
+                    ),
+                    const SizedBox(height: 10),
+
+                    DropdownButtonFormField<int>(
+                      decoration: const InputDecoration(
+                        labelText: 'Selecione o funcionário',
+                        border: OutlineInputBorder(),
+                      ),
+                      value: _formAgendamento['selectedFuncionarioId'],
+                      items: funcionarios
+                          .map<DropdownMenuItem<int>>(
+                            (func) => DropdownMenuItem<int>(
+                              value: func.idFuncionario,
+                              child: Text(func.nomeFuncionario),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (value) => setState(() {
+                        _formAgendamento['selectedFuncionarioId'] = value;
+                      }),
+                    ),
+                    const SizedBox(height: 10),
+
+                    const Text(
+                      'Serviços:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    ...servicos.map(
+                      (serv) => CheckboxListTile(
+                        title: Text(serv.nomeServico),
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
+                        value: _formAgendamento['selectedServicos'].contains(
+                          serv.idServico,
+                        ),
+                        onChanged: (checked) => setState(() {
+                          if (checked == true) {
+                            _formAgendamento['selectedServicos'].add(
+                              serv.idServico,
+                            );
+                          } else {
+                            _formAgendamento['selectedServicos'].remove(
+                              serv.idServico,
+                            );
+                          }
+                        }),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            icon: const Icon(Icons.access_time),
+                            label: Text(
+                              _formAgendamento['selectedHora'] == null
+                                  ? 'Selecionar hora'
+                                  : _formAgendamento['selectedHora']!.format(
+                                      context,
+                                    ),
+                            ),
+                            onPressed: () async {
+                              final hora = await showTimePicker(
+                                context: context,
+                                initialTime: TimeOfDay.now(),
+                              );
+                              if (hora != null) {
+                                setState(
+                                  () => _formAgendamento['selectedHora'] = hora,
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_formAgendamento['selectedPetId'] == null ||
+                        _formAgendamento['selectedFuncionarioId'] == null ||
+                        _formAgendamento['selectedServicos'].isEmpty ||
+                        _formAgendamento['selectedHora'] == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Preencha todos os campos obrigatórios.',
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+
+                    final agora = DateTime.now();
+                    final dataHora = DateTime(
+                      dia.year,
+                      dia.month,
+                      dia.day,
+                      _formAgendamento['selectedHora']!.hour,
+                      _formAgendamento['selectedHora']!.minute,
+                    );
+
+                    final Map<String, dynamic> agendamentoData = {
+                      'idCliente': userId!,
+                      'idPet': _formAgendamento['selectedPetId'],
+                      'idFuncionario':
+                          _formAgendamento['selectedFuncionarioId'],
+                      'idServico': List<int>.from(
+                        _formAgendamento['selectedServicos'],
+                      ),
+                      'dataHoraAgendamento': dataHora.toIso8601String(),
+                      'observacaoAgendamento': null,
+                      'statusAgendamento':
+                          'EM_ANALISE', // string para o backend
+                    };
+
+                    try {
+                      final novo = await _agendamentosService.criarAgendamento(agendamentoData);
+
+                      if (novo != null) {
+                        setState(() {
+                          _agendamentosDoUsuario.add(novo);
+                          final key = DateTime(dia.year, dia.month, dia.day);
+                          _agendamentosPorDia.putIfAbsent(key, () => []).add(novo);
+                        });
+
+                        Navigator.pop(context);
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Agendamento criado com sucesso!'),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Erro ao criar agendamento: $e'),
+                        ),
+                      );
+                    }
+                  },
+                  child: const Text('Salvar'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -221,10 +436,11 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final agendamentosLista = _agendamentos.values.expand((e) => e).toList();
+    final agendamentosLista = _agendamentosPorDia.values.expand((e) => e).toList();
+
     final agendamentosFiltrados = isAdmin
         ? agendamentosLista
-        : agendamentosLista.where((a) => a['idCliente'] == userId).toList();
+        : agendamentosLista.where((a) => a.idCliente == userId).toList();
 
     return Padding(
       padding: const EdgeInsets.all(15),
@@ -252,23 +468,18 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                 selected: _secao == 'Calendário',
                 onSelected: (_) => setState(() => _secao = 'Calendário'),
                 selectedColor: const Color(0xFF98E6F6),
-                backgroundColor:
-                    Colors.white,
+                backgroundColor: Colors.white,
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(5),
                     topLeft: Radius.circular(5),
                   ),
-                  side: BorderSide.none, 
+                  side: BorderSide.none,
                 ),
               ),
-              SizedBox(width: 2,),
-              Container(
-                height: 38,
-                width: 1,
-                color: Colors.black,
-              ),
-              SizedBox(width: 2,),
+              SizedBox(width: 1),
+              Container(height: 38, width: 1, color: Colors.black),
+              SizedBox(width: 1),
               ChoiceChip(
                 label: const Text('Listagem'),
                 selected: _secao == 'Listagem',
@@ -286,10 +497,13 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
             ],
           ),
           SizedBox(height: 15),
+          // Expanded(
+          //   child: _secao == 'Calendário'
+          //       ? _buildCalendario()
+          //       : _buildLista(agendamentosFiltrados),
+          // ),
           Expanded(
-            child: _secao == 'Calendário'
-                ? _buildCalendario()
-                : _buildLista(agendamentosFiltrados),
+            child: _buildCalendario()
           ),
         ],
       ),
@@ -297,67 +511,73 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
   }
 
   Widget _buildCalendario() {
-    return TableCalendar(
-      firstDay: _focusedDay.toUtc(),
-      lastDay: DateTime(
-        _focusedDay.toUtc().year,
-        _focusedDay.toUtc().month + 2,
-        _focusedDay.toUtc().day,
-      ),
-      focusedDay: _focusedDay,
-      calendarFormat: CalendarFormat.month,
-      selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-      onDaySelected: _onDaySelected,
-      onPageChanged: (focusedDay) {
-        _focusedDay = focusedDay;
-      },
-      availableCalendarFormats: const { CalendarFormat.month: 'Month' },
-      eventLoader: _getAgendamentosPorDia,
-      calendarStyle: const CalendarStyle(
-        todayDecoration: BoxDecoration(
-          color: Color(0xFF98E6F6),
-          shape: BoxShape.circle,
-        ),
-        todayTextStyle: TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-        ),
-        // selectedDecoration: BoxDecoration(
-        //   color: Color(0xFFFCA73B),
-        //   shape: BoxShape.circle,
-        // ),
-        // markerDecoration: BoxDecoration(
-        //   color: Colors.red,
-        //   shape: BoxShape.circle,
-        // ),
-      ),
-    );
-  }
-
-  Widget _buildLista(List<Map<String, dynamic>> agendamentos) {
-    if (agendamentos.isEmpty) {
-      return const Center(child: Text('Nenhum agendamento encontrado.'));
-    }
-
-    return ListView.builder(
-      itemCount: agendamentos.length,
-      itemBuilder: (context, index) {
-        final ag = agendamentos[index];
-        final data = DateTime.parse(ag['data']);
-        return Card(
-          margin: const EdgeInsets.symmetric(vertical: 6),
-          child: ListTile(
-            title: Text(ag['descricao'] ?? 'Sem descrição'),
-            subtitle: Text(
-              'Data: ${data.day}/${data.month}/${data.year} - Status: ${ag['status']}',
+    return Align(
+      alignment: Alignment.topCenter,
+      child: SizedBox(
+        height: 420,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: TableCalendar(
+            firstDay: _focusedDay.toUtc(),
+            lastDay: DateTime(
+              _focusedDay.toUtc().year,
+              _focusedDay.toUtc().month + 2,
+              _focusedDay.toUtc().day,
             ),
-            trailing: IconButton(
-              icon: const Icon(Icons.info_outline),
-              onPressed: () => _mostrarDetalhesAgendamento(ag),
+            focusedDay: _focusedDay,
+            calendarFormat: CalendarFormat.month,
+            selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
+            onDaySelected: (selectedDay, _) {
+              _onDaySelected(selectedDay);
+            },
+            onPageChanged: (focusedDay) {
+              _focusedDay = focusedDay;
+            },
+            availableCalendarFormats: const {CalendarFormat.month: 'Month'},
+            eventLoader: _getAgendamentosPorDia,
+            calendarStyle: const CalendarStyle(
+              todayDecoration: BoxDecoration(
+                color: Color(0xFF98E6F6),
+                shape: BoxShape.circle,
+              ),
+              todayTextStyle: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
+
+  // Widget _buildLista(List<Agendamento> agendamentos) {
+  //   if (agendamentos.isEmpty) {
+  //     return const Center(child: Text('Nenhum agendamento encontrado.'));
+  //   }
+
+  //   return ListView.builder(
+  //     itemCount: agendamentos.length,
+  //     itemBuilder: (context, index) {
+  //       final ag = agendamentos[index];
+  //       final data = DateTime.parse(ag['data']);
+  //       return Card(
+  //         margin: const EdgeInsets.symmetric(vertical: 6),
+  //         child: ListTile(
+  //           title: Text(ag['descricao'] ?? 'Sem descrição'),
+  //           subtitle: Text(
+  //             'Data: ${data.day}/${data.month}/${data.year} - Status: ${ag['status']}',
+  //           ),
+  //           trailing: IconButton(
+  //             icon: const Icon(Icons.info_outline),
+  //             onPressed: () => _mostrarDetalhesAgendamento(ag),
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
 }
