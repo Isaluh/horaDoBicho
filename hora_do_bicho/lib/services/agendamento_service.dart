@@ -5,7 +5,6 @@ import '../models/agendamento.dart';
 class AgendamentosService {
   final String baseUrl = 'http://localhost:8080/agendamentos';
 
-  /// 🔹 Lista todos os agendamentos (ou de um cliente específico, se informado)
   Future<List<Agendamento>> listarAgendamentos({int? idCliente}) async {
     Uri url = idCliente != null
         ? Uri.parse('$baseUrl/cliente/$idCliente')

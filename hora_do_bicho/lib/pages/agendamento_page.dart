@@ -33,11 +33,11 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
   Map<DateTime, List<Agendamento>> _agendamentosPorDia = {};
   List<Agendamento> _agendamentosDoUsuario = [];
 
-
   @override
   void initState() {
     super.initState();
     _carregarUsuario();
+    // _carregarConteudo();
   }
 
   Future<void> _carregarUsuario() async {
@@ -49,6 +49,18 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
     setState(() {
       userId = userJson['idCliente'];
       isAdmin = userJson['permissaoCliente'] == 'ADMIN';
+    });
+
+    _carregarConteudo();
+  }
+
+  Future<void> _carregarConteudo() async {
+    final agendamentos = isAdmin
+        ? await _agendamentosService.listarAgendamentos()
+        : await _agendamentosService.listarAgendamentos(idCliente: userId);
+
+    setState(() {
+      _agendamentosDoUsuario = agendamentos;
     });
   }
 
@@ -66,51 +78,6 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
       // _mostrarDetalhesAgendamento(agendamentosDoDia.first);
     }
   }
-
-  // void _abrirFormAgendamento(DateTime dia) async {
-  //   final descricaoController = TextEditingController();
-  //   await showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(10),
-  //         ),
-  //         title: Text('Novo agendamento'),
-  //         content: TextField(
-  //           controller: descricaoController,
-  //           decoration: const InputDecoration(
-  //             labelText: 'Descrição',
-  //             border: OutlineInputBorder(),
-  //           ),
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () => Navigator.pop(context),
-  //             child: const Text('Cancelar'),
-  //           ),
-  //           ElevatedButton(
-  //             onPressed: () {
-  //               final novo = {
-  //                 'id': DateTime.now().millisecondsSinceEpoch,
-  //                 'idCliente': userId,
-  //                 'descricao': descricaoController.text,
-  //                 'status': 'Em análise',
-  //                 'data': dia.toIso8601String(),
-  //               };
-  //               setState(() {
-  //                 final key = DateTime(dia.year, dia.month, dia.day);
-  //                 _agendamentos.putIfAbsent(key, () => []).add(novo);
-  //               });
-  //               Navigator.pop(context);
-  //             },
-  //             child: const Text('Salvar'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 
   void _abrirFormAgendamento(DateTime dia) async {
     final Map<String, dynamic> _formAgendamento = {
@@ -280,18 +247,21 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                       ),
                       'dataHoraAgendamento': dataHora.toIso8601String(),
                       'observacaoAgendamento': null,
-                      'statusAgendamento':
-                          'EM_ANALISE', // string para o backend
+                      'statusAgendamento': Status.EM_ANALISE.name,
                     };
 
                     try {
-                      final novo = await _agendamentosService.criarAgendamento(agendamentoData);
+                      final novo = await _agendamentosService.criarAgendamento(
+                        agendamentoData,
+                      );
 
                       if (novo != null) {
                         setState(() {
                           _agendamentosDoUsuario.add(novo);
                           final key = DateTime(dia.year, dia.month, dia.day);
-                          _agendamentosPorDia.putIfAbsent(key, () => []).add(novo);
+                          _agendamentosPorDia
+                              .putIfAbsent(key, () => [])
+                              .add(novo);
                         });
 
                         Navigator.pop(context);
@@ -436,12 +406,6 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final agendamentosLista = _agendamentosPorDia.values.expand((e) => e).toList();
-
-    final agendamentosFiltrados = isAdmin
-        ? agendamentosLista
-        : agendamentosLista.where((a) => a.idCliente == userId).toList();
-
     return Padding(
       padding: const EdgeInsets.all(15),
       child: Column(
@@ -497,13 +461,10 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
             ],
           ),
           SizedBox(height: 15),
-          // Expanded(
-          //   child: _secao == 'Calendário'
-          //       ? _buildCalendario()
-          //       : _buildLista(agendamentosFiltrados),
-          // ),
           Expanded(
-            child: _buildCalendario()
+            child: _secao == 'Calendário'
+                ? _buildCalendario()
+                : _buildLista(_agendamentosDoUsuario.toList()),
           ),
         ],
       ),
@@ -548,36 +509,82 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+            // calendarBuilders: CalendarBuilders(
+            //   markerBuilder: (context, day, events) {
+            //     if (events.isNotEmpty) {
+            //       // Podemos ter múltiplos agendamentos no mesmo dia
+            //       return Row(
+            //         mainAxisAlignment: MainAxisAlignment.center,
+            //         children: events.map<Widget>((e) {
+            //           final ag = e as Agendamento;
+            //           if (ag.statusAgendamento.name == 'EM_ANALISE') {
+            //             return Padding(
+            //               padding: const EdgeInsets.symmetric(horizontal: 1),
+            //               child: Image.asset(
+            //                 'assets/images/pata.png',
+            //                 width: 16,
+            //                 height: 16,
+            //               ),
+            //             );
+            //           } else if (ag.statusAgendamento.name == 'APROVADO') {
+            //             return Padding(
+            //               padding: const EdgeInsets.symmetric(horizontal: 1),
+            //               child: Image.asset(
+            //                 'assets/images/pata.png',
+            //                 width: 16,
+            //                 height: 16,
+            //               ),
+            //             );
+            //           } else {
+            //             return const SizedBox.shrink();
+            //           }
+            //         }).toList(),
+            //       );
+            //     }
+            //     return null;
+            //   },
+            // ),
           ),
         ),
       ),
     );
   }
 
-  // Widget _buildLista(List<Agendamento> agendamentos) {
-  //   if (agendamentos.isEmpty) {
-  //     return const Center(child: Text('Nenhum agendamento encontrado.'));
-  //   }
+  Widget _buildLista(List<Agendamento> agendamentos) {
+    if (agendamentos.isEmpty) {
+      return const Center(child: Text('Nenhum agendamento encontrado.'));
+    }
 
-  //   return ListView.builder(
-  //     itemCount: agendamentos.length,
-  //     itemBuilder: (context, index) {
-  //       final ag = agendamentos[index];
-  //       final data = DateTime.parse(ag['data']);
-  //       return Card(
-  //         margin: const EdgeInsets.symmetric(vertical: 6),
-  //         child: ListTile(
-  //           title: Text(ag['descricao'] ?? 'Sem descrição'),
-  //           subtitle: Text(
-  //             'Data: ${data.day}/${data.month}/${data.year} - Status: ${ag['status']}',
-  //           ),
-  //           trailing: IconButton(
-  //             icon: const Icon(Icons.info_outline),
-  //             onPressed: () => _mostrarDetalhesAgendamento(ag),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
+    return ListView.builder(
+      itemCount: agendamentos.length,
+      itemBuilder: (context, index) {
+        final ag = agendamentos[index];
+
+        final dataFormatada =
+            '${ag.dataHoraAgendamento.day.toString().padLeft(2, '0')}/'
+            '${ag.dataHoraAgendamento.month.toString().padLeft(2, '0')}/'
+            '${ag.dataHoraAgendamento.year} - '
+            '${ag.dataHoraAgendamento.hour.toString().padLeft(2, '0')}:'
+            '${ag.dataHoraAgendamento.minute.toString().padLeft(2, '0')}';
+
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+          child: ListTile(
+            title: Text('Agendamento #${ag.idAgendamento}'),
+            subtitle: Text(
+              'Cliente: ${ag.idCliente}\n'
+              'Pet: ${ag.idPet}\n'
+              'Data: $dataFormatada\n'
+              'Status: ${ag.statusAgendamento.name}',
+            ),
+            trailing: IconButton(
+              icon: const Icon(Icons.info_outline),
+              onPressed: () =>
+                  _mostrarDetalhesAgendamento(ag as Map<String, dynamic>),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
