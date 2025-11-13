@@ -22,7 +22,6 @@ import com.bambooByte.horaDoBicho.services.NotificacaoService;
 @RequestMapping("/agendamentos")
 public class AgendamentoController {
 
-
     @Autowired
     private AgendamentoService agendamentoService;
 
@@ -31,7 +30,47 @@ public class AgendamentoController {
 
     @PostMapping
     public ResponseEntity<Agendamento> create(@RequestBody Agendamento agendamento) {
-        return ResponseEntity.ok(agendamentoService.create(agendamento));
+        if (agendamento.getIdCliente() != null && agendamento.getIdCliente().getIdCliente() != null) {
+            agendamento.setIdCliente(
+                    agendamentoService.clienteRepository.findById(agendamento.getIdCliente().getIdCliente())
+                            .orElseThrow(() -> new RuntimeException("Cliente não encontrado")));
+        }
+        if (agendamento.getIdPet() != null && agendamento.getIdPet().getIdPet() != null) {
+            agendamento.setIdPet(agendamentoService.petRepository.findById(agendamento.getIdPet().getIdPet())
+                    .orElseThrow(() -> new RuntimeException("Pet não encontrado")));
+        }
+        if (agendamento.getIdFuncionario() != null && agendamento.getIdFuncionario().getIdFuncionario() != null) {
+            agendamento.setIdFuncionario(
+                    agendamentoService.funcionarioRepository.findById(agendamento.getIdFuncionario().getIdFuncionario())
+                            .orElseThrow(() -> new RuntimeException("Funcionário não encontrado")));
+        }
+        if (agendamento.getIdServico() != null && !agendamento.getIdServico().isEmpty()) {
+            java.util.List<com.bambooByte.horaDoBicho.entities.Servico> servicos = new java.util.ArrayList<>();
+            for (com.bambooByte.horaDoBicho.entities.Servico s : agendamento.getIdServico()) {
+                if (s.getIdServico() != null) {
+                    servicos.add(agendamentoService.servicoRepository.findById(s.getIdServico())
+                            .orElseThrow(() -> new RuntimeException("Serviço não encontrado: " + s.getIdServico())));
+                }
+            }
+            agendamento.setIdServico(servicos);
+        }
+
+        java.time.LocalDateTime hoje = java.time.LocalDateTime.now();
+        java.time.LocalDateTime limite = hoje.plusMonths(2);
+        if (agendamento.getDataHoraAgendamento().isBefore(hoje)
+                || agendamento.getDataHoraAgendamento().isAfter(limite)) {
+            throw new RuntimeException("Data de agendamento fora do permitido");
+        }
+
+        if (agendamento.getObservacaoAgendamento() == null) {
+            agendamento.setObservacaoAgendamento("");
+        }
+
+        agendamento.setStatusAgendamento(com.bambooByte.horaDoBicho.enums.Status.EM_ANALISE);
+
+        notificacaoService.criarNotificacao(1L, "Novo agendamento criado e aguardando análise."); // 1L = id do admin
+        Agendamento salvo = agendamentoService.create(agendamento);
+        return ResponseEntity.ok(salvo);
     }
 
     @GetMapping("/{id}")
