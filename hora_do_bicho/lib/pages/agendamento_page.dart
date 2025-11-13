@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:hora_do_bicho/components/botoes.dart';
+import 'package:hora_do_bicho/components/gesto.dart';
 import 'package:hora_do_bicho/models/agendamento.dart';
 import 'package:hora_do_bicho/models/pet.dart';
 import 'package:hora_do_bicho/services/agendamento_service.dart';
@@ -154,25 +156,30 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                       'Serviços:',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    ...servicos.map(
-                      (serv) => CheckboxListTile(
-                        title: Text(serv.nomeServico),
-                        dense: true,
-                        contentPadding: EdgeInsets.zero,
-                        value: _formAgendamento['selectedServicos'].contains(
-                          serv.idServico,
-                        ),
-                        onChanged: (checked) => setState(() {
-                          if (checked == true) {
-                            _formAgendamento['selectedServicos'].add(
-                              serv.idServico,
-                            );
-                          } else {
-                            _formAgendamento['selectedServicos'].remove(
-                              serv.idServico,
-                            );
-                          }
-                        }),
+                    SizedBox(
+                      height: 150, // Altura fixa para permitir scroll
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: servicos.map((serv) {
+                          return CheckboxListTile(
+                            title: Text(serv.nomeServico),
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                            value: _formAgendamento['selectedServicos']
+                                .contains(serv.idServico),
+                            onChanged: (checked) => setState(() {
+                              if (checked == true) {
+                                _formAgendamento['selectedServicos'].add(
+                                  serv.idServico,
+                                );
+                              } else {
+                                _formAgendamento['selectedServicos'].remove(
+                                  serv.idServico,
+                                );
+                              }
+                            }),
+                          );
+                        }).toList(),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -181,6 +188,22 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                       children: [
                         Expanded(
                           child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  6,
+                                ), // menos arredondado
+                              ),
+                              side: const BorderSide(
+                                color: Color(0xFF6B3E26)
+                              ), // opcional: borda
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 16,
+                              ),
+                              iconColor: Color(0xFF6B3E26),
+                              foregroundColor: Color(0xFF6B3E26)
+                            ),
                             icon: const Icon(Icons.access_time),
                             label: Text(
                               _formAgendamento['selectedHora'] == null
@@ -208,11 +231,12 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                 ),
               ),
               actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancelar'),
+                GestureDetectorComponent(
+                  onTap: () => Navigator.pop(context),
+                  label: 'Cancelar', color: Colors.black ,fontSize: 16,
                 ),
-                ElevatedButton(
+                SizedBox(width: 10),
+                ElevatedButtonComponent(
                   onPressed: () async {
                     if (_formAgendamento['selectedPetId'] == null ||
                         _formAgendamento['selectedFuncionarioId'] == null ||
@@ -280,7 +304,9 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                       );
                     }
                   },
-                  child: const Text('Salvar'),
+                  text: 'Salvar',
+                  color: const Color(0xFF98E6F6),
+                  textColor: Colors.black,
                 ),
               ],
             );

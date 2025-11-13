@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:hora_do_bicho/components/botoes.dart';
+import 'package:hora_do_bicho/components/gesto.dart';
 import 'package:hora_do_bicho/components/modal.dart';
 import 'package:hora_do_bicho/models/funcionario.dart';
 import 'package:hora_do_bicho/models/servico.dart';
@@ -252,13 +253,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
           ),
           content: Text('Tem certeza que deseja excluir $nomeItem?'),
           actions: [
-            GestureDetector(
-              onTap: () => Navigator.pop(context, false),
-              child: const Text(
-                'Cancelar',
-                style: TextStyle(fontSize: 16, color: Colors.black),
-              ),
-            ),
+            GestureDetectorComponent(label: 'Cancelar', onTap: () => Navigator.pop(context, false), color: Colors.black, fontSize: 16,),
             SizedBox(width: 10),
             ElevatedButtonComponent(
               onPressed: () => Navigator.pop(context, true),

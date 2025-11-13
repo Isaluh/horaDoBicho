@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:hora_do_bicho/components/botoes.dart';
+import 'package:hora_do_bicho/components/gesto.dart';
 import 'package:hora_do_bicho/components/layout.dart';
 import 'package:hora_do_bicho/models/user.dart';
 import 'package:hora_do_bicho/pages/cadastro_page.dart';
@@ -123,13 +124,14 @@ class _LoginPageState extends State<LoginPage> {
                 child: Image.asset("assets/images/separacao.png", width: 400),
               ),
               SizedBox(height: 15),
-              GestureDetector(
-                onTap: _goToCadastroPage,
-                child: const Text(
-                  'Criar uma conta',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
-                ),
-              ),
+              // GestureDetector(
+              //   onTap: _goToCadastroPage,
+              //   child: const Text(
+              //     'Criar uma conta',
+              //     style: TextStyle(fontSize: 16, color: Colors.white),
+              //   ),
+              // ),
+              GestureDetectorComponent(label: 'Criar uma conta', onTap: _goToCadastroPage, color: Colors.white, fontSize: 16,)
             ],
           ),
         ),
