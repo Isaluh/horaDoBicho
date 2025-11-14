@@ -1,11 +1,12 @@
 import 'dart:convert';
+import 'package:hora_do_bicho/models/agendamento_response.dart';
 import 'package:http/http.dart' as http;
 import '../models/agendamento.dart';
 
 class AgendamentosService {
   final String baseUrl = 'http://localhost:8080/agendamentos';
 
-  Future<List<Agendamento>> listarAgendamentos({int? idCliente}) async {
+  Future<List<AgendamentoResponse>> listarAgendamentos({int? idCliente}) async {
     Uri url = idCliente != null
         ? Uri.parse('$baseUrl/cliente/$idCliente')
         : Uri.parse(baseUrl);
@@ -14,11 +15,12 @@ class AgendamentosService {
 
     if (response.statusCode == 200) {
       final List<dynamic> listaJson = jsonDecode(response.body);
-      return listaJson.map((json) => Agendamento.fromJson(json)).toList();
+      return listaJson.map((json) => AgendamentoResponse.fromJson(json)).toList();
     } else {
       throw Exception('Falha ao listar agendamentos (${response.statusCode})');
     }
   }
+
 
   Future<Agendamento?> criarAgendamento(Map<String, dynamic> dados) async {
     final response = await http.post(
@@ -49,15 +51,16 @@ class AgendamentosService {
     }
   }
 
-  Future<Agendamento?> getAgendamento(int id) async {
+  Future<AgendamentoResponse?> getAgendamento(int id) async {
     final response = await http.get(Uri.parse('$baseUrl/$id'));
 
     if (response.statusCode == 200) {
-      return Agendamento.fromJson(jsonDecode(response.body));
+      return AgendamentoResponse.fromJson(jsonDecode(response.body));
     } else {
-      throw Exception('Falha ao obter dados do agendamento (${response.statusCode})');
+      throw Exception('Falha ao obter dados do agendamento');
     }
   }
+
 
   Future<void> deletarAgendamento(int id) async {
     final response = await http.delete(Uri.parse('$baseUrl/$id'));

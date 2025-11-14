@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hora_do_bicho/components/botoes.dart';
 import 'package:hora_do_bicho/components/gesto.dart';
 import 'package:hora_do_bicho/models/agendamento.dart';
+import 'package:hora_do_bicho/models/agendamento_response.dart';
 import 'package:hora_do_bicho/models/pet.dart';
 import 'package:hora_do_bicho/services/agendamento_service.dart';
 import 'package:hora_do_bicho/services/funcionarios_service.dart';
@@ -32,14 +33,13 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
 
   String _secao = 'Calendário';
 
-  Map<DateTime, List<Agendamento>> _agendamentosPorDia = {};
-  List<Agendamento> _agendamentosDoUsuario = [];
+  Map<DateTime, List<AgendamentoResponse>> _agendamentosPorDia = {};
+  List<AgendamentoResponse> _agendamentosDoUsuario = [];
 
   @override
   void initState() {
     super.initState();
     _carregarUsuario();
-    // _carregarConteudo();
   }
 
   Future<void> _carregarUsuario() async {
@@ -64,9 +64,25 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
     setState(() {
       _agendamentosDoUsuario = agendamentos;
     });
+
+    _organizarPorDia();
   }
 
-  List<Agendamento> _getAgendamentosPorDia(DateTime day) {
+  void _organizarPorDia() {
+    _agendamentosPorDia.clear();
+
+    for (final ag in _agendamentosDoUsuario) {
+      final key = DateTime(
+        ag.dataHoraAgendamento.year,
+        ag.dataHoraAgendamento.month,
+        ag.dataHoraAgendamento.day,
+      );
+
+      _agendamentosPorDia.putIfAbsent(key, () => []).add(ag);
+    }
+  }
+
+  List<AgendamentoResponse> _getAgendamentosPorDia(DateTime day) {
     final key = DateTime(day.year, day.month, day.day);
     return _agendamentosPorDia[key] ?? [];
   }
@@ -195,14 +211,14 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                                 ), // menos arredondado
                               ),
                               side: const BorderSide(
-                                color: Color(0xFF6B3E26)
+                                color: Color(0xFF6B3E26),
                               ), // opcional: borda
                               padding: const EdgeInsets.symmetric(
                                 vertical: 12,
                                 horizontal: 16,
                               ),
                               iconColor: Color(0xFF6B3E26),
-                              foregroundColor: Color(0xFF6B3E26)
+                              foregroundColor: Color(0xFF6B3E26),
                             ),
                             icon: const Icon(Icons.access_time),
                             label: Text(
@@ -233,7 +249,9 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
               actions: [
                 GestureDetectorComponent(
                   onTap: () => Navigator.pop(context),
-                  label: 'Cancelar', color: Colors.black ,fontSize: 16,
+                  label: 'Cancelar',
+                  color: Colors.black,
+                  fontSize: 16,
                 ),
                 SizedBox(width: 10),
                 ElevatedButtonComponent(
@@ -280,13 +298,7 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                       );
 
                       if (novo != null) {
-                        setState(() {
-                          _agendamentosDoUsuario.add(novo);
-                          final key = DateTime(dia.year, dia.month, dia.day);
-                          _agendamentosPorDia
-                              .putIfAbsent(key, () => [])
-                              .add(novo);
-                        });
+                        await _carregarConteudo();
 
                         Navigator.pop(context);
 
@@ -317,112 +329,145 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
   }
 
   /// Mostra detalhes do agendamento
-  void _mostrarDetalhesAgendamento(Map<String, dynamic> agendamento) {
-    final status = agendamento['status'];
-    final descricao = agendamento['descricao'];
-    final dia = DateTime.parse(agendamento['data']);
+  // void _mostrarDetalhesAgendamento(Map<String, dynamic> agendamento) {
+  //   final status = agendamento['status'];
+  //   final descricao = agendamento['descricao'];
+  //   final dia = DateTime.parse(agendamento['data']);
 
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       final controller = TextEditingController(text: descricao);
+  //       return AlertDialog(
+  //         title: Text('Agendamento ${isAdmin ? "(${status})" : ""}'),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             Text('Data: ${dia.day}/${dia.month}/${dia.year}'),
+  //             const SizedBox(height: 10),
+  //             TextField(
+  //               controller: controller,
+  //               enabled: !isAdmin && status == 'Em análise',
+  //               decoration: const InputDecoration(
+  //                 labelText: 'Descrição',
+  //                 border: OutlineInputBorder(),
+  //               ),
+  //             ),
+  //             const SizedBox(height: 10),
+  //             if (isAdmin) ...[
+  //               const Divider(),
+  //               Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //                 children: [
+  //                   ElevatedButton.icon(
+  //                     onPressed: () {
+  //                       setState(() {
+  //                         agendamento['status'] = 'Aprovado';
+  //                       });
+  //                       Navigator.pop(context);
+  //                     },
+  //                     icon: const Icon(Icons.check_circle, color: Colors.white),
+  //                     label: const Text('Aprovar'),
+  //                     style: ElevatedButton.styleFrom(
+  //                       backgroundColor: Colors.green,
+  //                     ),
+  //                   ),
+  //                   ElevatedButton.icon(
+  //                     onPressed: () async {
+  //                       final motivoController = TextEditingController();
+  //                       final motivo = await showDialog<String>(
+  //                         context: context,
+  //                         builder: (context) {
+  //                           return AlertDialog(
+  //                             title: const Text('Motivo da reprovação'),
+  //                             content: TextField(
+  //                               controller: motivoController,
+  //                               decoration: const InputDecoration(
+  //                                 hintText: 'Descreva o motivo...',
+  //                               ),
+  //                             ),
+  //                             actions: [
+  //                               TextButton(
+  //                                 onPressed: () => Navigator.pop(context),
+  //                                 child: const Text('Cancelar'),
+  //                               ),
+  //                               ElevatedButton(
+  //                                 onPressed: () => Navigator.pop(
+  //                                   context,
+  //                                   motivoController.text,
+  //                                 ),
+  //                                 child: const Text('Enviar'),
+  //                               ),
+  //                             ],
+  //                           );
+  //                         },
+  //                       );
+  //                       if (motivo != null && motivo.isNotEmpty) {
+  //                         setState(() {
+  //                           agendamento['status'] = 'Reprovado';
+  //                           agendamento['motivo'] = motivo;
+  //                         });
+  //                       }
+  //                       Navigator.pop(context);
+  //                     },
+  //                     icon: const Icon(Icons.cancel, color: Colors.white),
+  //                     label: const Text('Reprovar'),
+  //                     style: ElevatedButton.styleFrom(
+  //                       backgroundColor: Colors.red,
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ],
+  //           ],
+  //         ),
+  //         actions: [
+  //           if (!isAdmin && status == 'Em análise')
+  //             ElevatedButton(
+  //               onPressed: () {
+  //                 setState(() {
+  //                   agendamento['descricao'] = controller.text;
+  //                 });
+  //                 Navigator.pop(context);
+  //               },
+  //               child: const Text('Salvar'),
+  //             ),
+  //           TextButton(
+  //             onPressed: () => Navigator.pop(context),
+  //             child: const Text('Fechar'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
+  void _mostrarDetalhesAgendamento(AgendamentoResponse ag) {
     showDialog(
       context: context,
       builder: (context) {
-        final controller = TextEditingController(text: descricao);
         return AlertDialog(
-          title: Text('Agendamento ${isAdmin ? "(${status})" : ""}'),
+          title: Text('Agendamento #${ag.idAgendamento}'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Data: ${dia.day}/${dia.month}/${dia.year}'),
+              Text('Cliente: ${ag.cliente.nomeCliente}'),
+              Text('Pet: ${ag.pet.nomePet}'),
+              Text('Funcionário: ${ag.funcionario.nomeFuncionario}'),
               const SizedBox(height: 10),
-              TextField(
-                controller: controller,
-                enabled: !isAdmin && status == 'Em análise',
-                decoration: const InputDecoration(
-                  labelText: 'Descrição',
-                  border: OutlineInputBorder(),
-                ),
+              Text('Serviços:'),
+              ...ag.servicos.map(
+                (s) => Text('- ${s.nomeServico} (R\$ ${s.precoServico})'),
               ),
               const SizedBox(height: 10),
-              if (isAdmin) ...[
-                const Divider(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          agendamento['status'] = 'Aprovado';
-                        });
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.check_circle, color: Colors.white),
-                      label: const Text('Aprovar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        final motivoController = TextEditingController();
-                        final motivo = await showDialog<String>(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text('Motivo da reprovação'),
-                              content: TextField(
-                                controller: motivoController,
-                                decoration: const InputDecoration(
-                                  hintText: 'Descreva o motivo...',
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Cancelar'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () => Navigator.pop(
-                                    context,
-                                    motivoController.text,
-                                  ),
-                                  child: const Text('Enviar'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                        if (motivo != null && motivo.isNotEmpty) {
-                          setState(() {
-                            agendamento['status'] = 'Reprovado';
-                            agendamento['motivo'] = motivo;
-                          });
-                        }
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.cancel, color: Colors.white),
-                      label: const Text('Reprovar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+              Text('Status: ${ag.statusAgendamento.name}'),
             ],
           ),
           actions: [
-            if (!isAdmin && status == 'Em análise')
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    agendamento['descricao'] = controller.text;
-                  });
-                  Navigator.pop(context);
-                },
-                child: const Text('Salvar'),
-              ),
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Fechar'),
+              child: const Text("Fechar"),
             ),
           ],
         );
@@ -535,48 +580,65 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            // calendarBuilders: CalendarBuilders(
-            //   markerBuilder: (context, day, events) {
-            //     if (events.isNotEmpty) {
-            //       // Podemos ter múltiplos agendamentos no mesmo dia
-            //       return Row(
-            //         mainAxisAlignment: MainAxisAlignment.center,
-            //         children: events.map<Widget>((e) {
-            //           final ag = e as Agendamento;
-            //           if (ag.statusAgendamento.name == 'EM_ANALISE') {
-            //             return Padding(
-            //               padding: const EdgeInsets.symmetric(horizontal: 1),
-            //               child: Image.asset(
-            //                 'assets/images/pata.png',
-            //                 width: 16,
-            //                 height: 16,
-            //               ),
-            //             );
-            //           } else if (ag.statusAgendamento.name == 'APROVADO') {
-            //             return Padding(
-            //               padding: const EdgeInsets.symmetric(horizontal: 1),
-            //               child: Image.asset(
-            //                 'assets/images/pata.png',
-            //                 width: 16,
-            //                 height: 16,
-            //               ),
-            //             );
-            //           } else {
-            //             return const SizedBox.shrink();
-            //           }
-            //         }).toList(),
-            //       );
-            //     }
-            //     return null;
-            //   },
-            // ),
+            calendarBuilders: CalendarBuilders(
+              markerBuilder: (context, day, events) {
+                if (events.isEmpty) return null;
+
+                final hasEmAnalise = events.any(
+                  (event) =>
+                      (event as AgendamentoResponse).statusAgendamento!.name ==
+                      'EM_ANALISE',
+                );
+                final allAprovado = events.every(
+                  (event) =>
+                      (event as AgendamentoResponse).statusAgendamento!.name ==
+                      'APROVADO',
+                );
+
+                String assetPath;
+
+                if (hasEmAnalise) {
+                  assetPath = 'assets/images/pata.png';
+                } else if (allAprovado) {
+                  assetPath = 'assets/images/pataAzul.png';
+                } else {
+                  // Caso tenha algum status diferente, pode colocar uma pata cinza, ou nada
+                  return null;
+                }
+
+                return Stack(
+                  // colocar a primeira no laranja
+                  alignment: Alignment.center,
+                  children: [
+                    if (hasEmAnalise)
+                      Positioned(
+                        top: 10,
+                        child: Image.asset(
+                          'assets/images/pata.png',
+                          width: 30,
+                          height: 30,
+                        ),
+                      )
+                    else if (allAprovado)
+                      Positioned(
+                        top: 10,
+                        child: Image.asset(
+                          'assets/images/pataAzul.png',
+                          width: 30,
+                          height: 30,
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildLista(List<Agendamento> agendamentos) {
+  Widget _buildLista(List<AgendamentoResponse> agendamentos) {
     if (agendamentos.isEmpty) {
       return const Center(child: Text('Nenhum agendamento encontrado.'));
     }
@@ -586,27 +648,25 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
       itemBuilder: (context, index) {
         final ag = agendamentos[index];
 
+        final data = ag.dataHoraAgendamento;
         final dataFormatada =
-            '${ag.dataHoraAgendamento.day.toString().padLeft(2, '0')}/'
-            '${ag.dataHoraAgendamento.month.toString().padLeft(2, '0')}/'
-            '${ag.dataHoraAgendamento.year} - '
-            '${ag.dataHoraAgendamento.hour.toString().padLeft(2, '0')}:'
-            '${ag.dataHoraAgendamento.minute.toString().padLeft(2, '0')}';
+            '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year} '
+            '${data.hour.toString().padLeft(2, '0')}:${data.minute.toString().padLeft(2, '0')}';
 
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
           child: ListTile(
             title: Text('Agendamento #${ag.idAgendamento}'),
             subtitle: Text(
-              'Cliente: ${ag.idCliente}\n'
-              'Pet: ${ag.idPet}\n'
+              'Cliente: ${ag.cliente.nomeCliente}\n'
+              'Pet: ${ag.pet.nomePet}\n'
+              'Funcionário: ${ag.funcionario.nomeFuncionario}\n'
               'Data: $dataFormatada\n'
               'Status: ${ag.statusAgendamento.name}',
             ),
             trailing: IconButton(
               icon: const Icon(Icons.info_outline),
-              onPressed: () =>
-                  _mostrarDetalhesAgendamento(ag as Map<String, dynamic>),
+              onPressed: () => _mostrarDetalhesAgendamento(ag),
             ),
           ),
         );
