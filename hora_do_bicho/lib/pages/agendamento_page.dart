@@ -91,9 +91,9 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
 
   void _onDaySelected(DateTime selectedDay) {
     final agendamentosDoDia = _getAgendamentosPorDia(selectedDay);
-    if (agendamentosDoDia.isEmpty) {
+    if (agendamentosDoDia.isEmpty && !isAdmin) {
       _abrirFormAgendamento(selectedDay);
-    } else {
+    } else if ((agendamentosDoDia.isNotEmpty)) {
       _mostrarListaAgendamentos(agendamentosDoDia);
     }
   }
@@ -114,12 +114,9 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
             'idCliente': userId!,
             'idPet': formData['idPet'],
             'idFuncionario': formData['idFuncionario'],
-            'idServico': List<int>.from(formData['selectedServicos'] ?? []),
+            'idServico': formData['idServico'],
             'dataHoraAgendamento': dataHora.toIso8601String(),
-            'observacaoAgendamento':
-                formData['descricao']?.text?.isEmpty ?? true
-                ? null
-                : formData['descricao']!.text,
+            'observacaoAgendamento': formData['observacaoAgendamento'],
             'statusAgendamento': Status.EM_ANALISE.name,
           };
 
@@ -157,6 +154,7 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Agendados do dia', style: TextStyle(fontSize: 20)),
+              if(!isAdmin)
               IconButton(
                 icon: const Icon(Icons.add, size: 20),
                 onPressed: () {
@@ -489,7 +487,7 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
   //   );
   // }
 
-// TESTAR EDIÇÃO E VERIFICAR SE SERVIÇOS ESTA SENDO ENVIADO
+  // CRIAR LOGICA Q SE JA FOI APROVADO OU JA FOI CANCELADO E TAL + SE USUARIO EDITAR VOLTAR PRO EM_ANALISE
   void _mostrarDetalhesAgendamento(AgendamentoResponse agendamento) async {
     await showDialog(
       context: context,
@@ -500,10 +498,28 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
           agendamento: agendamento,
           isAdmin: isAdmin,
           userId: userId!,
-          onSave: (agendamentoData) async {
+          onSave: (formData) async {
             try {
+              print(formData);
+              print(formData['dataHoraAgendamento']);
+              final dataHoraIso = formData['dataHoraAgendamento'] as String?;
+              print(dataHoraIso);
+              final dataHora = DateTime.parse(dataHoraIso!);
+              print(dataHora);
+
+              final Map<String, dynamic> agendamentoData = {
+                'idAgendamento': agendamento.idAgendamento,
+                'idCliente': userId!,
+                'idPet': formData['idPet'],
+                'idFuncionario': formData['idFuncionario'],
+                'idServico': formData['idServico'],
+                'dataHoraAgendamento': dataHora.toIso8601String(),
+                'observacaoAgendamento': formData['observacaoAgendamento'],
+                'statusAgendamento': formData['statusAgendamento'],
+              };
+
               if (isAdmin) {
-                // Apenas atualiza o status
+                // adicionar um observação pro recusado
                 await _agendamentosService.atualizarStatus(
                   agendamento.idAgendamento,
                   StatusExtension.fromString(
@@ -511,12 +527,13 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                   ),
                 );
               } else {
-                // Atualiza todo o agendamento
-                final agendamentoObj = Agendamento.fromJson(agendamentoData);
+                final agendamentoObj = Agendamento.fromJson(
+                  agendamentoData,
+                );
                 await _agendamentosService.atualizarAgendamento(agendamentoObj);
               }
 
-              await _carregarConteudo(); // Recarrega a lista/visualização
+              await _carregarConteudo(); 
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Agendamento atualizado com sucesso!'),
@@ -526,6 +543,7 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(SnackBar(content: Text('Erro ao atualizar: $e')));
+              print(e);
             }
           },
         );

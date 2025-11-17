@@ -1,6 +1,7 @@
 package com.bambooByte.horaDoBicho.controllers;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bambooByte.horaDoBicho.entities.Agendamento;
 import com.bambooByte.horaDoBicho.entities.AgendamentoRequest;
+import com.bambooByte.horaDoBicho.entities.Servico;
 import com.bambooByte.horaDoBicho.enums.Status;
 import com.bambooByte.horaDoBicho.services.AgendamentoService;
 import com.bambooByte.horaDoBicho.services.NotificacaoService;
@@ -74,43 +76,62 @@ public class AgendamentoController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Agendamento novoAgendamento) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody AgendamentoRequest req) {
+
         Optional<Agendamento> agendamentoOpt = agendamentoService.find(id);
-        if (agendamentoOpt.isPresent()) {
-            Agendamento agendamentoExistente = agendamentoOpt.get();
-
-            if (novoAgendamento.getIdCliente() != null) {
-                agendamentoExistente.setIdCliente(novoAgendamento.getIdCliente());
-            }
-            if (novoAgendamento.getIdPet() != null) {
-                agendamentoExistente.setIdPet(novoAgendamento.getIdPet());
-            }
-            if (novoAgendamento.getIdFuncionario() != null) {
-                agendamentoExistente.setIdFuncionario(novoAgendamento.getIdFuncionario());
-            }
-            if (novoAgendamento.getIdServico() != null) {
-                agendamentoExistente.setIdServico(novoAgendamento.getIdServico());
-            }
-            if (novoAgendamento.getDataHoraAgendamento() != null) {
-                agendamentoExistente.setDataHoraAgendamento(novoAgendamento.getDataHoraAgendamento());
-            }
-            if (novoAgendamento.getObservacaoAgendamento() != null) {
-                agendamentoExistente.setObservacaoAgendamento(novoAgendamento.getObservacaoAgendamento());
-            }
-            if (novoAgendamento.getStatusAgendamento() != null) {
-                agendamentoExistente.setStatusAgendamento(novoAgendamento.getStatusAgendamento());
-            }
-
-            agendamentoService.update(agendamentoExistente);
-            return ResponseEntity.ok(agendamentoExistente);
-        } else {
+        if (agendamentoOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+
+        Agendamento agendamento = agendamentoOpt.get();
+
+        if (req.idPet != null) {
+            agendamento.setIdPet(
+                    agendamentoService.petRepository.findById(req.idPet)
+                            .orElseThrow(() -> new RuntimeException("Pet não encontrado")));
+        }
+
+        if (req.idFuncionario != null) {
+            agendamento.setIdFuncionario(
+                    agendamentoService.funcionarioRepository.findById(req.idFuncionario)
+                            .orElseThrow(() -> new RuntimeException("Funcionário não encontrado")));
+        }
+
+        if (req.idServico != null) {
+
+            List<Servico> novosServicos = req.idServico.stream()
+                    .map(servicoId ->
+                            agendamentoService.servicoRepository.findById(servicoId)
+                                    .orElseThrow(() -> new RuntimeException("Serviço não encontrado: " + servicoId))
+                    )
+                    .toList();
+
+            agendamento.getIdServico().clear();
+            agendamento.getIdServico().addAll(novosServicos);
+        }
+
+        if (req.dataHoraAgendamento != null) {
+            agendamento.setDataHoraAgendamento(req.dataHoraAgendamento);
+        }
+
+        if (req.observacaoAgendamento != null) {
+            agendamento.setObservacaoAgendamento(req.observacaoAgendamento);
+        }
+
+        agendamentoService.update(agendamento);
+
+        return ResponseEntity.ok(agendamento);
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<Agendamento> updateStatus(@PathVariable Long id, @RequestBody String status) {
+    public ResponseEntity<Agendamento> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> requestBody) {
+        String status = requestBody.get("statusAgendamento");
+        if (status == null) {
+            throw new RuntimeException("Campo statusAgendamento é obrigatório");
+        }
+
         Agendamento agendamento = agendamentoService.updateStatus(id, status);
+
         if (agendamento != null && agendamento.getIdCliente() != null) {
             String descricao = "Status do agendamento atualizado para: " + status;
             Long idCliente = agendamento.getIdCliente().getIdCliente();

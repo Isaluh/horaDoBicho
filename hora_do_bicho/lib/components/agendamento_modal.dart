@@ -101,21 +101,21 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
       }
     }
 
-  final dataHora = _formAgendamento['selectedHora'] != null
-      ? DateTime(
-          widget.mode == AgendamentoFormMode.novo
-              ? widget.dia!.year
-              : widget.agendamento!.dataHoraAgendamento.year,
-          widget.mode == AgendamentoFormMode.novo
-              ? widget.dia!.month
-              : widget.agendamento!.dataHoraAgendamento.month,
-          widget.mode == AgendamentoFormMode.novo
-              ? widget.dia!.day
-              : widget.agendamento!.dataHoraAgendamento.day,
-          _formAgendamento['selectedHora']!.hour,
-          _formAgendamento['selectedHora']!.minute,
-        )
-      : widget.agendamento?.dataHoraAgendamento;
+    final dataHora = _formAgendamento['selectedHora'] != null
+        ? DateTime(
+            widget.mode == AgendamentoFormMode.novo
+                ? widget.dia!.year
+                : widget.agendamento!.dataHoraAgendamento.year,
+            widget.mode == AgendamentoFormMode.novo
+                ? widget.dia!.month
+                : widget.agendamento!.dataHoraAgendamento.month,
+            widget.mode == AgendamentoFormMode.novo
+                ? widget.dia!.day
+                : widget.agendamento!.dataHoraAgendamento.day,
+            _formAgendamento['selectedHora']!.hour,
+            _formAgendamento['selectedHora']!.minute,
+          )
+        : widget.agendamento?.dataHoraAgendamento;
 
     final agendamentoData = {
       'idAgendamento': widget.agendamento?.idAgendamento,
@@ -139,14 +139,13 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
       title: Text(
         widget.mode == AgendamentoFormMode.novo
             ? 'Novo agendamento'
-            : 'Detalhes do agendamento',
+            : 'Detalhes',
       ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Pet
             DropdownButtonFormField<int>(
               decoration: const InputDecoration(
                 labelText: 'Selecione o pet',
@@ -168,7 +167,6 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
             ),
             const SizedBox(height: 10),
 
-            // Funcionário
             DropdownButtonFormField<int>(
               decoration: const InputDecoration(
                 labelText: 'Selecione o funcionário',
@@ -191,7 +189,6 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
             ),
             const SizedBox(height: 10),
 
-            // Serviços
             const Text(
               'Serviços:',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -237,7 +234,7 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
               maxLines: 3,
             ),
             const SizedBox(height: 10),
-            // Hora
+
             Row(
               children: [
                 Expanded(
@@ -277,53 +274,90 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
                 ),
               ],
             ),
-            if (widget.isAdmin) const SizedBox(height: 10),
-            // Status
-            if (widget.isAdmin)
-              Row(
-                children: [
-                  const Text(
-                    'Status:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(width: 10),
-                  ChoiceChip(
-                    label: const Text('APROVADO'),
-                    selected:
-                        _formAgendamento['status'] == Status.APROVADO.name,
-                    onSelected: (_) => setState(
-                      () => _formAgendamento['status'] = Status.APROVADO.name,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  ChoiceChip(
-                    label: const Text('CANCELADO'),
-                    selected:
-                        _formAgendamento['status'] == Status.CANCELADO.name,
-                    onSelected: (_) => setState(
-                      () => _formAgendamento['status'] = Status.CANCELADO.name,
-                    ),
-                  ),
-                ],
-              ),
+            // if (widget.isAdmin) const SizedBox(height: 10),
+
+            // if (widget.isAdmin)
+            //   const Text(
+            //     'Status:',
+            //     style: TextStyle(fontWeight: FontWeight.bold),
+            //   ),
+            //   const SizedBox(width: 10),
+            //   Row(
+            //     children: [
+            //       ChoiceChip(
+            //         label: const Text('Aprovar'),
+            //         selected:
+            //             _formAgendamento['status'] == Status.APROVADO.name,
+            //         onSelected: (_) => setState(
+            //           () => _formAgendamento['status'] = Status.APROVADO.name,
+            //         ),
+            //       ),
+            //       const SizedBox(width: 10),
+            //       ChoiceChip(
+            //         label: const Text('Cancelar'),
+            //         selected:
+            //             _formAgendamento['status'] == Status.CANCELADO.name,
+            //         onSelected: (_) => setState(
+            //           () => _formAgendamento['status'] = Status.CANCELADO.name,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
           ],
         ),
       ),
-      actions: [
-        GestureDetectorComponent(
-          onTap: () => Navigator.pop(context),
-          label: 'Cancelar',
-          color: Colors.black,
-          fontSize: 16,
-        ),
-        SizedBox(width: 10),
-        ElevatedButtonComponent(
-          onPressed: _salvar,
-          text: 'Salvar',
-          color: const Color(0xFF98E6F6),
-          textColor: Colors.black,
-        ),
-      ],
+      actions: widget.isAdmin
+          ? [
+              Row(
+                children: [
+                  ChoiceChip(
+                    label: const Text('Aprovar'),
+                    selected:
+                        _formAgendamento['status'] == Status.APROVADO.name,
+                    onSelected: (_) {
+                      setState(() {
+                        _formAgendamento['status'] = Status.APROVADO.name;
+                      });
+                      _salvar();
+                    },
+                  ),
+                  const SizedBox(width: 15),
+                  ChoiceChip(
+                    label: const Text('Desaprovar'),
+                    selected:
+                        _formAgendamento['status'] == Status.CANCELADO.name,
+                    onSelected: (_) {
+                      setState(() {
+                        _formAgendamento['status'] = Status.CANCELADO.name;
+                      });
+                      _salvar();
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              GestureDetectorComponent(
+                onTap: () => Navigator.pop(context),
+                label: 'Cancelar',
+                color: Colors.black,
+                fontSize: 16,
+              ),
+            ]
+          : [
+              GestureDetectorComponent(
+                onTap: () => Navigator.pop(context),
+                label: 'Cancelar',
+                color: Colors.black,
+                fontSize: 16,
+              ),
+              const SizedBox(width: 10),
+              ElevatedButtonComponent(
+                onPressed: _salvar,
+                text: 'Salvar',
+                color: const Color(0xFF98E6F6),
+                textColor: Colors.black,
+              ),
+            ],
     );
   }
 }

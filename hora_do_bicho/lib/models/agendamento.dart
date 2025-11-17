@@ -39,9 +39,9 @@ class Agendamento {
       'idPet': idPet,
       'idFuncionario': idFuncionario,
       'idServico': idServico,
-      'dataHoraAgendamento': dataHoraAgendamento,
+      'dataHoraAgendamento': dataHoraAgendamento.toIso8601String(),
       'observacaoAgendamento': observacaoAgendamento,
-      'statusAgendamento': statusAgendamento
+      'statusAgendamento': statusAgendamento.name
     };
   }
 }

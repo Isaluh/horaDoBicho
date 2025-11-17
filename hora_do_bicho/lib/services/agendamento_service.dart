@@ -39,7 +39,7 @@ class AgendamentosService {
 
   Future<AgendamentoResponse?> atualizarAgendamento(Agendamento agendamento) async {
     final response = await http.put(
-      Uri.parse(baseUrl),
+      Uri.parse('$baseUrl/${agendamento.idAgendamento}'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(agendamento.toJson()),
     );
@@ -61,7 +61,6 @@ class AgendamentosService {
     }
   }
 
-
   Future<void> deletarAgendamento(int id) async {
     final response = await http.delete(Uri.parse('$baseUrl/$id'));
 
@@ -76,7 +75,7 @@ class AgendamentosService {
       if (motivo != null) 'motivo': motivo,
     };
 
-    final response = await http.patch(
+    final response = await http.put(
       Uri.parse('$baseUrl/$id/status'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(body),
