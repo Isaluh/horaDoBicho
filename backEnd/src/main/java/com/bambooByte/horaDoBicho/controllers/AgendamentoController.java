@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bambooByte.horaDoBicho.entities.Agendamento;
+import com.bambooByte.horaDoBicho.entities.AgendamentoRequest;
+import com.bambooByte.horaDoBicho.enums.Status;
 import com.bambooByte.horaDoBicho.services.AgendamentoService;
 import com.bambooByte.horaDoBicho.services.NotificacaoService;
 
@@ -29,48 +31,36 @@ public class AgendamentoController {
     private NotificacaoService notificacaoService;
 
     @PostMapping
-    public ResponseEntity<Agendamento> create(@RequestBody Agendamento agendamento) {
-        if (agendamento.getIdCliente() != null && agendamento.getIdCliente().getIdCliente() != null) {
-            agendamento.setIdCliente(
-                    agendamentoService.clienteRepository.findById(agendamento.getIdCliente().getIdCliente())
-                            .orElseThrow(() -> new RuntimeException("Cliente não encontrado")));
-        }
-        if (agendamento.getIdPet() != null && agendamento.getIdPet().getIdPet() != null) {
-            agendamento.setIdPet(agendamentoService.petRepository.findById(agendamento.getIdPet().getIdPet())
-                    .orElseThrow(() -> new RuntimeException("Pet não encontrado")));
-        }
-        if (agendamento.getIdFuncionario() != null && agendamento.getIdFuncionario().getIdFuncionario() != null) {
-            agendamento.setIdFuncionario(
-                    agendamentoService.funcionarioRepository.findById(agendamento.getIdFuncionario().getIdFuncionario())
-                            .orElseThrow(() -> new RuntimeException("Funcionário não encontrado")));
-        }
-        if (agendamento.getIdServico() != null && !agendamento.getIdServico().isEmpty()) {
-            java.util.List<com.bambooByte.horaDoBicho.entities.Servico> servicos = new java.util.ArrayList<>();
-            for (com.bambooByte.horaDoBicho.entities.Servico s : agendamento.getIdServico()) {
-                if (s.getIdServico() != null) {
-                    servicos.add(agendamentoService.servicoRepository.findById(s.getIdServico())
-                            .orElseThrow(() -> new RuntimeException("Serviço não encontrado: " + s.getIdServico())));
-                }
-            }
-            agendamento.setIdServico(servicos);
-        }
+    public ResponseEntity<Agendamento> create(@RequestBody AgendamentoRequest req) {
 
-        java.time.LocalDateTime hoje = java.time.LocalDateTime.now();
-        java.time.LocalDateTime limite = hoje.plusMonths(2);
-        if (agendamento.getDataHoraAgendamento().isBefore(hoje)
-                || agendamento.getDataHoraAgendamento().isAfter(limite)) {
-            throw new RuntimeException("Data de agendamento fora do permitido");
-        }
+        Agendamento agendamento = new Agendamento();
 
-        if (agendamento.getObservacaoAgendamento() == null) {
-            agendamento.setObservacaoAgendamento("");
-        }
+        agendamento.setIdCliente(
+                agendamentoService.clienteRepository.findById(req.idCliente)
+                        .orElseThrow(() -> new RuntimeException("Cliente não encontrado")));
 
-        agendamento.setStatusAgendamento(com.bambooByte.horaDoBicho.enums.Status.EM_ANALISE);
+        agendamento.setIdPet(
+                agendamentoService.petRepository.findById(req.idPet)
+                        .orElseThrow(() -> new RuntimeException("Pet não encontrado")));
 
-        notificacaoService.criarNotificacao(1L, "Novo agendamento criado e aguardando análise."); // 1L = id do admin
+        agendamento.setIdFuncionario(
+                agendamentoService.funcionarioRepository.findById(req.idFuncionario)
+                        .orElseThrow(() -> new RuntimeException("Funcionario não encontrado")));
+
+        agendamento.setIdServico(
+                req.idServico.stream()
+                        .map(id -> agendamentoService.servicoRepository.findById(id)
+                                .orElseThrow(() -> new RuntimeException("Serviço não encontrado: " + id)))
+                        .toList());
+
+        agendamento.setDataHoraAgendamento(req.dataHoraAgendamento);
+        agendamento.setObservacaoAgendamento(req.observacaoAgendamento != null ? req.observacaoAgendamento : "");
+        agendamento.setStatusAgendamento(Status.EM_ANALISE);
+
+        notificacaoService.criarNotificacao(1L, "Novo agendamento criado e aguardando análise.");
+
         Agendamento salvo = agendamentoService.create(agendamento);
-        return ResponseEntity.ok(salvo);
+        return ResponseEntity.status(201).body(salvo);
     }
 
     @GetMapping("/{id}")

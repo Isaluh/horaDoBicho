@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:hora_do_bicho/components/agendamento_list_item.dart';
+import 'package:hora_do_bicho/components/agendamento_modal.dart';
 import 'package:hora_do_bicho/components/botoes.dart';
 import 'package:hora_do_bicho/components/gesto.dart';
 import 'package:hora_do_bicho/models/agendamento.dart';
@@ -92,384 +94,440 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
     if (agendamentosDoDia.isEmpty) {
       _abrirFormAgendamento(selectedDay);
     } else {
-      // mostrar listagem adicionar um editar ou um adicionar (se for admin um visualizar e um mudar status [aprovar ou cancelar])
-      // _mostrarDetalhesAgendamento(agendamentosDoDia.first);
+      _mostrarListaAgendamentos(agendamentosDoDia);
     }
   }
 
   void _abrirFormAgendamento(DateTime dia) async {
-    final Map<String, dynamic> _formAgendamento = {
-      'descricao': TextEditingController(),
-      'selectedPetId': null,
-      'selectedFuncionarioId': null,
-      'selectedServicos': <int>[],
-      'selectedHora': null,
-    };
-
-    final pets = await _petsService.listarPets(userId!);
-    final funcionarios = await _funcionariosService.listarFuncionarios();
-    final servicos = await _servicosService.listarServicos();
-
     await showDialog(
       context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              title: const Text(
-                'Novo agendamento',
-                style: TextStyle(fontSize: 20),
-              ),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DropdownButtonFormField<int>(
-                      decoration: const InputDecoration(
-                        labelText: 'Selecione o pet',
-                        border: OutlineInputBorder(),
-                      ),
-                      value: _formAgendamento['selectedPetId'],
-                      items: pets
-                          .map<DropdownMenuItem<int>>(
-                            (pet) => DropdownMenuItem<int>(
-                              value: pet.idPet,
-                              child: Text(pet.nomePet),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) => setState(() {
-                        _formAgendamento['selectedPetId'] = value;
-                      }),
-                    ),
-                    const SizedBox(height: 10),
+      builder: (_) => AgendamentoFormModal(
+        mode: AgendamentoFormMode.novo,
+        dia: dia,
+        userId: userId!,
+        isAdmin: isAdmin,
+        onSave: (formData) async {
+          final dataHoraIso = formData['dataHoraAgendamento'] as String?;
+          final dataHora = DateTime.parse(dataHoraIso!);
 
-                    DropdownButtonFormField<int>(
-                      decoration: const InputDecoration(
-                        labelText: 'Selecione o funcionário',
-                        border: OutlineInputBorder(),
-                      ),
-                      value: _formAgendamento['selectedFuncionarioId'],
-                      items: funcionarios
-                          .map<DropdownMenuItem<int>>(
-                            (func) => DropdownMenuItem<int>(
-                              value: func.idFuncionario,
-                              child: Text(func.nomeFuncionario),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (value) => setState(() {
-                        _formAgendamento['selectedFuncionarioId'] = value;
-                      }),
-                    ),
-                    const SizedBox(height: 10),
+          final Map<String, dynamic> agendamentoData = {
+            'idCliente': userId!,
+            'idPet': formData['idPet'],
+            'idFuncionario': formData['idFuncionario'],
+            'idServico': List<int>.from(formData['selectedServicos'] ?? []),
+            'dataHoraAgendamento': dataHora.toIso8601String(),
+            'observacaoAgendamento':
+                formData['descricao']?.text?.isEmpty ?? true
+                ? null
+                : formData['descricao']!.text,
+            'statusAgendamento': Status.EM_ANALISE.name,
+          };
 
-                    const Text(
-                      'Serviços:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      height: 150, // Altura fixa para permitir scroll
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: servicos.map((serv) {
-                          return CheckboxListTile(
-                            title: Text(serv.nomeServico),
-                            dense: true,
-                            contentPadding: EdgeInsets.zero,
-                            value: _formAgendamento['selectedServicos']
-                                .contains(serv.idServico),
-                            onChanged: (checked) => setState(() {
-                              if (checked == true) {
-                                _formAgendamento['selectedServicos'].add(
-                                  serv.idServico,
-                                );
-                              } else {
-                                _formAgendamento['selectedServicos'].remove(
-                                  serv.idServico,
-                                );
-                              }
-                            }),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(
-                                  6,
-                                ), // menos arredondado
-                              ),
-                              side: const BorderSide(
-                                color: Color(0xFF6B3E26),
-                              ), // opcional: borda
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 16,
-                              ),
-                              iconColor: Color(0xFF6B3E26),
-                              foregroundColor: Color(0xFF6B3E26),
-                            ),
-                            icon: const Icon(Icons.access_time),
-                            label: Text(
-                              _formAgendamento['selectedHora'] == null
-                                  ? 'Selecionar hora'
-                                  : _formAgendamento['selectedHora']!.format(
-                                      context,
-                                    ),
-                            ),
-                            onPressed: () async {
-                              final hora = await showTimePicker(
-                                context: context,
-                                initialTime: TimeOfDay.now(),
-                              );
-                              if (hora != null) {
-                                setState(
-                                  () => _formAgendamento['selectedHora'] = hora,
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                GestureDetectorComponent(
-                  onTap: () => Navigator.pop(context),
-                  label: 'Cancelar',
-                  color: Colors.black,
-                  fontSize: 16,
-                ),
-                SizedBox(width: 10),
-                ElevatedButtonComponent(
-                  onPressed: () async {
-                    if (_formAgendamento['selectedPetId'] == null ||
-                        _formAgendamento['selectedFuncionarioId'] == null ||
-                        _formAgendamento['selectedServicos'].isEmpty ||
-                        _formAgendamento['selectedHora'] == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Preencha todos os campos obrigatórios.',
-                          ),
-                        ),
-                      );
-                      return;
-                    }
-
-                    final agora = DateTime.now();
-                    final dataHora = DateTime(
-                      dia.year,
-                      dia.month,
-                      dia.day,
-                      _formAgendamento['selectedHora']!.hour,
-                      _formAgendamento['selectedHora']!.minute,
-                    );
-
-                    final Map<String, dynamic> agendamentoData = {
-                      'idCliente': userId!,
-                      'idPet': _formAgendamento['selectedPetId'],
-                      'idFuncionario':
-                          _formAgendamento['selectedFuncionarioId'],
-                      'idServico': List<int>.from(
-                        _formAgendamento['selectedServicos'],
-                      ),
-                      'dataHoraAgendamento': dataHora.toIso8601String(),
-                      'observacaoAgendamento': null,
-                      'statusAgendamento': Status.EM_ANALISE.name,
-                    };
-
-                    try {
-                      final novo = await _agendamentosService.criarAgendamento(
-                        agendamentoData,
-                      );
-
-                      if (novo != null) {
-                        await _carregarConteudo();
-
-                        Navigator.pop(context);
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Agendamento criado com sucesso!'),
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Erro ao criar agendamento: $e'),
-                        ),
-                      );
-                    }
-                  },
-                  text: 'Salvar',
-                  color: const Color(0xFF98E6F6),
-                  textColor: Colors.black,
-                ),
-              ],
+          try {
+            final novo = await _agendamentosService.criarAgendamento(
+              agendamentoData,
             );
-          },
+            if (novo != null) {
+              await _carregarConteudo();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Agendamento criado com sucesso!'),
+                ),
+              );
+            }
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Erro ao criar agendamento: $e')),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  void _mostrarListaAgendamentos(List<AgendamentoResponse> agendamentos) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20),
+
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Agendados do dia', style: TextStyle(fontSize: 20)),
+              IconButton(
+                icon: const Icon(Icons.add, size: 20),
+                onPressed: () {
+                  Navigator.pop(context);
+                  _abrirFormAgendamento(agendamentos.first.dataHoraAgendamento);
+                },
+              ),
+            ],
+          ),
+
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 320, // scroll limitado
+            child: ListView.separated(
+              itemCount: agendamentos.length,
+              separatorBuilder: (_, __) =>
+                  const Divider(height: 14, thickness: 1),
+              itemBuilder: (context, index) {
+                final ag = agendamentos[index];
+
+                return AgendamentoListItem(
+                  agendamento: ag,
+                  onTap: () {
+                    Navigator.pop(context);
+                    _mostrarDetalhesAgendamento(ag);
+                  },
+                );
+              },
+            ),
+          ),
+
+          actions: [
+            GestureDetectorComponent(
+              onTap: () => Navigator.pop(context),
+              label: 'Fechar',
+              color: Colors.black,
+              fontSize: 16,
+            ),
+          ],
         );
       },
     );
   }
 
-  /// Mostra detalhes do agendamento
-  // void _mostrarDetalhesAgendamento(Map<String, dynamic> agendamento) {
-  //   final status = agendamento['status'];
-  //   final descricao = agendamento['descricao'];
-  //   final dia = DateTime.parse(agendamento['data']);
-
-  //   showDialog(
+  // void _mostrarDetalhesAgendamento(AgendamentoResponse agendamento) async {
+  //   final Map<String, dynamic> _formAgendamento = {
+  //     'descricao': TextEditingController(
+  //       text: agendamento.observacaoAgendamento ?? '',
+  //     ),
+  //     'selectedPetId': agendamento.pet.idPet,
+  //     'selectedFuncionarioId': agendamento.funcionario.idFuncionario,
+  //     'selectedServicos': agendamento.servicos.map((s) => s.idServico).toList(),
+  //     'selectedHora': TimeOfDay(
+  //       hour: agendamento.dataHoraAgendamento.hour,
+  //       minute: agendamento.dataHoraAgendamento.minute,
+  //     ),
+  //     'status': agendamento.statusAgendamento,
+  //   };
+  //   final pets = await _petsService.listarPets(userId!);
+  //   final funcionarios = await _funcionariosService.listarFuncionarios();
+  //   final servicos = await _servicosService.listarServicos();
+  //   await showDialog(
   //     context: context,
   //     builder: (context) {
-  //       final controller = TextEditingController(text: descricao);
-  //       return AlertDialog(
-  //         title: Text('Agendamento ${isAdmin ? "(${status})" : ""}'),
-  //         content: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             Text('Data: ${dia.day}/${dia.month}/${dia.year}'),
-  //             const SizedBox(height: 10),
-  //             TextField(
-  //               controller: controller,
-  //               enabled: !isAdmin && status == 'Em análise',
-  //               decoration: const InputDecoration(
-  //                 labelText: 'Descrição',
-  //                 border: OutlineInputBorder(),
-  //               ),
+  //       return StatefulBuilder(
+  //         builder: (context, setState) {
+  //           return AlertDialog(
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(8),
   //             ),
-  //             const SizedBox(height: 10),
-  //             if (isAdmin) ...[
-  //               const Divider(),
-  //               Row(
-  //                 mainAxisAlignment: MainAxisAlignment.spaceAround,
+  //             title: const Text(
+  //               'Detalhes do agendamento',
+  //               style: TextStyle(fontSize: 20),
+  //             ),
+  //             content: SingleChildScrollView(
+  //               child: Column(
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
   //                 children: [
-  //                   ElevatedButton.icon(
-  //                     onPressed: () {
-  //                       setState(() {
-  //                         agendamento['status'] = 'Aprovado';
-  //                       });
-  //                       Navigator.pop(context);
-  //                     },
-  //                     icon: const Icon(Icons.check_circle, color: Colors.white),
-  //                     label: const Text('Aprovar'),
-  //                     style: ElevatedButton.styleFrom(
-  //                       backgroundColor: Colors.green,
+  //                   // Pet
+  //                   DropdownButtonFormField<int>(
+  //                     decoration: const InputDecoration(
+  //                       labelText: 'Selecione o pet',
+  //                       border: OutlineInputBorder(),
   //                     ),
-  //                   ),
-  //                   ElevatedButton.icon(
-  //                     onPressed: () async {
-  //                       final motivoController = TextEditingController();
-  //                       final motivo = await showDialog<String>(
-  //                         context: context,
-  //                         builder: (context) {
-  //                           return AlertDialog(
-  //                             title: const Text('Motivo da reprovação'),
-  //                             content: TextField(
-  //                               controller: motivoController,
-  //                               decoration: const InputDecoration(
-  //                                 hintText: 'Descreva o motivo...',
-  //                               ),
-  //                             ),
-  //                             actions: [
-  //                               TextButton(
-  //                                 onPressed: () => Navigator.pop(context),
-  //                                 child: const Text('Cancelar'),
-  //                               ),
-  //                               ElevatedButton(
-  //                                 onPressed: () => Navigator.pop(
-  //                                   context,
-  //                                   motivoController.text,
-  //                                 ),
-  //                                 child: const Text('Enviar'),
-  //                               ),
-  //                             ],
-  //                           );
-  //                         },
+  //                     value: _formAgendamento['selectedPetId'],
+  //                     items: pets.map((pet) {
+  //                       return DropdownMenuItem(
+  //                         value: pet.idPet,
+  //                         child: Text(pet.nomePet),
   //                       );
-  //                       if (motivo != null && motivo.isNotEmpty) {
-  //                         setState(() {
-  //                           agendamento['status'] = 'Reprovado';
-  //                           agendamento['motivo'] = motivo;
-  //                         });
-  //                       }
-  //                       Navigator.pop(context);
-  //                     },
-  //                     icon: const Icon(Icons.cancel, color: Colors.white),
-  //                     label: const Text('Reprovar'),
-  //                     style: ElevatedButton.styleFrom(
-  //                       backgroundColor: Colors.red,
+  //                     }).toList(),
+  //                     onChanged: isAdmin
+  //                         ? null
+  //                         : (value) => setState(
+  //                             () => _formAgendamento['selectedPetId'] = value,
+  //                           ),
+  //                   ),
+  //                   const SizedBox(height: 10),
+  //                   // Funcionário
+  //                   DropdownButtonFormField<int>(
+  //                     decoration: const InputDecoration(
+  //                       labelText: 'Selecione o funcionário',
+  //                       border: OutlineInputBorder(),
+  //                     ),
+  //                     value: _formAgendamento['selectedFuncionarioId'],
+  //                     items: funcionarios.map((func) {
+  //                       return DropdownMenuItem(
+  //                         value: func.idFuncionario,
+  //                         child: Text(func.nomeFuncionario),
+  //                       );
+  //                     }).toList(),
+  //                     onChanged: isAdmin
+  //                         ? null
+  //                         : (value) => setState(
+  //                             () => _formAgendamento['selectedFuncionarioId'] =
+  //                                 value,
+  //                           ),
+  //                   ),
+  //                   const SizedBox(height: 10),
+  //                   // Serviços
+  //                   const Text(
+  //                     'Serviços:',
+  //                     style: TextStyle(fontWeight: FontWeight.bold),
+  //                   ),
+  //                   SizedBox(
+  //                     height: 150,
+  //                     child: ListView(
+  //                       shrinkWrap: true,
+  //                       children: servicos.map((serv) {
+  //                         return CheckboxListTile(
+  //                           title: Text(serv.nomeServico),
+  //                           dense: true,
+  //                           contentPadding: EdgeInsets.zero,
+  //                           value: _formAgendamento['selectedServicos']
+  //                               .contains(serv.idServico),
+  //                           onChanged: isAdmin
+  //                               ? null
+  //                               : (checked) => setState(() {
+  //                                   if (checked == true) {
+  //                                     _formAgendamento['selectedServicos'].add(
+  //                                       serv.idServico,
+  //                                     );
+  //                                   } else {
+  //                                     _formAgendamento['selectedServicos']
+  //                                         .remove(serv.idServico);
+  //                                   }
+  //                                 }),
+  //                         );
+  //                       }).toList(),
   //                     ),
   //                   ),
+  //                   const SizedBox(height: 10),
+  //                   // Hora
+  //                   Row(
+  //                     children: [
+  //                       Expanded(
+  //                         child: OutlinedButton.icon(
+  //                           style: OutlinedButton.styleFrom(
+  //                             shape: RoundedRectangleBorder(
+  //                               borderRadius: BorderRadius.circular(6),
+  //                             ),
+  //                             side: const BorderSide(color: Color(0xFF6B3E26)),
+  //                             padding: const EdgeInsets.symmetric(
+  //                               vertical: 12,
+  //                               horizontal: 16,
+  //                             ),
+  //                             iconColor: Color(0xFF6B3E26),
+  //                             foregroundColor: Color(0xFF6B3E26),
+  //                           ),
+  //                           icon: const Icon(Icons.access_time),
+  //                           label: Text(
+  //                             _formAgendamento['selectedHora'] == null
+  //                                 ? 'Selecionar hora'
+  //                                 : _formAgendamento['selectedHora'].format(
+  //                                     context,
+  //                                   ),
+  //                           ),
+  //                           onPressed: isAdmin
+  //                               ? null
+  //                               : () async {
+  //                                   final hora = await showTimePicker(
+  //                                     context: context,
+  //                                     initialTime: TimeOfDay.now(),
+  //                                   );
+  //                                   if (hora != null) {
+  //                                     setState(
+  //                                       () => _formAgendamento['selectedHora'] =
+  //                                           hora,
+  //                                     );
+  //                                   }
+  //                                 },
+  //                         ),
+  //                       ),
+  //                     ],
+  //                   ),
+  //                   const SizedBox(height: 10),
+  //                   // Observação (sempre editável)
+  //                   TextFormField(
+  //                     controller: _formAgendamento['observacao'],
+  //                     decoration: const InputDecoration(
+  //                       labelText: 'Observação',
+  //                       border: OutlineInputBorder(),
+  //                     ),
+  //                     maxLines: 3,
+  //                   ),
+  //                   const SizedBox(height: 10),
+  //                   // Status (apenas para admin, botões)
+  //                   if (isAdmin)
+  //                     Row(
+  //                       children: [
+  //                         Text(
+  //                           'Status: ',
+  //                           style: TextStyle(fontWeight: FontWeight.bold),
+  //                         ),
+  //                         const SizedBox(width: 10),
+  //                         ChoiceChip(
+  //                           label: const Text('APROVADO'),
+  //                           selected:
+  //                               _formAgendamento['status'] ==
+  //                               Status.APROVADO.name,
+  //                           onSelected: (_) => setState(
+  //                             () => _formAgendamento['status'] =
+  //                                 Status.APROVADO.name,
+  //                           ),
+  //                         ),
+  //                         const SizedBox(width: 10),
+  //                         ChoiceChip(
+  //                           label: const Text('CANCELADO'),
+  //                           selected:
+  //                               _formAgendamento['status'] ==
+  //                               Status.CANCELADO.name,
+  //                           onSelected: (_) => setState(
+  //                             () => _formAgendamento['status'] =
+  //                                 Status.CANCELADO.name,
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
   //                 ],
   //               ),
-  //             ],
-  //           ],
-  //         ),
-  //         actions: [
-  //           if (!isAdmin && status == 'Em análise')
-  //             ElevatedButton(
-  //               onPressed: () {
-  //                 setState(() {
-  //                   agendamento['descricao'] = controller.text;
-  //                 });
-  //                 Navigator.pop(context);
-  //               },
-  //               child: const Text('Salvar'),
   //             ),
-  //           TextButton(
-  //             onPressed: () => Navigator.pop(context),
-  //             child: const Text('Fechar'),
-  //           ),
-  //         ],
+  //             actions: [
+  //               GestureDetectorComponent(
+  //                 onTap: () => Navigator.pop(context),
+  //                 label: 'Cancelar',
+  //                 color: Colors.black,
+  //                 fontSize: 16,
+  //               ),
+  //               SizedBox(width: 10),
+  //               ElevatedButtonComponent(
+  //                 onPressed: () async {
+  //                   // Validação para cliente
+  //                   if (!isAdmin) {
+  //                     if (_formAgendamento['selectedPetId'] == null ||
+  //                         _formAgendamento['selectedFuncionarioId'] == null ||
+  //                         _formAgendamento['selectedServicos'].isEmpty ||
+  //                         _formAgendamento['selectedHora'] == null) {
+  //                       ScaffoldMessenger.of(context).showSnackBar(
+  //                         const SnackBar(
+  //                           content: Text(
+  //                             'Preencha todos os campos obrigatórios.',
+  //                           ),
+  //                         ),
+  //                       );
+  //                       return;
+  //                     }
+  //                   }
+  //                   final dataHora = _formAgendamento['selectedHora'] != null
+  //                       ? DateTime(
+  //                           agendamento.dataHoraAgendamento.year,
+  //                           agendamento.dataHoraAgendamento.month,
+  //                           agendamento.dataHoraAgendamento.day,
+  //                           _formAgendamento['selectedHora']!.hour,
+  //                           _formAgendamento['selectedHora']!.minute,
+  //                         )
+  //                       : agendamento.dataHoraAgendamento;
+  //                   final Map<String, dynamic> agendamentoData = {
+  //                     'idAgendamento': agendamento.idAgendamento,
+  //                     'idCliente': userId,
+  //                     'idPet': _formAgendamento['selectedPetId'],
+  //                     'idFuncionario':
+  //                         _formAgendamento['selectedFuncionarioId'],
+  //                     'idServico': _formAgendamento['selectedServicos'],
+  //                     'dataHoraAgendamento': dataHora.toIso8601String(),
+  //                     'observacaoAgendamento':
+  //                         _formAgendamento['observacao'].text,
+  //                     'statusAgendamento':
+  //                         _formAgendamento['status'] ?? Status.EM_ANALISE.name,
+  //                   };
+  //                   try {
+  //                     // ta mudando so o status tem q colocar tbm o obs do status
+  //                     if (isAdmin) {
+  //                       await _agendamentosService.atualizarStatus(
+  //                         agendamento.idAgendamento,
+  //                         StatusExtension.fromString(
+  //                           _formAgendamento['status'],
+  //                         ),
+  //                       );
+  //                     } else {
+  //                       final agendamentoObj = Agendamento.fromJson(
+  //                         agendamentoData,
+  //                       );
+  //                       await _agendamentosService.atualizarAgendamento(
+  //                         agendamentoObj,
+  //                       );
+  //                     }
+  //                     await _carregarConteudo();
+  //                     Navigator.pop(context);
+  //                     ScaffoldMessenger.of(context).showSnackBar(
+  //                       const SnackBar(
+  //                         content: Text('Agendamento atualizado com sucesso!'),
+  //                       ),
+  //                     );
+  //                   } catch (e) {
+  //                     ScaffoldMessenger.of(context).showSnackBar(
+  //                       SnackBar(content: Text('Erro ao atualizar: $e')),
+  //                     );
+  //                   }
+  //                 },
+  //                 text: 'Salvar',
+  //                 color: const Color(0xFF98E6F6),
+  //                 textColor: Colors.black,
+  //               ),
+  //             ],
+  //           );
+  //         },
   //       );
   //     },
   //   );
   // }
 
-  void _mostrarDetalhesAgendamento(AgendamentoResponse ag) {
-    showDialog(
+// TESTAR EDIÇÃO E VERIFICAR SE SERVIÇOS ESTA SENDO ENVIADO
+  void _mostrarDetalhesAgendamento(AgendamentoResponse agendamento) async {
+    await showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text('Agendamento #${ag.idAgendamento}'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Cliente: ${ag.cliente.nomeCliente}'),
-              Text('Pet: ${ag.pet.nomePet}'),
-              Text('Funcionário: ${ag.funcionario.nomeFuncionario}'),
-              const SizedBox(height: 10),
-              Text('Serviços:'),
-              ...ag.servicos.map(
-                (s) => Text('- ${s.nomeServico} (R\$ ${s.precoServico})'),
-              ),
-              const SizedBox(height: 10),
-              Text('Status: ${ag.statusAgendamento.name}'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Fechar"),
-            ),
-          ],
+        return AgendamentoFormModal(
+          mode: AgendamentoFormMode.editar,
+          dia: agendamento.dataHoraAgendamento,
+          agendamento: agendamento,
+          isAdmin: isAdmin,
+          userId: userId!,
+          onSave: (agendamentoData) async {
+            try {
+              if (isAdmin) {
+                // Apenas atualiza o status
+                await _agendamentosService.atualizarStatus(
+                  agendamento.idAgendamento,
+                  StatusExtension.fromString(
+                    agendamentoData['statusAgendamento'],
+                  ),
+                );
+              } else {
+                // Atualiza todo o agendamento
+                final agendamentoObj = Agendamento.fromJson(agendamentoData);
+                await _agendamentosService.atualizarAgendamento(agendamentoObj);
+              }
+
+              await _carregarConteudo(); // Recarrega a lista/visualização
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Agendamento atualizado com sucesso!'),
+                ),
+              );
+            } catch (e) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Erro ao atualizar: $e')));
+            }
+          },
         );
       },
     );
@@ -598,9 +656,9 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                 String assetPath;
 
                 if (hasEmAnalise) {
-                  assetPath = 'assets/images/pata.png';
+                  assetPath = 'assets/images/pataLaranja.png';
                 } else if (allAprovado) {
-                  assetPath = 'assets/images/pataAzul.png';
+                  assetPath = 'assets/images/pata.png';
                 } else {
                   // Caso tenha algum status diferente, pode colocar uma pata cinza, ou nada
                   return null;
@@ -613,20 +671,12 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                     if (hasEmAnalise)
                       Positioned(
                         top: 10,
-                        child: Image.asset(
-                          'assets/images/pata.png',
-                          width: 30,
-                          height: 30,
-                        ),
+                        child: Image.asset(assetPath, width: 30, height: 30),
                       )
                     else if (allAprovado)
                       Positioned(
                         top: 10,
-                        child: Image.asset(
-                          'assets/images/pataAzul.png',
-                          width: 30,
-                          height: 30,
-                        ),
+                        child: Image.asset(assetPath, width: 30, height: 30),
                       ),
                   ],
                 );
@@ -643,31 +693,21 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
       return const Center(child: Text('Nenhum agendamento encontrado.'));
     }
 
-    return ListView.builder(
-      itemCount: agendamentos.length,
-      itemBuilder: (context, index) {
-        final ag = agendamentos[index];
+    List<AgendamentoResponse> agendamentosOrdenados = List.from(agendamentos);
+    agendamentosOrdenados.sort(
+      (a, b) => b.dataHoraAgendamento.compareTo(a.dataHoraAgendamento),
+    );
 
-        final data = ag.dataHoraAgendamento;
-        final dataFormatada =
-            '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year} '
-            '${data.hour.toString().padLeft(2, '0')}:${data.minute.toString().padLeft(2, '0')}';
+    return ListView.builder(
+      itemCount: agendamentosOrdenados.length,
+      itemBuilder: (context, index) {
+        final ag = agendamentosOrdenados[index];
 
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-          child: ListTile(
-            title: Text('Agendamento #${ag.idAgendamento}'),
-            subtitle: Text(
-              'Cliente: ${ag.cliente.nomeCliente}\n'
-              'Pet: ${ag.pet.nomePet}\n'
-              'Funcionário: ${ag.funcionario.nomeFuncionario}\n'
-              'Data: $dataFormatada\n'
-              'Status: ${ag.statusAgendamento.name}',
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.info_outline),
-              onPressed: () => _mostrarDetalhesAgendamento(ag),
-            ),
+          child: AgendamentoListItem(
+            agendamento: ag,
+            onTap: () => _mostrarDetalhesAgendamento(ag),
           ),
         );
       },

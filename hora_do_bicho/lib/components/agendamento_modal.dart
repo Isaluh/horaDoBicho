@@ -1,0 +1,329 @@
+import 'package:flutter/material.dart';
+import 'package:hora_do_bicho/components/botoes.dart';
+import 'package:hora_do_bicho/components/gesto.dart';
+import 'package:hora_do_bicho/models/agendamento.dart';
+import 'package:hora_do_bicho/models/agendamento_response.dart';
+import 'package:hora_do_bicho/models/funcionario.dart';
+import 'package:hora_do_bicho/models/pet.dart';
+import 'package:hora_do_bicho/models/servico.dart';
+import 'package:hora_do_bicho/services/funcionarios_service.dart';
+import 'package:hora_do_bicho/services/pets_service.dart';
+import 'package:hora_do_bicho/services/servicos_service.dart';
+
+enum AgendamentoFormMode { novo, editar }
+
+class AgendamentoFormModal extends StatefulWidget {
+  final AgendamentoFormMode mode;
+  final DateTime? dia;
+  final AgendamentoResponse? agendamento;
+  final bool isAdmin;
+  final int userId;
+  final Function(Map<String, dynamic>) onSave;
+
+  const AgendamentoFormModal({
+    super.key,
+    required this.mode,
+    this.dia,
+    this.agendamento,
+    required this.isAdmin,
+    required this.userId,
+    required this.onSave,
+  });
+
+  @override
+  State<AgendamentoFormModal> createState() => _AgendamentoFormModalState();
+}
+
+class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
+  late Map<String, dynamic> _formAgendamento;
+
+  List<Pet> pets = [];
+  List<Funcionario> funcionarios = [];
+  List<Servico> servicos = [];
+
+  final PetsService _petsService = PetsService();
+  final ServicosService _servicosService = ServicosService();
+  final FuncionariosService _funcionariosService = FuncionariosService();
+
+  @override
+  void initState() {
+    super.initState();
+    _initForm();
+    _carregarDados();
+  }
+
+  void _initForm() {
+    if (widget.mode == AgendamentoFormMode.novo) {
+      _formAgendamento = {
+        'descricao': TextEditingController(),
+        'selectedPetId': null,
+        'selectedFuncionarioId': null,
+        'selectedServicos': <int>[],
+        'selectedHora': null,
+      };
+    } else {
+      final ag = widget.agendamento!;
+      _formAgendamento = {
+        'descricao': TextEditingController(
+          text: ag.observacaoAgendamento ?? '',
+        ),
+        'selectedPetId': ag.pet.idPet,
+        'selectedFuncionarioId': ag.funcionario.idFuncionario,
+        'selectedServicos': ag.servicos.map((s) => s.idServico).toList(),
+        'selectedHora': TimeOfDay(
+          hour: ag.dataHoraAgendamento.hour,
+          minute: ag.dataHoraAgendamento.minute,
+        ),
+        'status': ag.statusAgendamento,
+      };
+    }
+  }
+
+  Future<void> _carregarDados() async {
+    pets = await _petsService.listarPets(widget.userId);
+    funcionarios = await _funcionariosService.listarFuncionarios();
+    servicos = await _servicosService.listarServicos();
+    setState(() {});
+  }
+
+  void _salvar() async {
+    if (!widget.isAdmin) {
+      if (_formAgendamento['selectedPetId'] == null ||
+          _formAgendamento['selectedFuncionarioId'] == null ||
+          _formAgendamento['selectedServicos'].isEmpty ||
+          _formAgendamento['selectedHora'] == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Preencha todos os campos obrigatórios.'),
+          ),
+        );
+        return;
+      }
+    }
+
+  final dataHora = _formAgendamento['selectedHora'] != null
+      ? DateTime(
+          widget.mode == AgendamentoFormMode.novo
+              ? widget.dia!.year
+              : widget.agendamento!.dataHoraAgendamento.year,
+          widget.mode == AgendamentoFormMode.novo
+              ? widget.dia!.month
+              : widget.agendamento!.dataHoraAgendamento.month,
+          widget.mode == AgendamentoFormMode.novo
+              ? widget.dia!.day
+              : widget.agendamento!.dataHoraAgendamento.day,
+          _formAgendamento['selectedHora']!.hour,
+          _formAgendamento['selectedHora']!.minute,
+        )
+      : widget.agendamento?.dataHoraAgendamento;
+
+    final agendamentoData = {
+      'idAgendamento': widget.agendamento?.idAgendamento,
+      'idCliente': widget.userId,
+      'idPet': _formAgendamento['selectedPetId'],
+      'idFuncionario': _formAgendamento['selectedFuncionarioId'],
+      'idServico': _formAgendamento['selectedServicos'],
+      'dataHoraAgendamento': dataHora?.toIso8601String(),
+      'observacaoAgendamento': _formAgendamento['descricao'].text,
+      'statusAgendamento': _formAgendamento['status'] ?? Status.EM_ANALISE.name,
+    };
+
+    widget.onSave(agendamentoData);
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      title: Text(
+        widget.mode == AgendamentoFormMode.novo
+            ? 'Novo agendamento'
+            : 'Detalhes do agendamento',
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Pet
+            DropdownButtonFormField<int>(
+              decoration: const InputDecoration(
+                labelText: 'Selecione o pet',
+                border: OutlineInputBorder(),
+              ),
+              value: _formAgendamento['selectedPetId'],
+              items: pets
+                  .map(
+                    (pet) => DropdownMenuItem(
+                      value: pet.idPet,
+                      child: Text(pet.nomePet),
+                    ),
+                  )
+                  .toList(),
+              onChanged: widget.isAdmin
+                  ? null
+                  : (v) =>
+                        setState(() => _formAgendamento['selectedPetId'] = v),
+            ),
+            const SizedBox(height: 10),
+
+            // Funcionário
+            DropdownButtonFormField<int>(
+              decoration: const InputDecoration(
+                labelText: 'Selecione o funcionário',
+                border: OutlineInputBorder(),
+              ),
+              value: _formAgendamento['selectedFuncionarioId'],
+              items: funcionarios
+                  .map(
+                    (f) => DropdownMenuItem(
+                      value: f.idFuncionario,
+                      child: Text(f.nomeFuncionario),
+                    ),
+                  )
+                  .toList(),
+              onChanged: widget.isAdmin
+                  ? null
+                  : (v) => setState(
+                      () => _formAgendamento['selectedFuncionarioId'] = v,
+                    ),
+            ),
+            const SizedBox(height: 10),
+
+            // Serviços
+            const Text(
+              'Serviços:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: 120,
+              child: ListView(
+                shrinkWrap: true,
+                children: servicos.map((s) {
+                  return CheckboxListTile(
+                    title: Text(s.nomeServico),
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    value: _formAgendamento['selectedServicos'].contains(
+                      s.idServico,
+                    ),
+                    onChanged: widget.isAdmin
+                        ? null
+                        : (checked) {
+                            setState(() {
+                              if (checked == true) {
+                                _formAgendamento['selectedServicos'].add(
+                                  s.idServico,
+                                );
+                              } else {
+                                _formAgendamento['selectedServicos'].remove(
+                                  s.idServico,
+                                );
+                              }
+                            });
+                          },
+                  );
+                }).toList(),
+              ),
+            ),
+
+            TextFormField(
+              controller: _formAgendamento['descricao'],
+              decoration: const InputDecoration(
+                labelText: 'Observação',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 10),
+            // Hora
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      side: const BorderSide(color: Color(0xFF6B3E26)),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+                      iconColor: Color(0xFF6B3E26),
+                      foregroundColor: Color(0xFF6B3E26),
+                    ),
+                    icon: const Icon(Icons.access_time),
+                    label: Text(
+                      _formAgendamento['selectedHora'] == null
+                          ? 'Selecionar hora'
+                          : _formAgendamento['selectedHora'].format(context),
+                    ),
+                    onPressed: widget.isAdmin
+                        ? null
+                        : () async {
+                            final hora = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),
+                            );
+                            if (hora != null) {
+                              setState(() {
+                                _formAgendamento['selectedHora'] = hora;
+                              });
+                            }
+                          },
+                  ),
+                ),
+              ],
+            ),
+            if (widget.isAdmin) const SizedBox(height: 10),
+            // Status
+            if (widget.isAdmin)
+              Row(
+                children: [
+                  const Text(
+                    'Status:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(width: 10),
+                  ChoiceChip(
+                    label: const Text('APROVADO'),
+                    selected:
+                        _formAgendamento['status'] == Status.APROVADO.name,
+                    onSelected: (_) => setState(
+                      () => _formAgendamento['status'] = Status.APROVADO.name,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  ChoiceChip(
+                    label: const Text('CANCELADO'),
+                    selected:
+                        _formAgendamento['status'] == Status.CANCELADO.name,
+                    onSelected: (_) => setState(
+                      () => _formAgendamento['status'] = Status.CANCELADO.name,
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ),
+      actions: [
+        GestureDetectorComponent(
+          onTap: () => Navigator.pop(context),
+          label: 'Cancelar',
+          color: Colors.black,
+          fontSize: 16,
+        ),
+        SizedBox(width: 10),
+        ElevatedButtonComponent(
+          onPressed: _salvar,
+          text: 'Salvar',
+          color: const Color(0xFF98E6F6),
+          textColor: Colors.black,
+        ),
+      ],
+    );
+  }
+}

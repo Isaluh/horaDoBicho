@@ -22,7 +22,7 @@ class AgendamentosService {
   }
 
 
-  Future<Agendamento?> criarAgendamento(Map<String, dynamic> dados) async {
+  Future<AgendamentoResponse?> criarAgendamento(Map<String, dynamic> dados) async {
     final response = await http.post(
       Uri.parse(baseUrl),
       headers: {'Content-Type': 'application/json'},
@@ -30,14 +30,14 @@ class AgendamentosService {
     );
 
     if (response.statusCode == 201 || response.statusCode == 200) {
-      return Agendamento.fromJson(jsonDecode(response.body));
+      return AgendamentoResponse.fromJson(jsonDecode(response.body));
     } else {
       print('Erro ao criar agendamento: ${response.body}');
       throw Exception('Falha ao criar agendamento (${response.statusCode})');
     }
   }
 
-  Future<Agendamento?> atualizarAgendamento(Agendamento agendamento) async {
+  Future<AgendamentoResponse?> atualizarAgendamento(Agendamento agendamento) async {
     final response = await http.put(
       Uri.parse(baseUrl),
       headers: {'Content-Type': 'application/json'},
@@ -45,7 +45,7 @@ class AgendamentosService {
     );
 
     if (response.statusCode == 200) {
-      return Agendamento.fromJson(jsonDecode(response.body));
+      return AgendamentoResponse.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Falha ao atualizar agendamento (${response.statusCode})');
     }
