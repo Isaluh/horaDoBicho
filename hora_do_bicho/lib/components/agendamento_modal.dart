@@ -125,7 +125,7 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
       'idServico': _formAgendamento['selectedServicos'],
       'dataHoraAgendamento': dataHora?.toIso8601String(),
       'observacaoAgendamento': _formAgendamento['descricao'].text,
-      'statusAgendamento': _formAgendamento['status'] ?? Status.EM_ANALISE.name,
+      'statusAgendamento': Status.EM_ANALISE.name,
     };
 
     widget.onSave(agendamentoData);
@@ -274,35 +274,6 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
                 ),
               ],
             ),
-            // if (widget.isAdmin) const SizedBox(height: 10),
-
-            // if (widget.isAdmin)
-            //   const Text(
-            //     'Status:',
-            //     style: TextStyle(fontWeight: FontWeight.bold),
-            //   ),
-            //   const SizedBox(width: 10),
-            //   Row(
-            //     children: [
-            //       ChoiceChip(
-            //         label: const Text('Aprovar'),
-            //         selected:
-            //             _formAgendamento['status'] == Status.APROVADO.name,
-            //         onSelected: (_) => setState(
-            //           () => _formAgendamento['status'] = Status.APROVADO.name,
-            //         ),
-            //       ),
-            //       const SizedBox(width: 10),
-            //       ChoiceChip(
-            //         label: const Text('Cancelar'),
-            //         selected:
-            //             _formAgendamento['status'] == Status.CANCELADO.name,
-            //         onSelected: (_) => setState(
-            //           () => _formAgendamento['status'] = Status.CANCELADO.name,
-            //         ),
-            //       ),
-            //     ],
-            //   ),
           ],
         ),
       ),
