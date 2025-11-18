@@ -27,8 +27,12 @@ public class NotificacaoController {
 
 
     @PostMapping("/criar")
-    public Notificacao criarNotificacao(@RequestParam Long idCliente, @RequestParam String descricao) {
-        return notificacaoService.criarNotificacao(idCliente, descricao);
+    public Notificacao criarNotificacao(
+        @RequestParam Long idCliente,
+        @RequestParam String titulo,
+        @RequestParam String descricao,
+        @RequestParam String descricaoStatus) {
+        return notificacaoService.criarNotificacao(idCliente, titulo, descricao, descricaoStatus);
     }
   
     @GetMapping("/cliente/{idCliente}")

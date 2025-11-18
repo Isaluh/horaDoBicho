@@ -10,4 +10,6 @@ public class AgendamentoRequest {
     public List<Long> idServico;
     public LocalDateTime dataHoraAgendamento;
     public String observacaoAgendamento;
+    public String statusAgendamento;
+    public Double valorTotal;
 }

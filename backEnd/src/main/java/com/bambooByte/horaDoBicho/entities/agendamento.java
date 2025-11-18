@@ -36,16 +36,27 @@ public class Agendamento {
     private LocalDateTime dataHoraAgendamento;
     @Column(nullable = false)
     private String observacaoAgendamento;
-
     @Column(nullable = false)
     private Status statusAgendamento;
+    @Column(nullable = false)
+    private Double valorTotal;
+
+    public Double calcularValorTotalServicos() {
+        if (idServico == null || idServico.isEmpty()) {
+            return 0.0;
+        }
+        return idServico.stream()
+                .filter(s -> s != null && s.getPrecoServico() != null)
+                .mapToDouble(Servico::getPrecoServico)
+                .sum();
+    }
 
     public Agendamento() {
     }
 
     public Agendamento(Long idAgendamento, Cliente idCliente, Pet idPet, Funcionario idFuncionario,
             List<Servico> idServico, LocalDateTime dataHoraAgendamento, String observacaoAgendamento,
-            Status statusAgendamento) {
+            Status statusAgendamento, Double valorTotal) {
         this.idAgendamento = idAgendamento;
         this.idCliente = idCliente;
         this.idPet = idPet;
@@ -54,6 +65,7 @@ public class Agendamento {
         this.dataHoraAgendamento = dataHoraAgendamento;
         this.observacaoAgendamento = observacaoAgendamento;
         this.statusAgendamento = statusAgendamento;
+        this.valorTotal = valorTotal;
     }
 
     public Long getIdAgendamento() {
@@ -94,6 +106,7 @@ public class Agendamento {
 
     public void setIdServico(List<Servico> idServico) {
         this.idServico = idServico;
+        this.valorTotal = calcularValorTotalServicos();
     }
 
     public LocalDateTime getDataHoraAgendamento() {
@@ -118,6 +131,14 @@ public class Agendamento {
 
     public void setObservacaoAgendamento(String observacaoAgendamento) {
         this.observacaoAgendamento = observacaoAgendamento;
+    }
+
+    public Double getValorTotal() {
+        return valorTotal;
+    }
+
+    public void setValorTotal(Double valorTotal) {
+        this.valorTotal = valorTotal;
     }
 
 }

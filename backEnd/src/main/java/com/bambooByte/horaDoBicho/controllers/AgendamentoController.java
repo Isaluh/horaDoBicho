@@ -59,7 +59,7 @@ public class AgendamentoController {
         agendamento.setObservacaoAgendamento(req.observacaoAgendamento != null ? req.observacaoAgendamento : "");
         agendamento.setStatusAgendamento(Status.EM_ANALISE);
 
-        notificacaoService.criarNotificacao(1L, "Novo agendamento criado e aguardando análise.");
+        notificacaoService.criarNotificacao(1L, "Novo Agendamento", "Novo agendamento criado.", "Aguardando análise.");
 
         Agendamento salvo = agendamentoService.create(agendamento);
         return ResponseEntity.status(201).body(salvo);
@@ -133,9 +133,11 @@ public class AgendamentoController {
         Agendamento agendamento = agendamentoService.updateStatus(id, status);
 
         if (agendamento != null && agendamento.getIdCliente() != null) {
+            String titulo = "Status Atualizado";
             String descricao = "Status do agendamento atualizado para: " + status;
+            String descricaoStatus = status;
             Long idCliente = agendamento.getIdCliente().getIdCliente();
-            notificacaoService.criarNotificacao(idCliente, descricao);
+            notificacaoService.criarNotificacao(idCliente, titulo, descricao, descricaoStatus);
         }
         return ResponseEntity.ok(agendamento);
     }

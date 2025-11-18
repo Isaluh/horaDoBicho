@@ -1,7 +1,5 @@
 package com.bambooByte.horaDoBicho.entities;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,20 +14,38 @@ public class Notificacao {
     @Column(nullable = false)
     private Long idCliente;
     @Column(nullable = false)
+    private String titulo;
+    @Column(nullable = false)
     private String descricao;
     @Column(nullable = false)
-    private boolean lida;
+    private String descricaoStatus;
     @Column(nullable = false)
-    private LocalDateTime dataCriacao;
+    private boolean lida;
 
     public Notificacao() {
     }
 
-    public Notificacao(Long idCliente, String descricao) {
+    public Notificacao(Long idCliente, String titulo, String descricao, String descricaoStatus) {
         this.idCliente = idCliente;
+        this.titulo = titulo;
         this.descricao = descricao;
+        this.descricaoStatus = descricaoStatus;
         this.lida = false;
-        this.dataCriacao = LocalDateTime.now();
+    }
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public String getDescricaoStatus() {
+        return descricaoStatus;
+    }
+
+    public void setDescricaoStatus(String descricaoStatus) {
+        this.descricaoStatus = descricaoStatus;
     }
 
     public Long getIdNotificacao() {
@@ -64,11 +80,4 @@ public class Notificacao {
         this.lida = lida;
     }
 
-    public LocalDateTime getDataCriacao() {
-        return dataCriacao;
-    }
-
-    public void setDataCriacao(LocalDateTime dataCriacao) {
-        this.dataCriacao = dataCriacao;
-    }
 }
