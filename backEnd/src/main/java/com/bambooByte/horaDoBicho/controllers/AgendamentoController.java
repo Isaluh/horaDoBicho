@@ -59,6 +59,9 @@ public class AgendamentoController {
         agendamento.setObservacaoAgendamento(req.observacaoAgendamento != null ? req.observacaoAgendamento : "");
         agendamento.setStatusAgendamento(Status.EM_ANALISE);
 
+        // Calcular e setar o valor total dos serviços
+        agendamento.setValorTotal(agendamento.calcularValorTotalServicos());
+
         notificacaoService.criarNotificacao(1L, "Novo Agendamento", "Novo agendamento criado.");
 
         Agendamento salvo = agendamentoService.create(agendamento);
@@ -115,6 +118,8 @@ public class AgendamentoController {
         if (req.observacaoAgendamento != null) {
             agendamento.setObservacaoAgendamento(req.observacaoAgendamento);
         }
+
+        agendamento.setValorTotal(agendamento.calcularValorTotalServicos());
 
         agendamentoService.update(agendamento);
 
