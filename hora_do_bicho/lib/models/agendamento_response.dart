@@ -11,8 +11,10 @@ class AgendamentoResponse {
   final Funcionario funcionario;
   final List<Servico> servicos;
   final DateTime dataHoraAgendamento;
+  final String? descricaoStatus;
   final String? observacaoAgendamento;
   final Status statusAgendamento;
+  final int? valorTotal;
 
   AgendamentoResponse({
     required this.idAgendamento,
@@ -21,8 +23,10 @@ class AgendamentoResponse {
     required this.funcionario,
     required this.servicos,
     required this.dataHoraAgendamento,
+    this.descricaoStatus,
     this.observacaoAgendamento,
     required this.statusAgendamento,
+    this.valorTotal
   });
 
   factory AgendamentoResponse.fromJson(Map<String, dynamic> json) {
@@ -35,8 +39,10 @@ class AgendamentoResponse {
           .map((s) => Servico.fromJson(s))
           .toList(),
       dataHoraAgendamento: DateTime.parse(json['dataHoraAgendamento']),
+      descricaoStatus: json['descricaoStatus'],
       observacaoAgendamento: json['observacaoAgendamento'],
       statusAgendamento: StatusExtension.fromString(json['statusAgendamento']),
+      valorTotal: json['valorTotal']
     );
   }
 }

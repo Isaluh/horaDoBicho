@@ -6,6 +6,7 @@ import 'package:hora_do_bicho/models/agendamento_response.dart';
 import 'package:hora_do_bicho/models/funcionario.dart';
 import 'package:hora_do_bicho/models/pet.dart';
 import 'package:hora_do_bicho/models/servico.dart';
+import 'package:hora_do_bicho/models/user.dart';
 import 'package:hora_do_bicho/services/funcionarios_service.dart';
 import 'package:hora_do_bicho/services/pets_service.dart';
 import 'package:hora_do_bicho/services/servicos_service.dart';
@@ -40,6 +41,7 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
   List<Pet> pets = [];
   List<Funcionario> funcionarios = [];
   List<Servico> servicos = [];
+  bool hasStatus = false;
 
   final PetsService _petsService = PetsService();
   final ServicosService _servicosService = ServicosService();
@@ -55,16 +57,17 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
   void _initForm() {
     if (widget.mode == AgendamentoFormMode.novo) {
       _formAgendamento = {
-        'descricao': TextEditingController(),
+        'observacaoAgendamento': TextEditingController(),
         'selectedPetId': null,
         'selectedFuncionarioId': null,
         'selectedServicos': <int>[],
         'selectedHora': null,
       };
+      hasStatus = false;
     } else {
       final ag = widget.agendamento!;
       _formAgendamento = {
-        'descricao': TextEditingController(
+        'observacaoAgendamento': TextEditingController(
           text: ag.observacaoAgendamento ?? '',
         ),
         'selectedPetId': ag.pet.idPet,
@@ -75,7 +78,13 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
           minute: ag.dataHoraAgendamento.minute,
         ),
         'status': ag.statusAgendamento,
+        'descricaoStatus': TextEditingController(
+          text: ag.descricaoStatus ?? '',
+        ),
       };
+      hasStatus = widget.agendamento?.statusAgendamento != Status.EM_ANALISE
+          ? true
+          : false;
     }
   }
 
@@ -124,7 +133,7 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
       'idFuncionario': _formAgendamento['selectedFuncionarioId'],
       'idServico': _formAgendamento['selectedServicos'],
       'dataHoraAgendamento': dataHora?.toIso8601String(),
-      'observacaoAgendamento': _formAgendamento['descricao'].text,
+      'observacaoAgendamento': _formAgendamento['observacaoAgendamento'].text,
       'statusAgendamento': Status.EM_ANALISE.name,
     };
 
@@ -226,7 +235,7 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
             ),
 
             TextFormField(
-              controller: _formAgendamento['descricao'],
+              controller: _formAgendamento['observacaoAgendamento'],
               decoration: const InputDecoration(
                 labelText: 'Observação',
                 border: OutlineInputBorder(),
@@ -287,31 +296,62 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
                         _formAgendamento['status'] == Status.APROVADO.name,
                     onSelected: (_) {
                       setState(() {
+                        hasStatus = true;
                         _formAgendamento['status'] = Status.APROVADO.name;
+                        print(hasStatus);
                       });
-                      _salvar();
                     },
                   ),
-                  const SizedBox(width: 15),
+                  const SizedBox(width: 10),
                   ChoiceChip(
-                    label: const Text('Desaprovar'),
+                    label: const Text('Recusar'),
                     selected:
                         _formAgendamento['status'] == Status.CANCELADO.name,
                     onSelected: (_) {
                       setState(() {
+                        hasStatus = true;
                         _formAgendamento['status'] = Status.CANCELADO.name;
+                        print(hasStatus);
                       });
-                      _salvar();
                     },
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              GestureDetectorComponent(
-                onTap: () => Navigator.pop(context),
-                label: 'Cancelar',
-                color: Colors.black,
-                fontSize: 16,
+
+              if (hasStatus)
+                Padding(
+                  padding: const EdgeInsets.only(top: 10, bottom: 10),
+                  child: TextFormField(
+                    controller: _formAgendamento['descricaoStatus'],
+                    decoration: const InputDecoration(
+                      labelText: 'Motivo/Obs',
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLines: 2,
+                  ),
+                ),
+
+              const SizedBox(width: 15),
+              Row(
+                // arrumar onde fica e mandar n so o status como tbm a descricao
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  GestureDetectorComponent(
+                    onTap: () => Navigator.pop(context),
+                    label: 'Cancelar',
+                    color: Colors.black,
+                    fontSize: 16,
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  ElevatedButtonComponent(
+                    onPressed: _salvar,
+                    text: 'Confirmar',
+                    color: const Color(0xFF98E6F6),
+                    textColor: Colors.black,
+                  ),
+                ],
               ),
             ]
           : [

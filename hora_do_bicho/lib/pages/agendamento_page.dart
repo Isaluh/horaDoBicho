@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:hora_do_bicho/components/agendamento_list_item.dart';
 import 'package:hora_do_bicho/components/agendamento_modal.dart';
@@ -210,6 +211,7 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
           userId: userId!,
           onSave: (formData) async {
             try {
+              print(formData);
               final dataHoraIso = formData['dataHoraAgendamento'] as String?;
               final dataHora = DateTime.parse(dataHoraIso!);
 

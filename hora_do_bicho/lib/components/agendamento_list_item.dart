@@ -73,8 +73,7 @@ class AgendamentoListItem extends StatelessWidget {
             _info("Pet", agendamento.pet.nomePet),
             _info("Funcionário", agendamento.funcionario.nomeFuncionario),
             _info("Serviços", servicosStr),
-            // pegar preço dps
-            // _info("Preço Total", agendamento),
+            _info("R\$", agendamento.valorTotal.toString()),
 
             const SizedBox(height: 4),
 

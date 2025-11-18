@@ -5,8 +5,10 @@ class Agendamento {
   final int idFuncionario;
   final List<int> idServico;
   final DateTime dataHoraAgendamento;
+  final String? descricaoStatus;
   final String? observacaoAgendamento;
   final Status statusAgendamento;
+  final int? valorTotal;
 
   Agendamento({
     required this.idAgendamento,
@@ -15,8 +17,10 @@ class Agendamento {
     required this.idFuncionario,
     required this.idServico,
     required this.dataHoraAgendamento,
+    this.descricaoStatus,
     this.observacaoAgendamento,
     required this.statusAgendamento,
+    this.valorTotal
   });
 
   factory Agendamento.fromJson(Map<String, dynamic> json) {
@@ -27,8 +31,10 @@ class Agendamento {
       idFuncionario: json['idFuncionario'],
       idServico: List<int>.from(json['idServico'] ?? []),
       dataHoraAgendamento: DateTime.parse(json['dataHoraAgendamento']),
+      descricaoStatus: json['descricaoStatus'] ?? '',
       observacaoAgendamento: json['observacaoAgendamento'] ?? '',
       statusAgendamento: StatusExtension.fromString(json['statusAgendamento']),
+      valorTotal: json['valorTotal']
     );
   }
 
@@ -40,8 +46,10 @@ class Agendamento {
       'idFuncionario': idFuncionario,
       'idServico': idServico,
       'dataHoraAgendamento': dataHoraAgendamento.toIso8601String(),
+      'descricaoStatus' : descricaoStatus,
       'observacaoAgendamento': observacaoAgendamento,
-      'statusAgendamento': statusAgendamento.name
+      'statusAgendamento': statusAgendamento.name,
+      'valorTotal' : valorTotal
     };
   }
 }
