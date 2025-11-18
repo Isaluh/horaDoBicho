@@ -40,58 +40,81 @@ class _NotificacoesPageState extends State<NotificacoesPage> {
             ),
             const SizedBox(height: 15),
 
-            Expanded(
-              child: FutureBuilder<List<Notificacao>>(
-                future: _futureNotificacoes,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  // esperar retornar os valores certos de notificação
-                  if (snapshot.hasError) {
-                    // return const Center(
-                    //   child: Text("Erro ao carregar notificações"),
-                    // );
-                    return Center(
-                      child: Text(
-                        "Erro ao carregar notificações:\n${snapshot.error}",
+            SizedBox(
+                height: MediaQuery.of(context).size.height / 1.5,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
                       ),
-                    );
-                  }
+                    ],
+                  ),
+                  child: FutureBuilder<List<Notificacao>>(
+                    future: _futureNotificacoes,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                  final notificacoes = snapshot.data ?? [];
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            "Erro ao carregar notificações:\n${snapshot.error}",
+                          ),
+                        );
+                      }
 
-                  if (notificacoes.isEmpty) {
-                    return const Center(
-                      child: Text("Você não tem nenhuma notificação"),
-                    );
-                  }
+                      final notificacoes = snapshot.data ?? [];
 
-                  return ListView.separated(
-                    itemCount: notificacoes.length,
-                    separatorBuilder: (_, __) =>
-                        Divider(color: Colors.grey[400]),
-                    itemBuilder: (context, index) {
-                      final n = notificacoes[index];
+                      if (notificacoes.isEmpty) {
+                        return const Center(
+                          child: Text("Você não tem nenhuma notificação"),
+                        );
+                      }
 
-                      return ListTile(
-                        leading: Icon(
-                          n.lida
-                              ? Icons.mark_email_read
-                              : Icons.mark_email_unread,
-                          color: n.lida ? Colors.green : Colors.orange,
-                        ),
-                        title: Text(
-                          n.titulo,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(n.descricao),
+                      return ListView.separated(
+                        itemCount: notificacoes.length,
+                        separatorBuilder: (_, __) =>
+                            const Divider(height: 14, thickness: 1),
+                        itemBuilder: (context, index) {
+                          final n = notificacoes[index];
+
+                          return ListTile(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            tileColor: const Color(0xFFFDFDFD),
+                            leading: Icon(
+                              n.lida
+                                  ? Icons.mark_email_read
+                                  : Icons.mark_email_unread,
+                              color: n.lida ? Colors.green : Colors.orange,
+                            ),
+                            title: Text(
+                              n.titulo,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            subtitle: Text(n.descricao),
+                            onTap: () {
+                              print(
+                                "Clicou na notificação ID: ${n.idNotificacao}",
+                              );
+                            },
+                          );
+                        },
                       );
                     },
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
           ],
         ),
       ),

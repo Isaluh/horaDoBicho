@@ -153,20 +153,22 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text('Agendados do dia', style: TextStyle(fontSize: 20)),
-              if(!isAdmin)
-              IconButton(
-                icon: const Icon(Icons.add, size: 20),
-                onPressed: () {
-                  Navigator.pop(context);
-                  _abrirFormAgendamento(agendamentos.first.dataHoraAgendamento);
-                },
-              ),
+              if (!isAdmin)
+                IconButton(
+                  icon: const Icon(Icons.add, size: 20),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _abrirFormAgendamento(
+                      agendamentos.first.dataHoraAgendamento,
+                    );
+                  },
+                ),
             ],
           ),
 
           content: SizedBox(
             width: double.maxFinite,
-            height: 320, 
+            height: 320,
             child: ListView.separated(
               itemCount: agendamentos.length,
               separatorBuilder: (_, __) =>
@@ -198,7 +200,6 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
     );
   }
 
-  // AO DESAPROVAR O AGENDAMENTO É DELETADO DPS DE UM TEMPO + ADICIONAR OBS DE RECUSADO + ADICIONAR A VISUALIZAÇÃO DO VALOR
   void _mostrarDetalhesAgendamento(AgendamentoResponse agendamento) async {
     await showDialog(
       context: context,
@@ -227,20 +228,19 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
               };
 
               if (!isAdmin) {
-                final agendamentoObj = Agendamento.fromJson(
-                  agendamentoData,
-                );
+                final agendamentoObj = Agendamento.fromJson(agendamentoData);
                 await _agendamentosService.atualizarAgendamento(agendamentoObj);
-              } 
-              // adicionar um observação pro recusado
+              }
+              // verificar se esta atualizando o status + descrição
               await _agendamentosService.atualizarStatus(
                 agendamento.idAgendamento,
                 StatusExtension.fromString(
                   agendamentoData['statusAgendamento'],
                 ),
+                motivo: agendamento.descricaoStatus,
               );
 
-              await _carregarConteudo(); 
+              await _carregarConteudo();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Agendamento atualizado com sucesso!'),
@@ -385,8 +385,7 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                 } else if (allAprovado) {
                   assetPath = 'assets/images/pata.png';
                 } else {
-                  // Caso tenha algum status diferente, pode colocar uma pata cinza, ou nada
-                  return null;
+                  assetPath = 'assets/images/pata_cinza.png';
                 }
 
                 return Stack(

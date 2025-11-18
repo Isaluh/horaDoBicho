@@ -116,7 +116,7 @@
               ),
             ),
             child: AppBar(
-              // add o notificações
+              // QUERIA ADICIONAR AMOSTRAGEM NO ICONE DEQ ESTA SELECIONADO
               leading: IconButton(
                 icon: Icon(
                   Icons.notifications_active_outlined,
@@ -167,6 +167,7 @@
           ],
         ),
         extendBody: true,
+        // QUERIA REMOVER O INDEX QUANDO NAO ESTA NENHUM SELECIONADO (NOTIFICAÇÕES POR EXEMPLO)
         bottomNavigationBar: CurvedNavigationBar(
           height: 55,
           index: _selectedIndex,

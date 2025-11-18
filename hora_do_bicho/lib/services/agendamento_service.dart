@@ -72,7 +72,7 @@ class AgendamentosService {
   Future<void> atualizarStatus(int id, Status novoStatus, {String? motivo}) async {
     final body = {
       'statusAgendamento': novoStatus.name,
-      if (motivo != null) 'motivo': motivo,
+      if (motivo != null) 'descricaoStatus': motivo,
     };
 
     final response = await http.put(

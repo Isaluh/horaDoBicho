@@ -6,7 +6,6 @@ import 'package:hora_do_bicho/models/agendamento_response.dart';
 import 'package:hora_do_bicho/models/funcionario.dart';
 import 'package:hora_do_bicho/models/pet.dart';
 import 'package:hora_do_bicho/models/servico.dart';
-import 'package:hora_do_bicho/models/user.dart';
 import 'package:hora_do_bicho/services/funcionarios_service.dart';
 import 'package:hora_do_bicho/services/pets_service.dart';
 import 'package:hora_do_bicho/services/servicos_service.dart';
