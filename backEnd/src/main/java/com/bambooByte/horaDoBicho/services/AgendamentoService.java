@@ -61,14 +61,12 @@ public class AgendamentoService {
                 notificacaoService.criarNotificacao(
                         agendamento.getIdCliente().getIdCliente(),
                         "Agendamento Cancelado",
-                        "Seu agendamento foi cancelado.",
-                        "Motivo: ...");
+                        "Seu agendamento foi cancelado.");
             } else if (novoStatus == Status.APROVADO) {
                 notificacaoService.criarNotificacao(
                         agendamento.getIdCliente().getIdCliente(),
                         "Agendamento Aprovado",
-                        "Seu agendamento foi aprovado!",
-                        "");
+                        "Seu agendamento foi aprovado!");
             }
             return salvo;
         } else {

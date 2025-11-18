@@ -34,6 +34,8 @@ public class Agendamento {
     private List<Servico> idServico;
     @Column(nullable = false)
     private LocalDateTime dataHoraAgendamento;
+    @Column(nullable = true)
+    private String descricaoStatus;
     @Column(nullable = false)
     private String observacaoAgendamento;
     @Column(nullable = false)
@@ -56,7 +58,7 @@ public class Agendamento {
 
     public Agendamento(Long idAgendamento, Cliente idCliente, Pet idPet, Funcionario idFuncionario,
             List<Servico> idServico, LocalDateTime dataHoraAgendamento, String observacaoAgendamento,
-            Status statusAgendamento, Double valorTotal) {
+            Status statusAgendamento, Double valorTotal, String descricaoStatus) {
         this.idAgendamento = idAgendamento;
         this.idCliente = idCliente;
         this.idPet = idPet;
@@ -66,6 +68,8 @@ public class Agendamento {
         this.observacaoAgendamento = observacaoAgendamento;
         this.statusAgendamento = statusAgendamento;
         this.valorTotal = valorTotal;
+        this.descricaoStatus = descricaoStatus;
+
     }
 
     public Long getIdAgendamento() {
@@ -139,6 +143,14 @@ public class Agendamento {
 
     public void setValorTotal(Double valorTotal) {
         this.valorTotal = valorTotal;
+    }
+
+    public String getDescricaoStatus() {
+        return descricaoStatus;
+    }
+
+    public void setDescricaoStatus(String descricaoStatus) {
+        this.descricaoStatus = descricaoStatus;
     }
 
 }

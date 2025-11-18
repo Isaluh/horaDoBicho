@@ -13,8 +13,8 @@ public class NotificacaoService {
     @Autowired
     private NotificacaoRepository notificacaoRepository;
 
-    public Notificacao criarNotificacao(Long idCliente, String titulo, String descricaoStatus, String descricao) {
-        Notificacao notificacao = new Notificacao(idCliente, titulo, descricaoStatus, descricao);
+    public Notificacao criarNotificacao(Long idCliente, String titulo, String descricao) {
+        Notificacao notificacao = new Notificacao(idCliente, titulo, descricao);
         return notificacaoRepository.save(notificacao);
     }
 

@@ -59,7 +59,7 @@ public class AgendamentoController {
         agendamento.setObservacaoAgendamento(req.observacaoAgendamento != null ? req.observacaoAgendamento : "");
         agendamento.setStatusAgendamento(Status.EM_ANALISE);
 
-        notificacaoService.criarNotificacao(1L, "Novo Agendamento", "Novo agendamento criado.", "Aguardando análise.");
+        notificacaoService.criarNotificacao(1L, "Novo Agendamento", "Novo agendamento criado.");
 
         Agendamento salvo = agendamentoService.create(agendamento);
         return ResponseEntity.status(201).body(salvo);
@@ -100,10 +100,8 @@ public class AgendamentoController {
         if (req.idServico != null) {
 
             List<Servico> novosServicos = req.idServico.stream()
-                    .map(servicoId ->
-                            agendamentoService.servicoRepository.findById(servicoId)
-                                    .orElseThrow(() -> new RuntimeException("Serviço não encontrado: " + servicoId))
-                    )
+                    .map(servicoId -> agendamentoService.servicoRepository.findById(servicoId)
+                            .orElseThrow(() -> new RuntimeException("Serviço não encontrado: " + servicoId)))
                     .toList();
 
             agendamento.getIdServico().clear();
@@ -124,7 +122,8 @@ public class AgendamentoController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<Agendamento> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<Agendamento> updateStatus(@PathVariable Long id,
+            @RequestBody Map<String, String> requestBody) {
         String status = requestBody.get("statusAgendamento");
         if (status == null) {
             throw new RuntimeException("Campo statusAgendamento é obrigatório");
@@ -135,9 +134,8 @@ public class AgendamentoController {
         if (agendamento != null && agendamento.getIdCliente() != null) {
             String titulo = "Status Atualizado";
             String descricao = "Status do agendamento atualizado para: " + status;
-            String descricaoStatus = status;
             Long idCliente = agendamento.getIdCliente().getIdCliente();
-            notificacaoService.criarNotificacao(idCliente, titulo, descricao, descricaoStatus);
+            notificacaoService.criarNotificacao(idCliente, titulo, descricao);
         }
         return ResponseEntity.ok(agendamento);
     }

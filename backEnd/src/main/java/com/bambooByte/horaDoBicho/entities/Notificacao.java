@@ -18,18 +18,15 @@ public class Notificacao {
     @Column(nullable = false)
     private String descricao;
     @Column(nullable = false)
-    private String descricaoStatus;
-    @Column(nullable = false)
     private boolean lida;
 
     public Notificacao() {
     }
 
-    public Notificacao(Long idCliente, String titulo, String descricao, String descricaoStatus) {
+    public Notificacao(Long idCliente, String titulo, String descricao) {
         this.idCliente = idCliente;
         this.titulo = titulo;
         this.descricao = descricao;
-        this.descricaoStatus = descricaoStatus;
         this.lida = false;
     }
     public String getTitulo() {
@@ -38,14 +35,6 @@ public class Notificacao {
 
     public void setTitulo(String titulo) {
         this.titulo = titulo;
-    }
-
-    public String getDescricaoStatus() {
-        return descricaoStatus;
-    }
-
-    public void setDescricaoStatus(String descricaoStatus) {
-        this.descricaoStatus = descricaoStatus;
     }
 
     public Long getIdNotificacao() {

@@ -25,19 +25,17 @@ public class NotificacaoController {
         this.notificacaoService = notificacaoService;
     }
 
-
     @PostMapping("/criar")
     public Notificacao criarNotificacao(
-        @RequestParam Long idCliente,
-        @RequestParam String titulo,
-        @RequestParam String descricao,
-        @RequestParam String descricaoStatus) {
-        return notificacaoService.criarNotificacao(idCliente, titulo, descricao, descricaoStatus);
+            @RequestParam Long idCliente,
+            @RequestParam String titulo,
+            @RequestParam String descricao) {
+        return notificacaoService.criarNotificacao(idCliente, titulo, descricao);
     }
-  
+
     @GetMapping("/cliente/{idCliente}")
     public List<Notificacao> listarPorCliente(@PathVariable Long idCliente) {
         return notificacaoService.listarPorCliente(idCliente);
     }
-    
+
 }
