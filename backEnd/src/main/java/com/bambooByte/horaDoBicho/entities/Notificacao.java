@@ -13,6 +13,8 @@ public class Notificacao {
     private Long idNotificacao;
     @Column(nullable = false)
     private Long idCliente;
+    @Column(nullable = true)
+    private Long idAgendamento;
     @Column(nullable = false)
     private String titulo;
     @Column(nullable = false)
@@ -23,12 +25,20 @@ public class Notificacao {
     public Notificacao() {
     }
 
-    public Notificacao(Long idCliente, String titulo, String descricao) {
+    public Notificacao(Long idCliente, String titulo, String descricao, Long idAgendamento) {
         this.idCliente = idCliente;
         this.titulo = titulo;
         this.descricao = descricao;
+        this.idAgendamento = idAgendamento;
         this.lida = false;
     }
+        public Long getIdAgendamento() {
+            return idAgendamento;
+        }
+
+        public void setIdAgendamento(Long idAgendamento) {
+            this.idAgendamento = idAgendamento;
+        }
     public String getTitulo() {
         return titulo;
     }

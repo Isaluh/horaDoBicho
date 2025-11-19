@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,8 +30,16 @@ public class NotificacaoController {
     public Notificacao criarNotificacao(
             @RequestParam Long idCliente,
             @RequestParam String titulo,
-            @RequestParam String descricao) {
-        return notificacaoService.criarNotificacao(idCliente, titulo, descricao);
+            @RequestParam String descricao,
+            @RequestParam(required = false) Long idAgendamento) {
+        return notificacaoService.criarNotificacao(idCliente, titulo, descricao, idAgendamento);
+    }
+
+    @PutMapping("/{idNotificacao}/lida")
+    public Notificacao atualizarStatusLida(
+            @PathVariable Long idNotificacao,
+            @RequestParam boolean lida) {
+        return notificacaoService.atualizarStatusLida(idNotificacao, lida);
     }
 
     @GetMapping("/cliente/{idCliente}")

@@ -45,7 +45,7 @@ public class AgendamentoService {
         return agendamentoRepository.save(agendamento);
     }
 
-    public Agendamento updateStatus(Long idAgendamento, String status) {
+    public Agendamento updateStatus(Long idAgendamento, String status, String descricaoStatus) {
         Optional<Agendamento> agendamentoOpt = agendamentoRepository.findById(idAgendamento);
         if (agendamentoOpt.isPresent()) {
             Agendamento agendamento = agendamentoOpt.get();
@@ -56,17 +56,20 @@ public class AgendamentoService {
                 throw new RuntimeException("Status inválido: " + status);
             }
             agendamento.setStatusAgendamento(novoStatus);
+            agendamento.setDescricaoStatus("Status do agendamento atualizado para: " + novoStatus.name());
             Agendamento salvo = agendamentoRepository.save(agendamento);
             if (novoStatus == Status.CANCELADO) {
                 notificacaoService.criarNotificacao(
                         agendamento.getIdCliente().getIdCliente(),
                         "Agendamento Cancelado",
-                        "Seu agendamento foi cancelado.");
+                        "Seu agendamento foi cancelado.",
+                        agendamento.getIdAgendamento());
             } else if (novoStatus == Status.APROVADO) {
                 notificacaoService.criarNotificacao(
                         agendamento.getIdCliente().getIdCliente(),
                         "Agendamento Aprovado",
-                        "Seu agendamento foi aprovado!");
+                        "Seu agendamento foi aprovado!",
+                        agendamento.getIdAgendamento());
             }
             return salvo;
         } else {

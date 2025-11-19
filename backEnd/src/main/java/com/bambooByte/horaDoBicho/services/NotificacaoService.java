@@ -13,8 +13,14 @@ public class NotificacaoService {
     @Autowired
     private NotificacaoRepository notificacaoRepository;
 
-    public Notificacao criarNotificacao(Long idCliente, String titulo, String descricao) {
-        Notificacao notificacao = new Notificacao(idCliente, titulo, descricao);
+    public Notificacao criarNotificacao(Long idCliente, String titulo, String descricao, Long idAgendamento) {
+        Notificacao notificacao = new Notificacao(idCliente, titulo, descricao, idAgendamento);
+        return notificacaoRepository.save(notificacao);
+    }
+    public Notificacao atualizarStatusLida(Long idNotificacao, boolean lida) {
+        Notificacao notificacao = notificacaoRepository.findById(idNotificacao)
+                .orElseThrow(() -> new RuntimeException("Notificação não encontrada"));
+        notificacao.setLida(lida);
         return notificacaoRepository.save(notificacao);
     }
 

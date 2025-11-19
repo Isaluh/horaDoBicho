@@ -59,12 +59,10 @@ public class AgendamentoController {
         agendamento.setObservacaoAgendamento(req.observacaoAgendamento != null ? req.observacaoAgendamento : "");
         agendamento.setStatusAgendamento(Status.EM_ANALISE);
 
-        // Calcular e setar o valor total dos serviços
         agendamento.setValorTotal(agendamento.calcularValorTotalServicos());
 
-        notificacaoService.criarNotificacao(1L, "Novo Agendamento", "Novo agendamento criado.");
-
         Agendamento salvo = agendamentoService.create(agendamento);
+        notificacaoService.criarNotificacao(salvo.getIdCliente().getIdCliente(), "Novo Agendamento", "Novo agendamento criado.", salvo.getIdAgendamento());
         return ResponseEntity.status(201).body(salvo);
     }
 
@@ -130,17 +128,20 @@ public class AgendamentoController {
     public ResponseEntity<Agendamento> updateStatus(@PathVariable Long id,
             @RequestBody Map<String, String> requestBody) {
         String status = requestBody.get("statusAgendamento");
+        String descricaoStatus = requestBody.get("descricaoStatus");
         if (status == null) {
             throw new RuntimeException("Campo statusAgendamento é obrigatório");
         }
 
-        Agendamento agendamento = agendamentoService.updateStatus(id, status);
+        Agendamento agendamento = agendamentoService.updateStatus(id, status, descricaoStatus);
 
         if (agendamento != null && agendamento.getIdCliente() != null) {
             String titulo = "Status Atualizado";
-            String descricao = "Status do agendamento atualizado para: " + status;
+            String descricao = descricaoStatus != null && !descricaoStatus.isBlank()
+                ? descricaoStatus
+                : "Status do agendamento atualizado para: " + status;
             Long idCliente = agendamento.getIdCliente().getIdCliente();
-            notificacaoService.criarNotificacao(idCliente, titulo, descricao);
+            notificacaoService.criarNotificacao(idCliente, titulo, descricao, agendamento.getIdAgendamento());
         }
         return ResponseEntity.ok(agendamento);
     }
