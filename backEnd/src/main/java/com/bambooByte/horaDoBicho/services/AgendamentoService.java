@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 import com.bambooByte.horaDoBicho.entities.Agendamento;
 import com.bambooByte.horaDoBicho.enums.Status;
 import com.bambooByte.horaDoBicho.repositories.AgendamentoRepository;
+import com.bambooByte.horaDoBicho.repositories.ClienteRepository;
+import com.bambooByte.horaDoBicho.repositories.FuncionarioRepository;
+import com.bambooByte.horaDoBicho.repositories.PetRepository;
+import com.bambooByte.horaDoBicho.repositories.ServicoRepository;
 
 @Service
 public class AgendamentoService {
@@ -21,13 +25,13 @@ public class AgendamentoService {
     public AgendamentoRepository agendamentoRepository;
 
     @Autowired
-    public com.bambooByte.horaDoBicho.repositories.ClienteRepository clienteRepository;
+    public ClienteRepository clienteRepository;
     @Autowired
-    public com.bambooByte.horaDoBicho.repositories.PetRepository petRepository;
+    public PetRepository petRepository;
     @Autowired
-    public com.bambooByte.horaDoBicho.repositories.FuncionarioRepository funcionarioRepository;
+    public FuncionarioRepository funcionarioRepository;
     @Autowired
-    public com.bambooByte.horaDoBicho.repositories.ServicoRepository servicoRepository;
+    public ServicoRepository servicoRepository;
 
     public Agendamento create(Agendamento agendamento) {
         return agendamentoRepository.save(agendamento);

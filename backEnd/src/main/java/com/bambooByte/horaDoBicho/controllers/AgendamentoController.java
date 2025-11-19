@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bambooByte.horaDoBicho.entities.Agendamento;
 import com.bambooByte.horaDoBicho.entities.AgendamentoRequest;
 import com.bambooByte.horaDoBicho.entities.Servico;
+import com.bambooByte.horaDoBicho.enums.Permissao;
 import com.bambooByte.horaDoBicho.enums.Status;
 import com.bambooByte.horaDoBicho.services.AgendamentoService;
 import com.bambooByte.horaDoBicho.services.NotificacaoService;
@@ -62,7 +63,10 @@ public class AgendamentoController {
         agendamento.setValorTotal(agendamento.calcularValorTotalServicos());
 
         Agendamento salvo = agendamentoService.create(agendamento);
-        notificacaoService.criarNotificacao(salvo.getIdCliente().getIdCliente(), "Novo Agendamento", "Novo agendamento criado.", salvo.getIdAgendamento());
+        var adminOpt = agendamentoService.clienteRepository.findFirstByPermissaoCliente(Permissao.ADMIN);
+        if (adminOpt.isPresent()) {
+            notificacaoService.criarNotificacao(adminOpt.get().getIdCliente(), "Novo Agendamento", "Novo agendamento criado.", salvo.getIdAgendamento());
+        }
         return ResponseEntity.status(201).body(salvo);
     }
 
@@ -137,9 +141,10 @@ public class AgendamentoController {
 
         if (agendamento != null && agendamento.getIdCliente() != null) {
             String titulo = "Status Atualizado";
+            String descricaoPadrao = "Status do agendamento atualizado para: " + status;
             String descricao = descricaoStatus != null && !descricaoStatus.isBlank()
-                ? descricaoStatus
-                : "Status do agendamento atualizado para: " + status;
+                ? descricaoPadrao + "\nMotivo: " + descricaoStatus
+                : descricaoPadrao;
             Long idCliente = agendamento.getIdCliente().getIdCliente();
             notificacaoService.criarNotificacao(idCliente, titulo, descricao, agendamento.getIdAgendamento());
         }

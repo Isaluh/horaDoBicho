@@ -1,12 +1,13 @@
 package com.bambooByte.horaDoBicho.services;
 
-import com.bambooByte.horaDoBicho.entities.Funcionario;
-import com.bambooByte.horaDoBicho.repositories.FuncionarioRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.bambooByte.horaDoBicho.entities.Funcionario;
+import com.bambooByte.horaDoBicho.repositories.FuncionarioRepository;
 
 @Service
 public class FuncionarioService {
@@ -15,6 +16,7 @@ public class FuncionarioService {
     private FuncionarioRepository funcionarioRepository;
 
     public Funcionario create(Funcionario funcionario) {
+        // O campo cargoFuncionario já será persistido pelo JPA, não é necessário alteração adicional aqui
         return funcionarioRepository.save(funcionario);
     }
 
@@ -27,6 +29,7 @@ public class FuncionarioService {
     }
 
     public Funcionario update(Funcionario funcionario) {
+        // O campo cargoFuncionario já será persistido pelo JPA, não é necessário alteração adicional aqui
         return funcionarioRepository.save(funcionario);
     }
 

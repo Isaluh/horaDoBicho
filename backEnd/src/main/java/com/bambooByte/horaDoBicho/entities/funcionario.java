@@ -1,6 +1,10 @@
 package com.bambooByte.horaDoBicho.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
 public class Funcionario {
@@ -14,14 +18,18 @@ public class Funcionario {
     @Column(nullable = false)
     private String telefoneFuncionario;
 
+    @Column(nullable = false)
+    private String cargoFuncionario;
+
     public Funcionario() {
     }
 
-    public Funcionario(Long idFuncionario, String nomeFuncionario, String cpfFuncionario, String telefoneFuncionario) {
+    public Funcionario(Long idFuncionario, String nomeFuncionario, String cpfFuncionario, String telefoneFuncionario, String cargoFuncionario) {
         this.idFuncionario = idFuncionario;
         this.nomeFuncionario = nomeFuncionario;
         this.cpfFuncionario = cpfFuncionario;
         this.telefoneFuncionario = telefoneFuncionario;
+        this.cargoFuncionario = cargoFuncionario;
     }
 
     public Long getIdFuncionario() {
@@ -54,6 +62,14 @@ public class Funcionario {
 
     public void setTelefoneFuncionario(String telefoneFuncionario) {
         this.telefoneFuncionario = telefoneFuncionario;
+    }
+
+    public String getCargoFuncionario() {
+        return cargoFuncionario;
+    }
+
+    public void setCargoFuncionario(String cargoFuncionario) {
+        this.cargoFuncionario = cargoFuncionario;
     }
 
 }

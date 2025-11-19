@@ -6,8 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.bambooByte.horaDoBicho.entities.Cliente;
+import com.bambooByte.horaDoBicho.enums.Permissao;
 
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     Optional<Cliente> findByEmailCliente(String emailCliente);
+
+    Optional<Cliente> findFirstByPermissaoCliente(Permissao permissaoCliente);
 }
