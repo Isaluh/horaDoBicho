@@ -3,7 +3,8 @@ class Notificacao {
   final int idCliente;
   final String titulo;    
   final String descricao;  
-  final bool lida;         
+  final bool lida; 
+  final int idAgendamento;        
 
   Notificacao({
     required this.idNotificacao,
@@ -11,6 +12,7 @@ class Notificacao {
     required this.titulo,
     required this.descricao,
     required this.lida,
+    required this.idAgendamento
   });
 
   factory Notificacao.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class Notificacao {
       titulo: json['titulo'],
       descricao: json['descricao'],
       lida: json['lida'] ?? false,
+      idAgendamento: json['idAgendamento']
     );
   }
 }

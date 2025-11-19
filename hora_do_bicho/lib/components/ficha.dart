@@ -1,4 +1,3 @@
-// components/ficha.dart
 import 'package:flutter/material.dart';
 
 enum FichaTipo { pet, funcionario, servico }
@@ -44,24 +43,10 @@ class Ficha extends StatelessWidget {
   }
 
   List<PopupMenuEntry<String>> _buildMenuItems() {
-    switch (tipo) {
-      case FichaTipo.pet:
-        return const [
-          PopupMenuItem(value: 'editar', child: Text('Editar')),
-          PopupMenuItem(value: 'agendar', child: Text('Agendar')),
-          PopupMenuItem(value: 'excluir', child: Text('Excluir')),
-        ];
-      case FichaTipo.funcionario:
-        return const [
-          PopupMenuItem(value: 'editar', child: Text('Editar')),
-          PopupMenuItem(value: 'excluir', child: Text('Excluir')),
-        ];
-      case FichaTipo.servico:
-        return const [
-          PopupMenuItem(value: 'editar', child: Text('Editar')),
-          PopupMenuItem(value: 'excluir', child: Text('Excluir')),
-        ];
-    }
+    return const [
+      PopupMenuItem(value: 'editar', child: Text('Editar')),
+      PopupMenuItem(value: 'excluir', child: Text('Excluir')),
+    ];
   }
 
   @override
@@ -101,7 +86,6 @@ class Ficha extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Nome
                 Text(
                   nome,
                   style: TextStyle(

@@ -203,7 +203,28 @@ class _CatalogoPageState extends State<CatalogoPage> {
                 'precoServico': serv.precoServico,
               },
               onSave: (data) async {
-                print('Editar serviço: $data');
+                try {
+                  data['idServico'] = serv.idServico.toString();
+                  final servicoAtualizado = Servico.fromJson(data);
+
+                  await _servicosService.atualizarServico(servicoAtualizado);
+
+                  if (!mounted) return;
+
+                  setState(() {
+                    listServ = _carregarServicos();
+                  });
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Serviço atualizado com sucesso!'),
+                    ),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Erro ao atualizar serviço: $e')),
+                  );
+                }
               },
             );
           case FormType.funcionario:
@@ -218,7 +239,32 @@ class _CatalogoPageState extends State<CatalogoPage> {
                 'telefoneFuncionario': func.telefoneFuncionario,
               },
               onSave: (data) async {
-                print('Editar funcionário: $data');
+                try {
+                  data['idFuncionario'] = func.idFuncionario.toString();
+                  final funcionarioAtualizado = Funcionario.fromJson(data);
+
+                  await _funcionariosService.atualizarFuncionario(
+                    funcionarioAtualizado,
+                  );
+
+                  if (!mounted) return;
+
+                  setState(() {
+                    listFunc = _carregarFuncionarios();
+                  });
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Funcionário atualizado com sucesso!'),
+                    ),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Erro ao atualizar funcionário: $e'),
+                    ),
+                  );
+                }
               },
             );
         }
@@ -228,63 +274,94 @@ class _CatalogoPageState extends State<CatalogoPage> {
 
   void _excluirItem(dynamic item) async {
     final tipo = _getFormType();
-    String nomeItem;
+
+    String nomeItem = '';
     int? idItem;
+
     switch (tipo) {
       case FormType.pet:
-        nomeItem = (item as Pet).nomePet;
-        idItem = item.idPet;
+        final pet = item as Pet;
+        nomeItem = pet.nomePet;
+        idItem = pet.idPet;
         break;
+
       case FormType.servico:
-        nomeItem = item['titulo'] ?? 'Serviço';
+        final serv = item as Servico;
+        nomeItem = serv.nomeServico;
+        idItem = serv.idServico;
         break;
+
       case FormType.funcionario:
-        nomeItem = item['nome'] ?? 'Funcionário';
+        final func = item as Funcionario;
+        nomeItem = func.nomeFuncionario;
+        idItem = func.idFuncionario;
         break;
     }
+
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          title: Text(
-            'Excluir $nomeItem',
-            style: const TextStyle(fontSize: 20),
-          ),
+          title: Text('Excluir $nomeItem', style: TextStyle(fontSize: 20)),
           content: Text('Tem certeza que deseja excluir $nomeItem?'),
           actions: [
-            GestureDetectorComponent(label: 'Cancelar', onTap: () => Navigator.pop(context, false), color: Colors.black, fontSize: 16,),
+            GestureDetectorComponent(
+              label: 'Cancelar',
+              onTap: () => Navigator.pop(context, false),
+              color: Colors.black,
+              fontSize: 16,
+            ),
             SizedBox(width: 10),
             ElevatedButtonComponent(
               onPressed: () => Navigator.pop(context, true),
               text: 'Excluir',
-              color: const Color(0xFF98E6F6),
+              color: Color(0xFF98E6F6),
               textColor: Colors.black,
             ),
           ],
         );
       },
     );
+
     if (confirm == true) {
       try {
-        if (tipo == FormType.pet && idItem != null) {
-          await _petsService.deletarPet(idItem);
-          setState(() {
-            listPets = _carregarPets();
-          });
-        } else {
-          print('Excluir $nomeItem');
+        switch (tipo) {
+          case FormType.pet:
+            await _petsService.deletarPet(idItem!);
+            // Atualiza o Future sem precisar converter com "as"
+            setState(() {
+              listPets = _carregarPets();
+            });
+            break;
+
+          case FormType.servico:
+            await _servicosService.deletarServico(idItem!);
+            setState(() {
+              listServ = _carregarServicos();
+            });
+            break;
+
+          case FormType.funcionario:
+            await _funcionariosService.deletarFuncionario(idItem!);
+            setState(() {
+              listFunc = _carregarFuncionarios();
+            });
+            break;
         }
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pet excluído com sucesso!')),
+          SnackBar(content: Text('$nomeItem excluído com sucesso!')),
         );
       } catch (e) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Erro ao excluir pet: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao excluir $nomeItem: $e')),
+        );
+        print(e);
       }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

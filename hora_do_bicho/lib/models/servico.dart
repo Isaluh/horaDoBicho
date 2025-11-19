@@ -13,10 +13,12 @@ class Servico {
 
   factory Servico.fromJson(Map<String, dynamic> json) {
     return Servico(
-      idServico: json['idServico'],
+      idServico: json['idServico'] is String ? int.tryParse(json['idServico']) ?? 0 : json['idServico'],
       nomeServico: json['nomeServico'], 
       descricaoServico: json['descricaoServico'], 
-      precoServico: json['precoServico'],
+      precoServico: json['precoServico'] is String
+        ? double.tryParse(json['precoServico']) ?? 0.0
+        : (json['precoServico'] as num).toDouble(),
     );
   }
 

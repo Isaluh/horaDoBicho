@@ -11,7 +11,9 @@
 
   class LayoutPage extends StatefulWidget {
     final Widget body;
-    const LayoutPage({super.key, required this.body});
+    final int? abrirAgendamentoId;
+    const LayoutPage({super.key, required this.body, this.abrirAgendamentoId,
+  });
 
     @override
     State<LayoutPage> createState() => _LayoutPageState();
@@ -47,14 +49,20 @@
               ? [
                   CatalogoPage('Funcionários', key: ValueKey('Funcionários')),
                   CatalogoPage('Serviços', key: ValueKey('Serviços')),
-                  AgendamentoPage(key: ValueKey('Agendamento')),
+                  AgendamentoPage(key: ValueKey('Agendamento'), abrirAgendamentoId: widget.abrirAgendamentoId),
                   PerfilPage(key: ValueKey('Perfil')),
                 ]
               : [
                   CatalogoPage('Pets', key: ValueKey('Pets')),
-                  AgendamentoPage(key: ValueKey('Agendamento')),
+                  AgendamentoPage(key: ValueKey('Agendamento'), abrirAgendamentoId: widget.abrirAgendamentoId),
                   PerfilPage(key: ValueKey('Perfil')),
                 ];
+
+          if (widget.abrirAgendamentoId != null) {
+            _selectedIndex = isAdmin ? 2 : 1;
+
+            _currentBody = _pages[_selectedIndex];
+          }
         });
       }
     }

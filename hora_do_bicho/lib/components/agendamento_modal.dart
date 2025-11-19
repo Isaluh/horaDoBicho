@@ -132,8 +132,9 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
       'idFuncionario': _formAgendamento['selectedFuncionarioId'],
       'idServico': _formAgendamento['selectedServicos'],
       'dataHoraAgendamento': dataHora?.toIso8601String(),
-      'observacaoAgendamento': _formAgendamento['observacaoAgendamento'].text,
-      'statusAgendamento': Status.EM_ANALISE.name,
+      'observacaoAgendamento': _formAgendamento['observacaoAgendamento'].text ?? '',
+      'statusAgendamento': widget.isAdmin ? _formAgendamento['statusAgendamento'] : Status.EM_ANALISE.name,
+      'descricaoStatus' : _formAgendamento['descricaoStatus'] != null ? _formAgendamento['descricaoStatus'].text : ''
     };
 
     widget.onSave(agendamentoData);
@@ -239,7 +240,7 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
                 labelText: 'Observação',
                 border: OutlineInputBorder(),
               ),
-              maxLines: 3,
+              maxLines: 2,
             ),
             const SizedBox(height: 10),
 
@@ -292,12 +293,11 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
                   ChoiceChip(
                     label: const Text('Aprovar'),
                     selected:
-                        _formAgendamento['status'] == Status.APROVADO.name,
+                        _formAgendamento['statusAgendamento'] == Status.APROVADO.name,
                     onSelected: (_) {
                       setState(() {
                         hasStatus = true;
-                        _formAgendamento['status'] = Status.APROVADO.name;
-                        print(hasStatus);
+                        _formAgendamento['statusAgendamento'] = Status.APROVADO.name;
                       });
                     },
                   ),
@@ -305,12 +305,11 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
                   ChoiceChip(
                     label: const Text('Recusar'),
                     selected:
-                        _formAgendamento['status'] == Status.CANCELADO.name,
+                        _formAgendamento['statusAgendamento'] == Status.CANCELADO.name,
                     onSelected: (_) {
                       setState(() {
                         hasStatus = true;
-                        _formAgendamento['status'] = Status.CANCELADO.name;
-                        print(hasStatus);
+                        _formAgendamento['statusAgendamento'] = Status.CANCELADO.name;
                       });
                     },
                   ),
@@ -332,8 +331,7 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
 
               const SizedBox(width: 15),
               Row(
-                // arrumar onde fica e mandar n so o status como tbm a descricao
-                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   GestureDetectorComponent(
                     onTap: () => Navigator.pop(context),

@@ -32,4 +32,16 @@ class NotificacaoService {
       );
     }
   }
+
+  Future<void> marcarComoLida(int idNotificacao) async {
+    final url = Uri.parse("$baseUrl/$idNotificacao/lida?lida=true");
+
+    final response = await http.put(url);
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        "Erro ao marcar notificação como lida (status: ${response.statusCode})",
+      );
+    }
+  }
 }

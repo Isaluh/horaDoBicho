@@ -14,7 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class AgendamentoPage extends StatefulWidget {
-  const AgendamentoPage({super.key});
+  final int? abrirAgendamentoId;
+  const AgendamentoPage({super.key, this.abrirAgendamentoId});
 
   @override
   State<AgendamentoPage> createState() => _AgendamentoPageState();
@@ -67,6 +68,20 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
     });
 
     _organizarPorDia();
+
+    if (widget.abrirAgendamentoId != null) {
+      final encontrados = agendamentos
+          .where((x) => x.idAgendamento == widget.abrirAgendamentoId)
+          .toList();
+
+      if (encontrados.isNotEmpty) {
+        final ag = encontrados.first;
+
+        Future.delayed(Duration(milliseconds: 300), () {
+          _mostrarDetalhesAgendamento(ag);
+        });
+      }
+    }
   }
 
   void _organizarPorDia() {
@@ -213,6 +228,8 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
           onSave: (formData) async {
             try {
               print(formData);
+              print(formData['statusAgendamento']);
+              print(formData['descricaoStatus']);
               final dataHoraIso = formData['dataHoraAgendamento'] as String?;
               final dataHora = DateTime.parse(dataHoraIso!);
 
@@ -225,19 +242,19 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                 'dataHoraAgendamento': dataHora.toIso8601String(),
                 'observacaoAgendamento': formData['observacaoAgendamento'],
                 'statusAgendamento': formData['statusAgendamento'],
+                'descricaoStatus': formData['descricaoStatus'],
               };
 
               if (!isAdmin) {
                 final agendamentoObj = Agendamento.fromJson(agendamentoData);
                 await _agendamentosService.atualizarAgendamento(agendamentoObj);
               }
-              // verificar se esta atualizando o status + descrição
               await _agendamentosService.atualizarStatus(
                 agendamento.idAgendamento,
                 StatusExtension.fromString(
                   agendamentoData['statusAgendamento'],
                 ),
-                motivo: agendamento.descricaoStatus,
+                motivo: agendamentoData['descricaoStatus'],
               );
 
               await _carregarConteudo();
@@ -391,16 +408,10 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                 return Stack(
                   alignment: Alignment.center,
                   children: [
-                    if (hasEmAnalise)
-                      Positioned(
-                        top: 10,
-                        child: Image.asset(assetPath, width: 30, height: 30),
-                      )
-                    else if (allAprovado)
-                      Positioned(
-                        top: 10,
-                        child: Image.asset(assetPath, width: 30, height: 30),
-                      ),
+                    Positioned(
+                      top: 10,
+                      child: Image.asset(assetPath, width: 30, height: 30),
+                    ),
                   ],
                 );
               },

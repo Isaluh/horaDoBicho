@@ -75,6 +75,8 @@ class AgendamentosService {
       if (motivo != null) 'descricaoStatus': motivo,
     };
 
+    print(body);
+
     final response = await http.put(
       Uri.parse('$baseUrl/$id/status'),
       headers: {'Content-Type': 'application/json'},

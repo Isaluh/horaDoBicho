@@ -124,13 +124,6 @@ class _LoginPageState extends State<LoginPage> {
                 child: Image.asset("assets/images/separacao.png", width: 400),
               ),
               SizedBox(height: 15),
-              // GestureDetector(
-              //   onTap: _goToCadastroPage,
-              //   child: const Text(
-              //     'Criar uma conta',
-              //     style: TextStyle(fontSize: 16, color: Colors.white),
-              //   ),
-              // ),
               GestureDetectorComponent(label: 'Criar uma conta', onTap: _goToCadastroPage, color: Colors.white, fontSize: 16,)
             ],
           ),

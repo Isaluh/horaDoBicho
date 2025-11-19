@@ -13,7 +13,7 @@ class Funcionario {
 
   factory Funcionario.fromJson(Map<String, dynamic> json) {
     return Funcionario(
-      idFuncionario: json['idFuncionario'], 
+      idFuncionario: json['idFuncionario'] is String ? int.tryParse(json['idFuncionario']) ?? 0 : json['idFuncionario'], 
       nomeFuncionario: json['nomeFuncionario'], 
       cpfFuncionario: json['cpfFuncionario'], 
       telefoneFuncionario: json['telefoneFuncionario']
