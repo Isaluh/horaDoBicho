@@ -25,7 +25,7 @@ class Ficha extends StatelessWidget {
       case FichaTipo.pet:
         return 'Idade:';
       case FichaTipo.funcionario:
-        return 'Cargo:';
+        return 'Telefone:';
       case FichaTipo.servico:
         return 'Descrição:';
     }
@@ -36,9 +36,9 @@ class Ficha extends StatelessWidget {
       case FichaTipo.pet:
         return 'Raça:';
       case FichaTipo.funcionario:
-        return 'Telefone ';
+        return 'Cargo:';
       case FichaTipo.servico:
-        return 'Preço';
+        return 'Preço:';
     }
   }
 

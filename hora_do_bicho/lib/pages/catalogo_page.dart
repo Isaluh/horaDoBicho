@@ -232,11 +232,11 @@ class _CatalogoPageState extends State<CatalogoPage> {
             return CustomFormModal(
               formType: FormType.funcionario,
               formMode: FormMode.editar,
-              // mudar informações
               initialData: {
                 'nomeFuncionario': func.nomeFuncionario,
                 'cpfFuncionario': func.cpfFuncionario,
                 'telefoneFuncionario': func.telefoneFuncionario,
+                'cargoFuncionario' : func.cargoFuncionario
               },
               onSave: (data) async {
                 try {
@@ -329,7 +329,6 @@ class _CatalogoPageState extends State<CatalogoPage> {
         switch (tipo) {
           case FormType.pet:
             await _petsService.deletarPet(idItem!);
-            // Atualiza o Future sem precisar converter com "as"
             setState(() {
               listPets = _carregarPets();
             });
@@ -487,7 +486,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
                             tipo: FichaTipo.funcionario,
                             nome: func.nomeFuncionario,
                             infoPrincipal: func.telefoneFuncionario,
-                            infoSecundaria: func.cpfFuncionario,
+                            infoSecundaria: func.cargoFuncionario,
                             imagemAsset: 'assets/images/vet.png',
                             onMenuSelected: (value) {
                               if (value == 'editar')

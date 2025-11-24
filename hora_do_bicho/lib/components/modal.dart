@@ -41,7 +41,7 @@ class _CustomFormModalState extends State<CustomFormModal> {
         fields = ['nomePet', 'idadePet', 'especiePet', 'racaPet'];
         break;
       case FormType.funcionario:
-        fields = ['nomeFuncionario', 'cpfFuncionario', 'telefoneFuncionario'];
+        fields = ['nomeFuncionario', 'cpfFuncionario', 'telefoneFuncionario', 'cargoFuncionario'];
         break;
       case FormType.servico:
         fields = ['nomeServico', 'descricaoServico', 'precoServico'];
