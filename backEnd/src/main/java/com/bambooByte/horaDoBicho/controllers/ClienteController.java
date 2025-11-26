@@ -1,14 +1,22 @@
 package com.bambooByte.horaDoBicho.controllers;
 
-import com.bambooByte.horaDoBicho.entities.Cliente;
-import com.bambooByte.horaDoBicho.services.ClienteService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.bambooByte.horaDoBicho.entities.Cliente;
+import com.bambooByte.horaDoBicho.services.ClienteService;
 
 @RestController
 @RequestMapping("/clientes")
@@ -19,6 +27,9 @@ public class ClienteController {
 
     @PostMapping
     public ResponseEntity<Cliente> create(@RequestBody Cliente cliente) {
+        if (cliente.getEmailCliente() != null && clienteService.findByEmail(cliente.getEmailCliente()).isPresent()) {
+            return ResponseEntity.status(409).body(null); 
+        }
         return ResponseEntity.ok(clienteService.create(cliente));
     }
 

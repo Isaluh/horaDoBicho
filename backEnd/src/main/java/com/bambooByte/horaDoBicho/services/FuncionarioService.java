@@ -16,7 +16,6 @@ public class FuncionarioService {
     private FuncionarioRepository funcionarioRepository;
 
     public Funcionario create(Funcionario funcionario) {
-        // O campo cargoFuncionario já será persistido pelo JPA, não é necessário alteração adicional aqui
         return funcionarioRepository.save(funcionario);
     }
 
@@ -29,7 +28,6 @@ public class FuncionarioService {
     }
 
     public Funcionario update(Funcionario funcionario) {
-        // O campo cargoFuncionario já será persistido pelo JPA, não é necessário alteração adicional aqui
         return funcionarioRepository.save(funcionario);
     }
 

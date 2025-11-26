@@ -20,7 +20,7 @@ class Agendamento {
     this.descricaoStatus,
     this.observacaoAgendamento,
     required this.statusAgendamento,
-    this.valorTotal
+    this.valorTotal,
   });
 
   factory Agendamento.fromJson(Map<String, dynamic> json) {
@@ -34,7 +34,7 @@ class Agendamento {
       descricaoStatus: json['descricaoStatus'] ?? '',
       observacaoAgendamento: json['observacaoAgendamento'] ?? '',
       statusAgendamento: StatusExtension.fromString(json['statusAgendamento']),
-      valorTotal: json['valorTotal']
+      valorTotal: json['valorTotal'],
     );
   }
 
@@ -46,15 +46,15 @@ class Agendamento {
       'idFuncionario': idFuncionario,
       'idServico': idServico,
       'dataHoraAgendamento': dataHoraAgendamento.toIso8601String(),
-      'descricaoStatus' : descricaoStatus,
+      'descricaoStatus': descricaoStatus,
       'observacaoAgendamento': observacaoAgendamento,
       'statusAgendamento': statusAgendamento.name,
-      'valorTotal' : valorTotal
+      'valorTotal': valorTotal,
     };
   }
 }
 
-enum Status { EM_ANALISE, CANCELADO, APROVADO }
+enum Status { EM_ANALISE, CANCELADO, APROVADO, RECUSADO }
 
 extension StatusExtension on Status {
   String get name => this.toString().split('.').last;

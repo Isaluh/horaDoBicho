@@ -13,7 +13,7 @@ class PerfilPage extends StatefulWidget {
 }
 
 class _PerfilPageState extends State<PerfilPage> {
-  late bool isAdmin;
+  bool isAdmin = false;
   bool isEditing = false;
 
   final Map<String, TextEditingController> _controllers = {
@@ -53,7 +53,7 @@ class _PerfilPageState extends State<PerfilPage> {
           'enderecoCliente': user.enderecoCliente ?? '',
           'senhaCliente': '',
           'confirmarSenhaCliente': '',
-          'permissaoCliente' : user.permissaoCliente.name
+          'permissaoCliente': user.permissaoCliente.name,
         };
 
         _preencherControllers();
@@ -221,7 +221,7 @@ class _PerfilPageState extends State<PerfilPage> {
           'enderecoCliente': atualizado.enderecoCliente ?? '',
           'senhaCliente': '',
           'confirmarSenhaCliente': '',
-          'permissaoCliente' : atualizado.permissaoCliente
+          'permissaoCliente': atualizado.permissaoCliente,
         };
 
         _preencherControllers();

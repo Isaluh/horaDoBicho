@@ -22,6 +22,7 @@ class AgendamentoPage extends StatefulWidget {
 }
 
 class _AgendamentoPageState extends State<AgendamentoPage> {
+  bool _abrirAgendamentoIdJaUsado = false;
   final PetsService _petsService = PetsService();
   final ServicosService _servicosService = ServicosService();
   final FuncionariosService _funcionariosService = FuncionariosService();
@@ -69,16 +70,18 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
 
     _organizarPorDia();
 
-    if (widget.abrirAgendamentoId != null) {
+    if (widget.abrirAgendamentoId != null && !_abrirAgendamentoIdJaUsado) {
       final encontrados = agendamentos
           .where((x) => x.idAgendamento == widget.abrirAgendamentoId)
           .toList();
 
       if (encontrados.isNotEmpty) {
         final ag = encontrados.first;
-
         Future.delayed(Duration(milliseconds: 300), () {
           _mostrarDetalhesAgendamento(ag);
+          setState(() {
+            _abrirAgendamentoIdJaUsado = true;
+          });
         });
       }
     }
@@ -113,7 +116,7 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
   }
 
   void _abrirFormAgendamento(DateTime dia) async {
-    await showDialog(
+    final result = await showDialog(
       context: context,
       builder: (_) => AgendamentoFormModal(
         mode: AgendamentoFormMode.novo,
@@ -140,20 +143,29 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
             );
             if (novo != null) {
               await _carregarConteudo();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Agendamento criado com sucesso!'),
-                ),
-              );
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Agendamento criado com sucesso!'),
+                  ),
+                );
+              }
             }
           } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Erro ao criar agendamento: $e')),
-            );
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Erro ao criar agendamento: $e')),
+              );
+            }
           }
         },
       ),
     );
+    if (result is String && mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(result)));
+    }
   }
 
   void _mostrarListaAgendamentos(List<AgendamentoResponse> agendamentos) {
@@ -218,7 +230,7 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
   void _mostrarDetalhesAgendamento(AgendamentoResponse agendamento) async {
     await showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
         return AgendamentoFormModal(
           mode: AgendamentoFormMode.editar,
           dia: agendamento.dataHoraAgendamento,
@@ -258,15 +270,19 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
               );
 
               await _carregarConteudo();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Agendamento atualizado com sucesso!'),
-                ),
-              );
+              if (mounted) {
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Agendamento atualizado com sucesso!'),
+                  ),
+                );
+              }
             } catch (e) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('Erro ao atualizar: $e')));
+              if (mounted) {
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  SnackBar(content: Text('Erro ao atualizar: $e')),
+                );
+              }
               print(e);
             }
           },

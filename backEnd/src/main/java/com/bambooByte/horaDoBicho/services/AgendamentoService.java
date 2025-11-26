@@ -46,7 +46,27 @@ public class AgendamentoService {
     }
 
     public Agendamento update(Agendamento agendamento) {
-        return agendamentoRepository.save(agendamento);
+        Optional<Agendamento> originalOpt = agendamentoRepository.findById(agendamento.getIdAgendamento());
+        Agendamento original = originalOpt.orElse(null);
+
+        boolean agendamentoRecusadoEditado = false;
+        if (original != null && original.getStatusAgendamento() == Status.RECUSADO) {
+            agendamento.setStatusAgendamento(Status.EM_ANALISE);
+            agendamentoRecusadoEditado = true;
+        }
+
+        Agendamento salvo = agendamentoRepository.save(agendamento);
+
+        if (agendamentoRecusadoEditado && agendamento.getIdFuncionario() != null) {
+            System.out.println("[LOG] Notificação enviada para admin! idFuncionario=" + agendamento.getIdFuncionario().getIdFuncionario());
+            notificacaoService.criarNotificacao(
+                agendamento.getIdFuncionario().getIdFuncionario(),
+                "Agendamento para revisão",
+                "O cliente alterou um agendamento recusado. Verifique novamente.",
+                agendamento.getIdAgendamento()
+            );
+        }
+        return salvo;
     }
 
     public Agendamento updateStatus(Long idAgendamento, String status, String descricaoStatus) {
@@ -60,20 +80,33 @@ public class AgendamentoService {
                 throw new RuntimeException("Status inválido: " + status);
             }
             agendamento.setStatusAgendamento(novoStatus);
-            agendamento.setDescricaoStatus("Status do agendamento atualizado para: " + novoStatus.name());
+            agendamento.setDescricaoStatus(descricaoStatus != null && !descricaoStatus.isBlank()
+                ? descricaoStatus
+                : "");
             Agendamento salvo = agendamentoRepository.save(agendamento);
-            if (novoStatus == Status.CANCELADO) {
+
+            if (novoStatus == Status.APROVADO) {
+                try {
+                    notificacaoService.removerNotificacoesPorAgendamentoECliente(
+                        agendamento.getIdAgendamento(),
+                        agendamento.getIdCliente().getIdCliente()
+                    );
+                } catch (Exception ex) {
+                    System.out.println("[WARN] Falha ao remover notificações antigas: " + ex.getMessage());
+                }
                 notificacaoService.criarNotificacao(
-                        agendamento.getIdCliente().getIdCliente(),
-                        "Agendamento Cancelado",
-                        "Seu agendamento foi cancelado.",
-                        agendamento.getIdAgendamento());
-            } else if (novoStatus == Status.APROVADO) {
+                    agendamento.getIdCliente().getIdCliente(),
+                    "Agendamento Aprovado",
+                    (descricaoStatus != null && !descricaoStatus.isBlank()) ? "Motivo: " + descricaoStatus : "",
+                    agendamento.getIdAgendamento()
+                );
+            } else if (novoStatus == Status.RECUSADO) {
                 notificacaoService.criarNotificacao(
-                        agendamento.getIdCliente().getIdCliente(),
-                        "Agendamento Aprovado",
-                        "Seu agendamento foi aprovado!",
-                        agendamento.getIdAgendamento());
+                    agendamento.getIdCliente().getIdCliente(),
+                    "Agendamento Recusado",
+                    (descricaoStatus != null && !descricaoStatus.isBlank()) ? "Motivo: " + descricaoStatus : "",
+                    agendamento.getIdAgendamento()
+                );
             }
             return salvo;
         } else {

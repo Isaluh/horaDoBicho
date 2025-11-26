@@ -100,11 +100,7 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
           _formAgendamento['selectedFuncionarioId'] == null ||
           _formAgendamento['selectedServicos'].isEmpty ||
           _formAgendamento['selectedHora'] == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Preencha todos os campos obrigatórios.'),
-          ),
-        );
+        Navigator.pop(context, 'Preencha todos os campos obrigatórios.');
         return;
       }
     }
@@ -132,9 +128,16 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
       'idFuncionario': _formAgendamento['selectedFuncionarioId'],
       'idServico': _formAgendamento['selectedServicos'],
       'dataHoraAgendamento': dataHora?.toIso8601String(),
-      'observacaoAgendamento': _formAgendamento['observacaoAgendamento'].text ?? '',
-      'statusAgendamento': widget.isAdmin ? _formAgendamento['statusAgendamento'] : Status.EM_ANALISE.name,
-      'descricaoStatus' : _formAgendamento['descricaoStatus'] != null ? _formAgendamento['descricaoStatus'].text : ''
+      'observacaoAgendamento':
+          _formAgendamento['observacaoAgendamento'].text ?? '',
+      'statusAgendamento': widget.isAdmin
+          ? _formAgendamento['statusAgendamento']
+          : (widget.agendamento?.statusAgendamento == Status.RECUSADO
+                ? Status.RECUSADO.name
+                : Status.EM_ANALISE.name),
+      'descricaoStatus': _formAgendamento['descricaoStatus'] != null
+          ? _formAgendamento['descricaoStatus'].text
+          : '',
     };
 
     widget.onSave(agendamentoData);
@@ -205,7 +208,6 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
             SizedBox(
               height: 120,
               child: ListView(
-                shrinkWrap: true,
                 children: servicos.map((s) {
                   return CheckboxListTile(
                     title: Text(s.nomeServico),
@@ -293,11 +295,13 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
                   ChoiceChip(
                     label: const Text('Aprovar'),
                     selected:
-                        _formAgendamento['statusAgendamento'] == Status.APROVADO.name,
+                        _formAgendamento['statusAgendamento'] ==
+                        Status.APROVADO.name,
                     onSelected: (_) {
                       setState(() {
                         hasStatus = true;
-                        _formAgendamento['statusAgendamento'] = Status.APROVADO.name;
+                        _formAgendamento['statusAgendamento'] =
+                            Status.APROVADO.name;
                       });
                     },
                   ),
@@ -305,11 +309,13 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
                   ChoiceChip(
                     label: const Text('Recusar'),
                     selected:
-                        _formAgendamento['statusAgendamento'] == Status.CANCELADO.name,
+                        _formAgendamento['statusAgendamento'] ==
+                        Status.RECUSADO.name,
                     onSelected: (_) {
                       setState(() {
                         hasStatus = true;
-                        _formAgendamento['statusAgendamento'] = Status.CANCELADO.name;
+                        _formAgendamento['statusAgendamento'] =
+                            Status.RECUSADO.name;
                       });
                     },
                   ),

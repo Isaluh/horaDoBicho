@@ -139,15 +139,6 @@ public class AgendamentoController {
 
         Agendamento agendamento = agendamentoService.updateStatus(id, status, descricaoStatus);
 
-        if (agendamento != null && agendamento.getIdCliente() != null) {
-            String titulo = "Status Atualizado";
-            String descricaoPadrao = "Status do agendamento atualizado para: " + status;
-            String descricao = descricaoStatus != null && !descricaoStatus.isBlank()
-                ? descricaoPadrao + "\nMotivo: " + descricaoStatus
-                : descricaoPadrao;
-            Long idCliente = agendamento.getIdCliente().getIdCliente();
-            notificacaoService.criarNotificacao(idCliente, titulo, descricao, agendamento.getIdAgendamento());
-        }
         return ResponseEntity.ok(agendamento);
     }
 
