@@ -67,7 +67,7 @@ if (original != null) {
             notificacaoService.criarNotificacao(
                 agendamento.getIdFuncionario().getIdFuncionario(),
                 "Agendamento para revisão",
-                "O cliente alterou um agendamento recusado. Verifique novamente.",
+                "O cliente alterou um agendamento aprovado. Verifique novamente.",
                 agendamento.getIdAgendamento()
             );
         }
