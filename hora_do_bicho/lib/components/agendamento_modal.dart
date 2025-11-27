@@ -340,8 +340,8 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   GestureDetectorComponent(
-                    onTap: () => Navigator.pop(context),
-                    label: 'Cancelar',
+                    onTap: () => _salvar,
+                    label: 'Recusar',
                     color: Colors.black,
                     fontSize: 16,
                   ),
