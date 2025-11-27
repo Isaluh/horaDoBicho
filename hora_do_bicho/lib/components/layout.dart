@@ -20,7 +20,7 @@ class LayoutPage extends StatefulWidget {
 
 class _LayoutPageState extends State<LayoutPage> {
   int _selectedIndex = 0;
-  bool isAdmin = false;
+  late bool isAdmin;
   late List<Widget> _pages;
   late Widget _currentBody;
   int? userId;
