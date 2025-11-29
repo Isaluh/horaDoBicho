@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.bambooByte.horaDoBicho.entities.Funcionario;
 import com.bambooByte.horaDoBicho.repositories.FuncionarioRepository;
+import com.bambooByte.horaDoBicho.validacoes.GatewayValidacaoFuncionario;
+import com.bambooByte.horaDoBicho.validacoes.StatusValidacao;
 
 @Service
 public class FuncionarioService {
@@ -16,6 +18,11 @@ public class FuncionarioService {
     private FuncionarioRepository funcionarioRepository;
 
     public Funcionario create(Funcionario funcionario) {
+        GatewayValidacaoFuncionario gatewayValidacaoFuncionario = new GatewayValidacaoFuncionario();
+        List<StatusValidacao> erros = gatewayValidacaoFuncionario.validarFuncionario(funcionario);
+        if (!erros.isEmpty()) {
+            throw new IllegalArgumentException("Erro de validação: " + erros);
+        }
         return funcionarioRepository.save(funcionario);
     }
 

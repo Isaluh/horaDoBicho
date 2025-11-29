@@ -1,6 +1,12 @@
 package com.bambooByte.horaDoBicho.entities;
 
-import jakarta.persistence.*;
+import com.bambooByte.horaDoBicho.validacoes.FormatacoesComuns;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
 public class Servico {
@@ -54,5 +60,9 @@ public class Servico {
 
     public void setPrecoServico(Double precoServico) {
         this.precoServico = precoServico;
+    }
+    
+    public String getPrecoServicoFormatado() {
+        return FormatacoesComuns.getInstancia().formatarParaMoedaBR(precoServico);
     }
 }

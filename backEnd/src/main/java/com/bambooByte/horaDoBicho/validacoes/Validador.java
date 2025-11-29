@@ -4,7 +4,6 @@ import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.regex.Pattern;
 
-
 class Validador {
 
     private static final Validador instancia = new Validador();
@@ -77,17 +76,18 @@ class Validador {
         return null;
     }
 
-    // public StatusValidacao validaCEP(String CEP) {
-    //     return (CEP != null && CEP.matches("^\\d{8}$")) ? null : StatusValidacao.CEP_INVALIDO;
-    // }
+    public StatusValidacao validaSenha(String senha) {
+        if (senha == null || senha.length() < 8) {
+            return StatusValidacao.SENHA_FRACA;
+        }
+        boolean temMaiuscula = senha.matches(".*[A-Z].*");
+        boolean temMinuscula = senha.matches(".*[a-z].*");
+        boolean temNumero = senha.matches(".*[0-9].*");
+        boolean temSimbolo = senha.matches(".*[^a-zA-Z0-9].*");
+        if (!temMaiuscula || !temMinuscula || !temNumero || !temSimbolo) {
+            return StatusValidacao.SENHA_FRACA;
+        }
+        return null;
+    }
 
-    // public StatusValidacao validaUF(String UF) {
-    //     return (UF != null && UF.matches("^[A-Z]{2}$")) ? null : StatusValidacao.UF_INVALIDA;
-    // }
-
-    // public StatusValidacao validaDDD(Integer DDD) {
-    //     return (DDD != null && DDD >= 1 && DDD <= 999) ? null : StatusValidacao.DDD_INVALIDO;
-    // }
-
-    
 }

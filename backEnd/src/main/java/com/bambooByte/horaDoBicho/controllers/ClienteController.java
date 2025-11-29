@@ -26,11 +26,17 @@ public class ClienteController {
     private ClienteService clienteService;
 
     @PostMapping
-    public ResponseEntity<Cliente> create(@RequestBody Cliente cliente) {
+    public ResponseEntity<?> create(@RequestBody Cliente cliente) {
         if (cliente.getEmailCliente() != null && clienteService.findByEmail(cliente.getEmailCliente()).isPresent()) {
-            return ResponseEntity.status(409).body(null); 
+            return ResponseEntity.status(409).body(null);
         }
-        return ResponseEntity.ok(clienteService.create(cliente));
+        try {
+            Cliente novoCliente = clienteService.create(cliente);
+            return ResponseEntity.ok(novoCliente);
+        } catch (IllegalArgumentException e) {
+            // Retorna mensagem detalhada do erro de validação
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
