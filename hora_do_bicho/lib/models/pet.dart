@@ -4,6 +4,7 @@ class Pet {
   final String idadePet;
   final String especiePet;
   final String racaPet;
+  final Sexo sexoPet;
   final int idCliente;
 
   Pet({
@@ -12,17 +13,23 @@ class Pet {
     required this.idadePet,
     required this.especiePet,
     required this.racaPet,
-    required this.idCliente
+    required this.sexoPet,
+    required this.idCliente,
   });
 
   factory Pet.fromJson(Map<String, dynamic> json) {
     return Pet(
-      idPet: json['idPet'] is String ? int.tryParse(json['idPet']) ?? 0 : json['idPet'],
-      nomePet: json['nomePet'], 
-      idadePet: json['idadePet'], 
+      idPet: json['idPet'] is String
+          ? int.tryParse(json['idPet']) ?? 0
+          : json['idPet'],
+      nomePet: json['nomePet'],
+      idadePet: json['idadePet'],
       especiePet: json['especiePet'],
       racaPet: json['racaPet'],
-      idCliente : json['idCliente'] is String ? int.tryParse(json['idCliente']) ?? 0 : json['idCliente']
+      sexoPet: SexoExtension.fromString(json['sexoPet']),
+      idCliente: json['idCliente'] is String
+          ? int.tryParse(json['idCliente']) ?? 0
+          : json['idCliente'],
     );
   }
 
@@ -33,8 +40,24 @@ class Pet {
       'idadePet': idadePet,
       'especiePet': especiePet,
       'racaPet': racaPet,
-      'idCliente' : idCliente
+      'sexoPet' : sexoPet.name,
+      'idCliente': idCliente,
     };
   }
 }
 
+enum Sexo { FEMEA, MACHO }
+
+extension SexoExtension on Sexo {
+  String get name => this.toString().split('.').last;
+
+  static Sexo fromString(dynamic value) {
+    if (value is String) {
+      return Sexo.values.firstWhere(
+        (e) => e.name == value,
+        orElse: () => Sexo.FEMEA,
+      );
+    }
+    return Sexo.FEMEA;
+  }
+}

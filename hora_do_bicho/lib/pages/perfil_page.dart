@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:hora_do_bicho/models/admin_info.dart';
 import 'package:hora_do_bicho/models/user.dart';
 import 'package:hora_do_bicho/services/user_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,11 +27,13 @@ class _PerfilPageState extends State<PerfilPage> {
   };
 
   Map<String, dynamic> userData = {};
+  Map<String, dynamic> petshopInfo = {};
 
   @override
   void initState() {
     super.initState();
     _loadUserPermissions();
+    _loadPetshopInfo();
   }
 
   Future<void> _loadUserPermissions() async {
@@ -57,6 +60,17 @@ class _PerfilPageState extends State<PerfilPage> {
         };
 
         _preencherControllers();
+      });
+    }
+  }
+
+  Future<void> _loadPetshopInfo() async {
+    final service = UserService();
+    AdminInfo? info = await service.getAdminInfo();
+
+    if (info != null) {
+      setState(() {
+        petshopInfo = {'telefone': info.telefone, 'endereco': info.endereco};
       });
     }
   }
@@ -311,7 +325,6 @@ class _PerfilPageState extends State<PerfilPage> {
                       const SizedBox(height: 10),
 
                       if (isEditing) buildSenhaSection(),
-
                       if (isEditing) const SizedBox(height: 20),
 
                       if (isEditing)
@@ -328,6 +341,59 @@ class _PerfilPageState extends State<PerfilPage> {
                             ),
                           ),
                         ),
+
+                      const SizedBox(height: 30),
+
+                      if (!isEditing && !isAdmin)
+                      Image.asset("assets/images/separacaoCor.png", width: 400),
+                      if (!isEditing && !isAdmin)
+                      const SizedBox(height: 15),
+                      if (!isEditing && !isAdmin)
+                      const Text(
+                        "Informações do Petshop",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF4A2C00),
+                        ),
+                      ),
+                      if (!isEditing && !isAdmin)
+                      const SizedBox(height: 10),
+                      if (!isEditing && !isAdmin)
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.phone,
+                            size: 18,
+                            color: Colors.black54,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            petshopInfo['telefone'] ?? "-",
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                      if (!isEditing && !isAdmin)
+                      const SizedBox(height: 8),
+                      if (!isEditing && !isAdmin)
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.location_on,
+                            size: 18,
+                            color: Colors.black54,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              petshopInfo['endereco'] ?? "-",
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),

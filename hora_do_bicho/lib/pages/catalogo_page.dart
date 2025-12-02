@@ -178,6 +178,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
                 'idadePet': pet.idadePet,
                 'especiePet': pet.especiePet,
                 'racaPet': pet.racaPet,
+                'sexoPet': pet.sexoPet.name,
               },
               onSave: (data) async {
                 data['idPet'] = pet.idPet.toString();

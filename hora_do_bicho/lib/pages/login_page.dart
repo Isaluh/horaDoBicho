@@ -107,7 +107,7 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
               const SizedBox(height: 20),
-              _buildTextField('Usuário', 'emailCliente', Icons.person),
+              _buildTextField('E-mail', 'emailCliente', Icons.email),
               const SizedBox(height: 15),
               _buildTextField('Senha', 'senhaCliente', Icons.lock, obscureText: true),
               SizedBox(height: 20),

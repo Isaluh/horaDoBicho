@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:hora_do_bicho/models/admin_info.dart';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
 
@@ -57,4 +58,20 @@ class UserService {
       throw Exception('Falha ao obter dados do usuário');
     }
   }
+
+  Future<AdminInfo?> getAdminInfo() async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/admin/info'),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      return AdminInfo.fromJson(jsonDecode(response.body));
+    } else if (response.statusCode == 404) {
+      return null;
+    } else {
+      throw Exception('Erro ao buscar informações do admin');
+    }
+  }
+
 }
