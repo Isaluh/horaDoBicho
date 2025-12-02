@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bambooByte.horaDoBicho.entities.AdminInfo;
 import com.bambooByte.horaDoBicho.entities.Cliente;
 import com.bambooByte.horaDoBicho.services.ClienteService;
 
@@ -34,7 +35,7 @@ public class ClienteController {
             Cliente novoCliente = clienteService.create(cliente);
             return ResponseEntity.ok(novoCliente);
         } catch (IllegalArgumentException e) {
-            // Retorna mensagem detalhada do erro de validação
+            
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -104,5 +105,22 @@ public class ClienteController {
             return ResponseEntity.status(404).body("Usuário não encontrado.");
         }
     }
+
+    @GetMapping("/admin/info")
+public ResponseEntity<?> getAdminInfo() {
+    Optional<Cliente> adminOpt = clienteService.buscarAdmin();
+
+    if (adminOpt.isPresent()) {
+        Cliente admin = adminOpt.get();
+        AdminInfo info = new AdminInfo(
+            admin.getTelefoneCliente(),
+            admin.getEnderecoCliente()
+        );
+
+        return ResponseEntity.ok(info);
+    }
+
+    return ResponseEntity.status(404).body("Administrador não encontrado.");
+}
 
 }

@@ -70,7 +70,7 @@ class Validador {
     }
 
     public StatusValidacao validaTelefone(String telefone) {
-        if (telefone == null || !telefone.matches("^[1-9][0-9]{7,8}$")) {
+        if (telefone == null || !telefone.matches("^[1-9][0-9]{10}$")) {
             return StatusValidacao.TELEFONE_INVALIDO;
         }
         return null;

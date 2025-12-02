@@ -56,4 +56,8 @@ public class ClienteService {
     public Optional<Cliente> findByEmail(String emailCliente) {
         return clienteRepository.findByEmailCliente(emailCliente);
     }
+
+    public Optional<Cliente> buscarAdmin() {
+    return clienteRepository.findFirstByPermissaoCliente(Permissao.ADMIN);
+}
 }
