@@ -33,18 +33,17 @@ class _CadastroPageState extends State<CadastroPage> {
       for (var entry in _controllers.entries) entry.key: entry.value.text,
     };
 
-
     if (_variaveis.values.any((valor) => valor.trim().isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Há campos em branco.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Há campos em branco.')));
       return;
     }
 
     if (_variaveis['senhaCliente'] != _variaveis['confirmarSenhaCliente']) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('As senhas não coincidem.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('As senhas não coincidem.')));
       return;
     }
 
@@ -53,22 +52,41 @@ class _CadastroPageState extends State<CadastroPage> {
 
     final userService = UserService();
 
-    final result = await userService.cadastrar(_variaveis);
+    try {
+      final result = await userService.cadastrar(_variaveis);
 
-    if (result != null) {
-      final prefs = await SharedPreferences.getInstance();
-      prefs.setBool('isLoggedIn', true);
-      prefs.setString('user', jsonEncode(result.toJson()));
-      bool isAdmin = result.permissaoCliente == Permissao.ADMIN;
+      if (result != null) {
+        final prefs = await SharedPreferences.getInstance();
+        prefs.setBool('isLoggedIn', true);
+        prefs.setString('user', jsonEncode(result.toJson()));
+        bool isAdmin = result.permissaoCliente == Permissao.ADMIN;
 
-      Navigator.pushReplacement(
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => LayoutPage(
+              body: CatalogoPage(isAdmin ? 'Funcionários' : 'Pets'),
+            ),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Falha ao cadastrar usuário')));
+      }
+    } catch (e) {
+      String errorMessage = 'Ocorreu um erro inesperado.';
+
+      if (e.runtimeType.toString() == "_Exception") {
+        errorMessage = e.toString()
+            .replaceAll('_', ' ')  
+            .toLowerCase();      
+
+        errorMessage = errorMessage[0].toUpperCase() + errorMessage.substring(1);
+      }
+      ScaffoldMessenger.of(
         context,
-        MaterialPageRoute(builder: (context) => LayoutPage(body: CatalogoPage(isAdmin ? 'Funcionários' : 'Pets'),)),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Falha ao cadastrar usuário')),
-      );
+      ).showSnackBar(SnackBar(content: Text('$errorMessage')));
     }
   }
 
@@ -108,15 +126,29 @@ class _CadastroPageState extends State<CadastroPage> {
                   SizedBox(height: 20),
                   _buildTextField('Usuário', 'nomeCliente', Icons.person),
                   SizedBox(height: 15),
-                  _buildTextField('CPF', 'cpfCliente', Icons.insert_emoticon_rounded),
+                  _buildTextField(
+                    'CPF',
+                    'cpfCliente',
+                    Icons.insert_emoticon_rounded,
+                  ),
                   SizedBox(height: 15),
                   _buildTextField('E-mail', 'emailCliente', Icons.email),
                   SizedBox(height: 15),
                   _buildTextField('Telefone', 'telefoneCliente', Icons.phone),
                   SizedBox(height: 15),
-                  _buildTextField('Senha', 'senhaCliente', Icons.lock, obscureText: true),
+                  _buildTextField(
+                    'Senha',
+                    'senhaCliente',
+                    Icons.lock,
+                    obscureText: true,
+                  ),
                   SizedBox(height: 15),
-                  _buildTextField('Confirmar Senha', 'confirmarSenhaCliente', Icons.lock_reset_rounded, obscureText: true),
+                  _buildTextField(
+                    'Confirmar Senha',
+                    'confirmarSenhaCliente',
+                    Icons.lock_reset_rounded,
+                    obscureText: true,
+                  ),
                   SizedBox(height: 20),
                   ElevatedButtonComponent(
                     onPressed: _cadastrar,
@@ -127,7 +159,10 @@ class _CadastroPageState extends State<CadastroPage> {
                   ),
                   SizedBox(height: 20),
                   Center(
-                    child: Image.asset("assets/images/separacao.png", width: 400,),
+                    child: Image.asset(
+                      "assets/images/separacao.png",
+                      width: 400,
+                    ),
                   ),
                   SizedBox(height: 15),
 
@@ -147,7 +182,12 @@ class _CadastroPageState extends State<CadastroPage> {
     );
   }
 
- Widget _buildTextField(String label, String key, IconData icon, {bool obscureText = false}) {
+  Widget _buildTextField(
+    String label,
+    String key,
+    IconData icon, {
+    bool obscureText = false,
+  }) {
     return Container(
       width: MediaQuery.of(context).size.width * 0.8,
       child: TextField(
@@ -167,4 +207,3 @@ class _CadastroPageState extends State<CadastroPage> {
     );
   }
 }
-

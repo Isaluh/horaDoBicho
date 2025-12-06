@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/agendamento.dart';
 
 class AgendamentosService {
-  final String baseUrl = 'http://localhost:8080/agendamentos';
+  final String baseUrl = 'https://hora-do-bicho-8p4e7ly0q-isaluhs-projects.vercel.app/agendamentos';
 
   Future<List<AgendamentoResponse>> listarAgendamentos({int? idCliente}) async {
     Uri url = idCliente != null

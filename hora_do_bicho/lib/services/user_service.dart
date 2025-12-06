@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/user.dart';
 
 class UserService {
-  final String baseUrl = 'http://localhost:8080/clientes';
+  final String baseUrl = 'https://hora-do-bicho-8p4e7ly0q-isaluhs-projects.vercel.app/clientes';
 
   Future<User?> login(String email, String senha) async {
     final response = await http.post(
@@ -30,8 +30,7 @@ class UserService {
     if (response.statusCode == 201 || response.statusCode == 200) {
       return User.fromJson(jsonDecode(response.body));
     } else {
-      print('Erro no cadastro: ${response.body}');
-      throw Exception('Falha ao cadastrar usuário (${response.statusCode})');
+      throw Exception({response.body});
     }
   }
 

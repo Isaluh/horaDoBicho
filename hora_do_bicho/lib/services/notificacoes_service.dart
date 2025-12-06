@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:hora_do_bicho/models/notificacao.dart';
 
 class NotificacaoService {
-  final String baseUrl = 'http://localhost:8080/notificacoes';
+  final String baseUrl = 'https://hora-do-bicho-8p4e7ly0q-isaluhs-projects.vercel.app/notificacoes';
 
   Future<List<Notificacao>> listarPorCliente(int idCliente) async {
     final response = await http.get(Uri.parse("$baseUrl/cliente/$idCliente"));
