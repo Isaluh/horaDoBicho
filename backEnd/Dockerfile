@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk
+FROM openjdk:17-jdk-slim
 
 COPY target/horaDoBicho-0.0.1-SNAPSHOT.jar /usr/app/horaDoBicho.jar
 
