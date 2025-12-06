@@ -45,7 +45,6 @@ class _LoginPageState extends State<LoginPage> {
         prefs.setBool('isLoggedIn', true);
         prefs.setString('user', jsonEncode(user.toJson()));
         bool isAdmin = user.permissaoCliente == Permissao.ADMIN;
-        print('$isAdmin em login');
 
         Navigator.pushReplacement(
           context,
@@ -53,13 +52,13 @@ class _LoginPageState extends State<LoginPage> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Falha ao realizar login')),
+          const SnackBar(content: Text('Usuário incorreto ou não cadastrado.')),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Erro: ${e.toString()}')));
+      ).showSnackBar(SnackBar(content: Text('Usuário incorreto ou não cadastrado.')));
     }
   }
 

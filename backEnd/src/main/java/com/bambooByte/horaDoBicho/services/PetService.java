@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.bambooByte.horaDoBicho.entities.Pet;
 import com.bambooByte.horaDoBicho.repositories.PetRepository;
 
-@Service
+@Service 
 public class PetService {
 
     @Autowired
