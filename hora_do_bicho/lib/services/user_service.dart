@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../models/user.dart';
 
 class UserService {
-  final String baseUrl = 'https://hora-do-bicho-8p4e7ly0q-isaluhs-projects.vercel.app/clientes';
+  final String baseUrl = 'https://hora-do-bicho.vercel.app/clientes';
 
   Future<User?> login(String email, String senha) async {
     final response = await http.post(

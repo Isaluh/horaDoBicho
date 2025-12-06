@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/servico.dart';
 
 class ServicosService {
-  final String baseUrl = 'https://hora-do-bicho-8p4e7ly0q-isaluhs-projects.vercel.app/servicos';
+  final String baseUrl = 'https://hora-do-bicho.vercel.app/servicos';
 
   Future<List<Servico>> listarServicos() async {
     final response = await http.get(Uri.parse(baseUrl));
