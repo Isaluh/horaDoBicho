@@ -64,6 +64,10 @@ public class PetController {
                     if (novoPet.getEspeciePet() != null) {
                         petExistente.setEspeciePet(novoPet.getEspeciePet());
                     }
+                    if (novoPet.getSexoPet() != null) {
+    petExistente.setSexoPet(novoPet.getSexoPet());
+}
+
 
                     petService.update(petExistente);
                     return ResponseEntity.ok(petExistente);

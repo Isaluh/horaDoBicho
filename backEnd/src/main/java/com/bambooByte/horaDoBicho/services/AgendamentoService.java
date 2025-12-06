@@ -49,20 +49,25 @@ public class AgendamentoService {
         Optional<Agendamento> originalOpt = agendamentoRepository.findById(agendamento.getIdAgendamento());
         Agendamento original = originalOpt.orElse(null);
 
-        boolean agendamentoRecusadoEditado = false;
-        if (original != null && original.getStatusAgendamento() == Status.RECUSADO) {
-            agendamento.setStatusAgendamento(Status.EM_ANALISE);
-            agendamentoRecusadoEditado = true;
-        }
+        boolean agendamentoEditadoPrecisaRevisao = false;
+
+if (original != null) {
+    if (original.getStatusAgendamento() == Status.RECUSADO ||
+        original.getStatusAgendamento() == Status.APROVADO) {
+
+        agendamento.setStatusAgendamento(Status.EM_ANALISE);
+        agendamentoEditadoPrecisaRevisao = true;
+    }
+}
 
         Agendamento salvo = agendamentoRepository.save(agendamento);
 
-        if (agendamentoRecusadoEditado && agendamento.getIdFuncionario() != null) {
+        if (agendamentoEditadoPrecisaRevisao && agendamento.getIdFuncionario() != null) {
             System.out.println("[LOG] Notificação enviada para admin! idFuncionario=" + agendamento.getIdFuncionario().getIdFuncionario());
             notificacaoService.criarNotificacao(
                 agendamento.getIdFuncionario().getIdFuncionario(),
                 "Agendamento para revisão",
-                "O cliente alterou um agendamento recusado. Verifique novamente.",
+                "O cliente alterou um agendamento aprovado. Verifique novamente.",
                 agendamento.getIdAgendamento()
             );
         }
@@ -101,6 +106,14 @@ public class AgendamentoService {
                     agendamento.getIdAgendamento()
                 );
             } else if (novoStatus == Status.RECUSADO) {
+                try {
+                    notificacaoService.removerNotificacoesPorAgendamentoECliente(
+                        agendamento.getIdAgendamento(),
+                        agendamento.getIdCliente().getIdCliente()
+                    );
+                } catch (Exception ex) {
+                    System.out.println("[WARN] Falha ao remover notificações antigas: " + ex.getMessage());
+                }
                 notificacaoService.criarNotificacao(
                     agendamento.getIdCliente().getIdCliente(),
                     "Agendamento Recusado",

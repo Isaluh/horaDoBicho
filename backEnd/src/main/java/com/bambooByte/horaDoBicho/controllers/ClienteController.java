@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bambooByte.horaDoBicho.entities.AdminInfo;
 import com.bambooByte.horaDoBicho.entities.Cliente;
 import com.bambooByte.horaDoBicho.services.ClienteService;
 
@@ -26,11 +27,17 @@ public class ClienteController {
     private ClienteService clienteService;
 
     @PostMapping
-    public ResponseEntity<Cliente> create(@RequestBody Cliente cliente) {
+    public ResponseEntity<?> create(@RequestBody Cliente cliente) {
         if (cliente.getEmailCliente() != null && clienteService.findByEmail(cliente.getEmailCliente()).isPresent()) {
-            return ResponseEntity.status(409).body(null); 
+            return ResponseEntity.status(409).body(null);
         }
-        return ResponseEntity.ok(clienteService.create(cliente));
+        try {
+            Cliente novoCliente = clienteService.create(cliente);
+            return ResponseEntity.ok(novoCliente);
+        } catch (IllegalArgumentException e) {
+            
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
@@ -98,5 +105,22 @@ public class ClienteController {
             return ResponseEntity.status(404).body("Usuário não encontrado.");
         }
     }
+
+    @GetMapping("/admin/info")
+public ResponseEntity<?> getAdminInfo() {
+    Optional<Cliente> adminOpt = clienteService.buscarAdmin();
+
+    if (adminOpt.isPresent()) {
+        Cliente admin = adminOpt.get();
+        AdminInfo info = new AdminInfo(
+            admin.getTelefoneCliente(),
+            admin.getEnderecoCliente()
+        );
+
+        return ResponseEntity.ok(info);
+    }
+
+    return ResponseEntity.status(404).body("Administrador não encontrado.");
+}
 
 }

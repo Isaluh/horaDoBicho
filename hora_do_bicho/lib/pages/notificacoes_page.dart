@@ -71,23 +71,28 @@ class _NotificacoesPageState extends State<NotificacoesPage> {
                     }
 
                     final notificacoes = snapshot.data ?? [];
-                    notificacoes.sort((a, b) {
-                      if (a.lida == b.lida) return 0;
-                      return a.lida ? 1 : -1;
-                    });
 
-                    if (notificacoes.isEmpty) {
+                    final naoLidas = notificacoes
+                        .where((n) => !n.lida)
+                        .toList();
+                    var lidas = notificacoes.where((n) => n.lida).toList();
+
+                    lidas = lidas.reversed.toList();
+
+                    final ordenadas = [...naoLidas, ...lidas];
+
+                    if (ordenadas.isEmpty) {
                       return const Center(
                         child: Text("Você não tem nenhuma notificação"),
                       );
                     }
 
                     return ListView.separated(
-                      itemCount: notificacoes.length,
+                      itemCount: ordenadas.length,
                       separatorBuilder: (_, __) =>
                           const Divider(height: 14, thickness: 1),
                       itemBuilder: (context, index) {
-                        final n = notificacoes[index];
+                        final n = ordenadas[index];
 
                         return ListTile(
                           shape: RoundedRectangleBorder(

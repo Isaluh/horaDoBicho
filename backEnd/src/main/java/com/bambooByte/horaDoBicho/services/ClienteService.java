@@ -30,11 +30,10 @@ public class ClienteService {
                 throw new IllegalArgumentException("Campos obrigatórios não preenchidos.");
             }
         }
-        // Comentando as validações para permitir o funcionamento sem validações
-        // List<StatusValidacao> erros = gatewayValidacao.validarCliente(cliente);
-        // if (!erros.isEmpty()) {
-        // throw new IllegalArgumentException("Erro de validação: " + erros);
-        // }
+        List<com.bambooByte.horaDoBicho.validacoes.StatusValidacao> erros = gatewayValidacao.validarCliente(cliente);
+        if (!erros.isEmpty()) {
+            throw new IllegalArgumentException("Erro de validação: " + erros);
+        }
         return clienteRepository.save(cliente);
     }
 
@@ -57,4 +56,8 @@ public class ClienteService {
     public Optional<Cliente> findByEmail(String emailCliente) {
         return clienteRepository.findByEmailCliente(emailCliente);
     }
+
+    public Optional<Cliente> buscarAdmin() {
+    return clienteRepository.findFirstByPermissaoCliente(Permissao.ADMIN);
+}
 }

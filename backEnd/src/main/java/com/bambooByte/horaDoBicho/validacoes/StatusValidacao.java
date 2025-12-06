@@ -9,7 +9,8 @@ public enum StatusValidacao {
     TELEFONE_INVALIDO("Número de telefone inserido é inválido."),
     PET_NAO_ENCONTRADO("Pet não encontrado no sistema."),
     SEM_CPF_FUNCIONARIO("Faltando CPF do funcionário na requisição."),
-    FUNCIONARIO_NAO_ENCONTRADO("Funcionário não encontrado no sistema.");
+    FUNCIONARIO_NAO_ENCONTRADO("Funcionário não encontrado no sistema."),
+    SENHA_FRACA("Senha inserida é fraca. Deve conter pelo menos 8 caracteres, incluindo maiúsculas, minúsculas, números e símbolos.");
 
     private String mensagem;
 

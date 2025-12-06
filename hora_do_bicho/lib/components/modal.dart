@@ -38,10 +38,15 @@ class _CustomFormModalState extends State<CustomFormModal> {
 
     switch (widget.formType) {
       case FormType.pet:
-        fields = ['nomePet', 'idadePet', 'especiePet', 'racaPet'];
+        fields = ['nomePet', 'idadePet', 'especiePet', 'racaPet', 'sexoPet'];
         break;
       case FormType.funcionario:
-        fields = ['nomeFuncionario', 'cpfFuncionario', 'telefoneFuncionario', 'cargoFuncionario'];
+        fields = [
+          'nomeFuncionario',
+          'cpfFuncionario',
+          'telefoneFuncionario',
+          'cargoFuncionario',
+        ];
         break;
       case FormType.servico:
         fields = ['nomeServico', 'descricaoServico', 'precoServico'];
@@ -54,6 +59,11 @@ class _CustomFormModalState extends State<CustomFormModal> {
             ? widget.initialData![field]?.toString() ?? ''
             : '',
       );
+    }
+
+    if (widget.formType == FormType.pet &&
+        (_controllers['sexoPet']!.text.isEmpty)) {
+      _controllers['sexoPet']!.text = "FEMEA";
     }
   }
 
@@ -76,7 +86,7 @@ class _CustomFormModalState extends State<CustomFormModal> {
   }
 
   String _formatarLabel(String key) {
-    String tipo = widget.formType.name; 
+    String tipo = widget.formType.name;
     tipo = tipo[0].toUpperCase() + tipo.substring(1);
 
     String label = key.replaceAll(tipo, '');
@@ -89,7 +99,54 @@ class _CustomFormModalState extends State<CustomFormModal> {
       label = 'Preço';
     }
 
+    if (label.toLowerCase().contains('sexo')) {
+      label = 'Sexo';
+    }
+
     return label;
+  }
+
+  Widget _buildSexoSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("Sexo", style: TextStyle(fontSize: 14)),
+        Column(
+          children: [
+            Row(
+              children: [
+                Radio<String>(
+                  value: "MACHO",
+                  groupValue: _controllers['sexoPet']!.text,
+                  activeColor: Color(0xFF2596be),
+                  onChanged: (value) {
+                    setState(() {
+                      _controllers['sexoPet']!.text = value!;
+                    });
+                  },
+                ),
+                const Text("Macho"),
+              ],
+            ),
+            Row(
+              children: [
+                Radio<String>(
+                  value: "FEMEA",
+                  groupValue: _controllers['sexoPet']!.text,
+                  activeColor: Color(0xFF2596be),
+                  onChanged: (value) {
+                    setState(() {
+                      _controllers['sexoPet']!.text = value!;
+                    });
+                  },
+                ),
+                const Text("Fêmea"),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
   }
 
   @override
@@ -118,35 +175,45 @@ class _CustomFormModalState extends State<CustomFormModal> {
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: _controllers.entries.map((entry) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: TextFormField(
-                  controller: entry.value,
-                  decoration: InputDecoration(
-                    labelText: _formatarLabel(entry.key),
-                    floatingLabelStyle: const TextStyle(
-                      color: Color(0xFF2596be),
+            children: [
+              ..._controllers.entries.where((e) => e.key != "sexoPet").map((
+                entry,
+              ) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: TextFormField(
+                    controller: entry.value,
+                    decoration: InputDecoration(
+                      labelText: _formatarLabel(entry.key),
+                      floatingLabelStyle: const TextStyle(
+                        color: Color(0xFF2596be),
+                      ),
+                      labelStyle: const TextStyle(fontSize: 14),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFF2596be)),
+                      ),
                     ),
-                    labelStyle: const TextStyle(fontSize: 14),
-                    focusedBorder: const UnderlineInputBorder(
-                      borderSide: BorderSide(color: Color(0xFF2596be)),
-                    ),
+                    style: const TextStyle(fontSize: 14),
+                    keyboardType: entry.key.toLowerCase().contains('preco')
+                        ? TextInputType.number
+                        : TextInputType.text,
+                    maxLines: entry.key.toLowerCase().contains('descricao')
+                        ? 2
+                        : 1,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Preencha o campo ${entry.key}';
+                      }
+                      return null;
+                    },
                   ),
-                  style: const TextStyle(fontSize: 14),
-                  keyboardType: entry.key.toLowerCase().contains('preco')
-                    ? TextInputType.number
-                    : TextInputType.text,
-                  maxLines: entry.key.toLowerCase().contains('descricao') ? 2 : 1,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Preencha o campo ${entry.key}';
-                    }
-                    return null;
-                  },
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+
+              if (widget.formType == FormType.pet) const SizedBox(height: 12),
+
+              if (widget.formType == FormType.pet) _buildSexoSelector(),
+            ],
           ),
         ),
       ),

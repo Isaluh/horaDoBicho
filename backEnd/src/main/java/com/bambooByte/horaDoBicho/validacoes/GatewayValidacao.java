@@ -18,11 +18,13 @@ public class GatewayValidacao {
 
     public List<StatusValidacao> validarCliente(Cliente novoCliente) {
         List<StatusValidacao> erros = new LinkedList<>();
-
-        erros.add(this.validador.validaCPF(novoCliente.getCpfCliente()));
-        erros.add(this.validador.validaEmail(novoCliente.getEmailCliente()));
-        erros.add(this.validador.validaTelefone(novoCliente.getTelefoneCliente()));
-
+        // Se for admin, ignora validação de CPF, telefone, email e senha
+        if (novoCliente.getPermissaoCliente() != null && !"ADMIN".equalsIgnoreCase(novoCliente.getPermissaoCliente().name())) {
+            erros.add(this.validador.validaCPF(novoCliente.getCpfCliente()));
+            erros.add(this.validador.validaEmail(novoCliente.getEmailCliente()));
+            erros.add(this.validador.validaTelefone(novoCliente.getTelefoneCliente()));
+            erros.add(this.validador.validaSenha(novoCliente.getSenhaCliente()));
+        }
         removerNulos(erros);
         return erros;
     }

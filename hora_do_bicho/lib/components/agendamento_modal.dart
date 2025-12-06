@@ -132,9 +132,7 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
           _formAgendamento['observacaoAgendamento'].text ?? '',
       'statusAgendamento': widget.isAdmin
           ? _formAgendamento['statusAgendamento']
-          : (widget.agendamento?.statusAgendamento == Status.RECUSADO
-                ? Status.RECUSADO.name
-                : Status.EM_ANALISE.name),
+          : Status.EM_ANALISE.name,
       'descricaoStatus': _formAgendamento['descricaoStatus'] != null
           ? _formAgendamento['descricaoStatus'].text
           : '',
@@ -243,6 +241,7 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
                 border: OutlineInputBorder(),
               ),
               maxLines: 2,
+              enabled: !widget.isAdmin
             ),
             const SizedBox(height: 10),
 
@@ -346,7 +345,7 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
                     fontSize: 16,
                   ),
 
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 20),
 
                   ElevatedButtonComponent(
                     onPressed: _salvar,

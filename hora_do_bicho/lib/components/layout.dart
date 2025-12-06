@@ -20,7 +20,7 @@ class LayoutPage extends StatefulWidget {
 
 class _LayoutPageState extends State<LayoutPage> {
   int _selectedIndex = 0;
-  bool isAdmin = false;
+  late bool isAdmin;
   late List<Widget> _pages;
   late Widget _currentBody;
   int? userId;
@@ -130,6 +130,7 @@ class _LayoutPageState extends State<LayoutPage> {
           ),
           child: AppBar(
             // QUERIA ADICIONAR AMOSTRAGEM NO ICONE DEQ ESTA SELECIONADO
+            // QUERIA MOSTRAR ICONE DIFERENTE SE TEM NOTIFICAÇÕES A VER
             leading: IconButton(
               icon: Icon(
                 Icons.notifications_active_outlined,

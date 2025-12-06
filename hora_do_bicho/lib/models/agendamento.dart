@@ -54,7 +54,7 @@ class Agendamento {
   }
 }
 
-enum Status { EM_ANALISE, CANCELADO, APROVADO, RECUSADO }
+enum Status { EM_ANALISE, RECUSADO, APROVADO }
 
 extension StatusExtension on Status {
   String get name => this.toString().split('.').last;

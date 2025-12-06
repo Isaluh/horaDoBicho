@@ -38,12 +38,18 @@ class _CatalogoPageState extends State<CatalogoPage> {
 
   Future<void> _initUserData() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+
     final userString = prefs.getString('user');
+
     if (userString == null) {
-      throw Exception('Usuário não encontrado no SharedPreferences');
+      throw Exception('Usuário não encontrado');
     }
 
     final userJson = jsonDecode(userString);
+
+    if (!mounted) return;
+    
     setState(() {
       userId = userJson['idCliente'];
       switch (widget.conteudo) {
@@ -172,6 +178,7 @@ class _CatalogoPageState extends State<CatalogoPage> {
                 'idadePet': pet.idadePet,
                 'especiePet': pet.especiePet,
                 'racaPet': pet.racaPet,
+                'sexoPet': pet.sexoPet.name,
               },
               onSave: (data) async {
                 data['idPet'] = pet.idPet.toString();
