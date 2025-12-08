@@ -53,6 +53,13 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
     _carregarDados();
   }
 
+  @override
+  void dispose() {
+    _formAgendamento['observacaoAgendamento']?.dispose();
+    _formAgendamento['descricaoStatus']?.dispose();
+    super.dispose();
+  }
+
   void _initForm() {
     if (widget.mode == AgendamentoFormMode.novo) {
       _formAgendamento = {
@@ -151,138 +158,149 @@ class _AgendamentoFormModalState extends State<AgendamentoFormModal> {
             ? 'Novo agendamento'
             : 'Detalhes',
       ),
-      content: SingleChildScrollView(
+      content: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.9,
+        height: MediaQuery.of(context).size.height * 0.6,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DropdownButtonFormField<int>(
-              decoration: const InputDecoration(
-                labelText: 'Selecione o pet',
-                border: OutlineInputBorder(),
-              ),
-              value: _formAgendamento['selectedPetId'],
-              items: pets
-                  .map(
-                    (pet) => DropdownMenuItem(
-                      value: pet.idPet,
-                      child: Text(pet.nomePet),
-                    ),
-                  )
-                  .toList(),
-              onChanged: widget.isAdmin
-                  ? null
-                  : (v) =>
-                        setState(() => _formAgendamento['selectedPetId'] = v),
-            ),
-            const SizedBox(height: 10),
-
-            DropdownButtonFormField<int>(
-              decoration: const InputDecoration(
-                labelText: 'Selecione o funcionário',
-                border: OutlineInputBorder(),
-              ),
-              value: _formAgendamento['selectedFuncionarioId'],
-              items: funcionarios
-                  .map(
-                    (f) => DropdownMenuItem(
-                      value: f.idFuncionario,
-                      child: Text(f.nomeFuncionario),
-                    ),
-                  )
-                  .toList(),
-              onChanged: widget.isAdmin
-                  ? null
-                  : (v) => setState(
-                      () => _formAgendamento['selectedFuncionarioId'] = v,
-                    ),
-            ),
-            const SizedBox(height: 10),
-
-            const Text(
-              'Serviços:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 120,
-              child: ListView(
-                children: servicos.map((s) {
-                  return CheckboxListTile(
-                    title: Text(s.nomeServico),
-                    dense: true,
-                    contentPadding: EdgeInsets.zero,
-                    value: _formAgendamento['selectedServicos'].contains(
-                      s.idServico,
-                    ),
-                    onChanged: widget.isAdmin
-                        ? null
-                        : (checked) {
-                            setState(() {
-                              if (checked == true) {
-                                _formAgendamento['selectedServicos'].add(
-                                  s.idServico,
-                                );
-                              } else {
-                                _formAgendamento['selectedServicos'].remove(
-                                  s.idServico,
-                                );
-                              }
-                            });
-                          },
-                  );
-                }).toList(),
-              ),
-            ),
-
-            TextFormField(
-              controller: _formAgendamento['observacaoAgendamento'],
-              decoration: const InputDecoration(
-                labelText: 'Observação',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 2,
-              enabled: !widget.isAdmin
-            ),
-            const SizedBox(height: 10),
-
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    DropdownButtonFormField<int>(
+                      decoration: const InputDecoration(
+                        labelText: 'Selecione o pet',
+                        border: OutlineInputBorder(),
                       ),
-                      side: const BorderSide(color: Color(0xFF6B3E26)),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
+                      value: _formAgendamento['selectedPetId'],
+                      items: pets
+                          .map(
+                            (pet) => DropdownMenuItem(
+                              value: pet.idPet,
+                              child: Text(pet.nomePet),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: widget.isAdmin
+                          ? null
+                          : (v) => setState(
+                              () => _formAgendamento['selectedPetId'] = v,
+                            ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    DropdownButtonFormField<int>(
+                      decoration: const InputDecoration(
+                        labelText: 'Selecione o funcionário',
+                        border: OutlineInputBorder(),
                       ),
-                      iconColor: Color(0xFF6B3E26),
-                      foregroundColor: Color(0xFF6B3E26),
+                      value: _formAgendamento['selectedFuncionarioId'],
+                      items: funcionarios
+                          .map(
+                            (f) => DropdownMenuItem(
+                              value: f.idFuncionario,
+                              child: Text(f.nomeFuncionario),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: widget.isAdmin
+                          ? null
+                          : (v) => setState(
+                              () =>
+                                  _formAgendamento['selectedFuncionarioId'] = v,
+                            ),
                     ),
-                    icon: const Icon(Icons.access_time),
-                    label: Text(
-                      _formAgendamento['selectedHora'] == null
-                          ? 'Selecionar hora'
-                          : _formAgendamento['selectedHora'].format(context),
+                    const SizedBox(height: 10),
+
+                    const Text(
+                      'Serviços:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    onPressed: widget.isAdmin
-                        ? null
-                        : () async {
-                            final hora = await showTimePicker(
-                              context: context,
-                              initialTime: TimeOfDay.now(),
-                            );
-                            if (hora != null) {
-                              setState(() {
-                                _formAgendamento['selectedHora'] = hora;
-                              });
-                            }
-                          },
-                  ),
+                    SizedBox(
+                      height: 120,
+                      child: ListView(
+                        children: servicos.map((s) {
+                          return CheckboxListTile(
+                            title: Text(s.nomeServico),
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                            value: _formAgendamento['selectedServicos']
+                                .contains(s.idServico),
+                            onChanged: widget.isAdmin
+                                ? null
+                                : (checked) {
+                                    setState(() {
+                                      if (checked == true) {
+                                        _formAgendamento['selectedServicos']
+                                            .add(s.idServico);
+                                      } else {
+                                        _formAgendamento['selectedServicos']
+                                            .remove(s.idServico);
+                                      }
+                                    });
+                                  },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+
+                    TextFormField(
+                      controller: _formAgendamento['observacaoAgendamento'],
+                      decoration: const InputDecoration(
+                        labelText: 'Observação',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 2,
+                      enabled: !widget.isAdmin,
+                    ),
+                    const SizedBox(height: 10),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              side: const BorderSide(color: Color(0xFF6B3E26)),
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 16,
+                              ),
+                              iconColor: Color(0xFF6B3E26),
+                              foregroundColor: Color(0xFF6B3E26),
+                            ),
+                            icon: const Icon(Icons.access_time),
+                            label: Text(
+                              _formAgendamento['selectedHora'] == null
+                                  ? 'Selecionar hora'
+                                  : _formAgendamento['selectedHora'].format(
+                                      context,
+                                    ),
+                            ),
+                            onPressed: widget.isAdmin
+                                ? null
+                                : () async {
+                                    final hora = await showTimePicker(
+                                      context: context,
+                                      initialTime: TimeOfDay.now(),
+                                    );
+                                    if (hora != null) {
+                                      setState(() {
+                                        _formAgendamento['selectedHora'] = hora;
+                                      });
+                                    }
+                                  },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ],
         ),

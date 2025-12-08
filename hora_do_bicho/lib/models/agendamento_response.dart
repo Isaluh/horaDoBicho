@@ -14,7 +14,7 @@ class AgendamentoResponse {
   final String? descricaoStatus;
   final String? observacaoAgendamento;
   final Status statusAgendamento;
-  final int? valorTotal;
+  final double? valorTotal;
 
   AgendamentoResponse({
     required this.idAgendamento,
@@ -42,7 +42,9 @@ class AgendamentoResponse {
       descricaoStatus: json['descricaoStatus'],
       observacaoAgendamento: json['observacaoAgendamento'],
       statusAgendamento: StatusExtension.fromString(json['statusAgendamento']),
-      valorTotal: json['valorTotal']
+      valorTotal: (json['valorTotal'] != null)
+          ? (json['valorTotal'] as num).toDouble()
+          : null,
     );
   }
 }
