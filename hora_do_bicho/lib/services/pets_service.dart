@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/pet.dart';
 
 class PetsService {
-  final String baseUrl = 'https://hora-do-bicho.vercel.app/pets';
+  final String baseUrl = 'https://horadobicho.onrender.com/pets';
 
   Future<List<Pet>> listarPets(int userId) async {
     final response = await http.get(Uri.parse('$baseUrl/idCliente?idCliente=$userId'));
