@@ -5,6 +5,9 @@ WORKDIR /app
 
 COPY . .
 
+RUN chmod +x mvnw
+RUN chmod -R +x .mvn
+
 RUN ./mvnw -q clean package -DskipTests
 
 # Stage 2 — imagem final
