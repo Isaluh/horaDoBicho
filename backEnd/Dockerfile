@@ -1,5 +1,5 @@
 # Stage 1 — build do projeto
-FROM eclipse-temurin:20-jdk AS build
+FROM eclipse-temurin:17-jdk AS build
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ RUN chmod -R +x .mvn
 RUN ./mvnw -q clean package -DskipTests
 
 # Stage 2 — imagem final
-FROM eclipse-temurin:20-jre
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
